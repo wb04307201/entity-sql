@@ -26,23 +26,26 @@ class ExecuteSqlUtilsTest {
 
         // 判断表是否存在
         Boolean check = ExecuteSqlUtils.isTableExists(connection, "test_user".toUpperCase());
-        // 通过MutilConnectionPool.run检查表是否存在
-        check = MutilConnectionPool.run("test", conn -> ExecuteSqlUtils.isTableExists(conn, "test_user".toUpperCase()));
+        if(check){
+            ExecuteSqlUtils.executeUpdate(connection, "drop table test_user");
+        }
+        ExecuteSqlUtils.executeUpdate(connection, "create table test_user (id VARCHAR(200),user_name VARCHAR(20),department VARCHAR(200),birth DATE,age NUMBER(10),amount NUMBER(10,2),status VARCHAR(1))");
 
         Map<Integer, Object> params = new HashMap<>();
         params.put(1, "123123");
+        ExecuteSqlUtils.executeUpdate(connection, "INSERT INTO test_user (user_name) VALUES (?)", params);
+
+        params = new HashMap<>();
+        params.put(1, "321123");
         // 执行插入、更新的sql语句
         int count = ExecuteSqlUtils.executeUpdate(connection, "update test_user set user_name = ?", params);
-        count = MutilConnectionPool.run("test", conn -> ExecuteSqlUtils.executeUpdate(conn, "update test_user set user_name = ?", params));
 
         // 执行查询的sql语句
-        List<Map<String, Object>> list = ExecuteSqlUtils.executeQuery(connection, "select * from test_user where user_name = ?", params, new TypeReference<Map<String, Object>>() {
+        List<Map<String, Object>> list = ExecuteSqlUtils.executeQuery(connection, "select * from test_user where user_name = ?", params, new TypeReference<>() {
         });
-        list = MutilConnectionPool.run("test", conn -> ExecuteSqlUtils.executeQuery(conn, "select * from test_user where user_name = ?", params, new TypeReference<Map<String, Object>>() {
-        }));
 
         // 执行删除的sql语句
-        MutilConnectionPool.run("test", conn -> ExecuteSqlUtils.executeUpdate(conn, "delete from test_user where user_name = ?", params));
+        ExecuteSqlUtils.executeUpdate(connection, "delete from test_user where user_name = ?", params);
 
         connection.close();
     }

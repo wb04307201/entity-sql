@@ -45,7 +45,7 @@
 <dependency>
     <groupId>com.gitee.wb04307201</groupId>
     <artifactId>sql-util</artifactId>
-    <version>1.3.7</version>
+    <version>1.3.8</version>
 </dependency>
 ```
 
@@ -72,27 +72,30 @@
         MutilConnectionPool.init("test", "jdbc:h2:file:./data/demo;AUTO_SERVER=TRUE", "sa", "");
         }
 
-        Connection connection = MutilConnectionPool.getConnection("test");
+Connection connection = MutilConnectionPool.getConnection("test");
 
-        // 判断表是否存在
-        Boolean check = ExecuteSqlUtils.isTableExists(connection, "test_user");
-        // 通过MutilConnectionPool.run检查表是否存在
-        check = MutilConnectionPool.run("test", conn -> ExecuteSqlUtils.isTableExists(conn, "test_user"));
+// 判断表是否存在
+Boolean check = ExecuteSqlUtils.isTableExists(connection, "test_user".toUpperCase());
+        if(check){
+        ExecuteSqlUtils.executeUpdate(connection, "drop table test_user");
+        }
+                ExecuteSqlUtils.executeUpdate(connection, "create table test_user (id VARCHAR(200),user_name VARCHAR(20),department VARCHAR(200),birth DATE,age NUMBER(10),amount NUMBER(10,2),status VARCHAR(1))");
 
-        Map<Integer, Object> params = new HashMap<>();
+Map<Integer, Object> params = new HashMap<>();
         params.put(1, "123123");
-        // 执行插入、更新的sql语句
-        int count = ExecuteSqlUtils.executeUpdate(connection, "update test_user set user_name = ?", params);
-        count = MutilConnectionPool.run("test", conn -> ExecuteSqlUtils.executeUpdate(conn, "update test_user set user_name = ?", params));
+        ExecuteSqlUtils.executeUpdate(connection, "INSERT INTO test_user (user_name) VALUES (?)", params);
 
-        // 执行查询的sql语句
-        List<Map<String, Object>> list = ExecuteSqlUtils.executeQuery(connection, "select * from test_user where user_name = ?", params, new TypeReference<Map<String, Object>>() {
-        });
-        list = MutilConnectionPool.run("test", conn -> ExecuteSqlUtils.executeQuery(conn, "select * from test_user where user_name = ?", params, new TypeReference<Map<String, Object>>() {
-        }));
+params = new HashMap<>();
+        params.put(1, "321123");
+// 执行插入、更新的sql语句
+int count = ExecuteSqlUtils.executeUpdate(connection, "update test_user set user_name = ?", params);
 
-        // 执行删除的sql语句
-        MutilConnectionPool.run("test", conn -> ExecuteSqlUtils.executeUpdate(conn, "delete from test_user where user_name = ?", params));
+// 执行查询的sql语句
+List<Map<String, Object>> list = ExecuteSqlUtils.executeQuery(connection, "select * from test_user where user_name = ?", params, new TypeReference<>() {
+});
+
+// 执行删除的sql语句
+        ExecuteSqlUtils.executeUpdate(connection, "delete from test_user where user_name = ?", params);
 
         connection.close();
 ```
@@ -141,56 +144,66 @@ public class User {
 ```java
         // 判断数据源是否加载
         if (Boolean.FALSE.equals(MutilConnectionPool.check("test"))) {
-            // 加载数据源
-            MutilConnectionPool.init("test", "jdbc:h2:file:./data/demo;AUTO_SERVER=TRUE", "sa", "");
+        // 加载数据源
+        MutilConnectionPool.init("test", "jdbc:h2:file:./data/demo;AUTO_SERVER=TRUE", "sa", "");
         }
-        SQL<User> userSQL = new SQL<User>(){};
-        // 判断表是否存在
-        if(Boolean.TRUE.equals(MutilConnectionPool.run("test",conn -> userSQL.isTableExists(conn)))){
-            // 删除表
-            MutilConnectionPool.run("test",conn -> userSQL.drop().dropTable(conn));
+SQL<User> userSQL = new SQL<User>() {
+};
+// 判断表是否存在
+        if (Boolean.TRUE.equals(MutilConnectionPool.run("test", conn -> userSQL.isTableExists(conn)))) {
+        // 删除表
+        MutilConnectionPool.run("test", conn -> userSQL.drop().dropTable(conn));
         }
         // 创建表
-        MutilConnectionPool.run("test",conn -> userSQL.create().createTable(conn));
-        // 插入数据
-        MutilConnectionPool.run("test",conn -> userSQL.insert().addSet("user_name","11111").executeUpdate(conn));
-        // 更新数据
-        MutilConnectionPool.run("test",conn -> userSQL.update().addSet("user_name","22222").addWhereEQ("user_name","11111").executeUpdate(conn));
-        // 查询数据
-        List<User> userList = MutilConnectionPool.run("test",conn -> userSQL.select().addWhereEQ("user_name","22222").executeQuery(conn));
-        // 删除数据
-        MutilConnectionPool.run("test",conn -> userSQL.delete().addWhereEQ("user_name","22222").executeUpdate(conn));
+        MutilConnectionPool.run("test", conn -> userSQL.create().createTable(conn));
+        Assertions.assertEquals(true, MutilConnectionPool.check("test"));
+// 插入数据
+int count = MutilConnectionPool.run("test", conn -> userSQL.insert().addSet("user_name", "11111").executeUpdate(conn));
+        Assertions.assertEquals(count, 1);
+// 更新数据
+count = MutilConnectionPool.run("test", conn -> userSQL.update().addSet("user_name", "22222").addWhereEQ("user_name", "11111").executeUpdate(conn));
+        Assertions.assertEquals(count, 1);
+// 查询数据
+List<User> userList = MutilConnectionPool.run("test", conn -> userSQL.select().addWhereEQ("user_name", "22222").executeQuery(conn));
+        Assertions.assertEquals(userList.size(), 1);
+// 删除数据
+count = MutilConnectionPool.run("test", conn -> userSQL.delete().addWhereEQ("user_name", "22222").executeUpdate(conn));
+        Assertions.assertEquals(count, 1);
 ```
 
 #### ModelSqlUtils使用示例
 ```java
         // 判断数据源是否加载
         if (Boolean.FALSE.equals(MutilConnectionPool.check("test"))) {
-            // 加载数据源
-            MutilConnectionPool.init("test", "jdbc:h2:file:./data/demo;AUTO_SERVER=TRUE", "sa", "");
+        // 加载数据源
+        MutilConnectionPool.init("test", "jdbc:h2:file:./data/demo;AUTO_SERVER=TRUE", "sa", "");
         }
 
-        User user = new User();
-        // 判断表是否存在
+User user = new User();
+// 判断表是否存在
         if (MutilConnectionPool.run("test", conn -> ModelSqlUtils.SQL(user).isTableExists(conn))) {
-            // 删除表
-            MutilConnectionPool.run("test", conn -> ModelSqlUtils.dropSql(user).dropTable(conn));
+        // 删除表
+        MutilConnectionPool.run("test", conn -> ModelSqlUtils.dropSql(user).dropTable(conn));
         }
         // 创建表
         MutilConnectionPool.run("test", conn -> ModelSqlUtils.createSql(user).createTable(conn));
         // 插入数据
         user.setUserName("112233");
-        MutilConnectionPool.run("test", conn -> ModelSqlUtils.insertSql(user).executeUpdate(conn));
-        // 查询数据
-        List<User> userList = MutilConnectionPool.run("test", conn -> ModelSqlUtils.selectSql(user).executeQuery(conn));
+int count = MutilConnectionPool.run("test", conn -> ModelSqlUtils.saveSql(user).executeUpdate(conn));
+        Assertions.assertEquals(count, 1);
+// 查询数据
+List<User> userList = MutilConnectionPool.run("test", conn -> ModelSqlUtils.selectSql(user).executeQuery(conn));
+        Assertions.assertEquals(userList.size(), 1);
         user.setId(userList.get(0).getId());
         user.setUserName("332211");
-        // 更新数据
-        MutilConnectionPool.run("test", conn -> ModelSqlUtils.updateSql(user).executeUpdate(conn));
-        // 可以使用 ModelSqlUtils.insertSql(user)强行插入数据
-        // 可以使用 ModelSqlUtils.updateSql(user)强行更新数据
-        // 删除数据
-        MutilConnectionPool.run("test", conn -> ModelSqlUtils.deleteSql(user).executeUpdate(conn));
+// 更新数据
+count = MutilConnectionPool.run("test", conn -> ModelSqlUtils.saveSql(user).executeUpdate(conn));
+        Assertions.assertEquals(count, 1);
+// 可以使用 ModelSqlUtils.insertSql(user)强行插入数据
+// 可以使用 ModelSqlUtils.updateSql(user)强行更新数据
+// 删除数据
+count = MutilConnectionPool.run("test", conn -> ModelSqlUtils.deleteSql(user).executeUpdate(conn));
+        Assertions.assertEquals(count, 1);
 ```
 
 #### EntityWeb使用示例

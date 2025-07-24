@@ -1,7 +1,7 @@
 package cn.wubo.sql.util;
 
 import cn.wubo.sql.util.exception.ConnectionPoolException;
-import cn.wubo.sql.util.utils.StringUtils;
+import cn.wubo.sql.util.utils.ArgUtils;
 import com.alibaba.druid.pool.DruidDataSource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -95,7 +95,7 @@ public class MutilConnectionPool {
      */
     public static synchronized Boolean check(String key) {
         // 检查key是否为空
-        StringUtils.isEmpty("key", key);
+        ArgUtils.isEmpty("key", key);
         // 检查key是否存在于缓存池中
         return poolMap.containsKey(key);
     }
@@ -110,9 +110,9 @@ public class MutilConnectionPool {
      */
     public static synchronized void init(String key, String url, String username, String password) {
         // 参数有效性检查
-        StringUtils.isEmpty("key", key);
+        ArgUtils.isEmpty("key", key);
         // 参数有效性检查
-        StringUtils.isEmpty("url, username", url, username);
+        ArgUtils.isEmpty("url, username", url, username);
         // 创建DruidDataSource对象
         DruidDataSource druidDataSource = new DruidDataSource();
         druidDataSource.setUrl(url); // 设置数据库URL
@@ -129,35 +129,37 @@ public class MutilConnectionPool {
     }
 
     /**
-     * 初始化连接池
-     *
-     * @param key        连接池的key
-     * @param datasource 数据源
-     */
-    public static synchronized void init(String key, DataSource datasource) {
-        StringUtils.isEmpty("key", key);
-        // 将数据源存入map中
-        poolMap.putIfAbsent(key, datasource);
-    }
+ * 初始化连接池
+ *
+ * @param key        连接池的key
+ * @param datasource 数据源
+ */
+public static void init(String key, DataSource datasource) {
+    ArgUtils.isEmpty("key", key);
+    // 将数据源存入map中
+    poolMap.putIfAbsent(key, datasource);
+}
 
-    /**
+
+        /**
      * 获取连接
      *
      * @param key 连接池的键
      * @return 数据库连接
      */
-    public static synchronized Connection getConnection(String key) {
+    public static Connection getConnection(String key) {
         // 检查参数是否为空
-        StringUtils.isEmpty("key", key);
+        ArgUtils.isEmpty("key", key);
 
         // 检查连接池是否已初始化
-        if (poolMap.containsKey(key)) {
+        DataSource ds = poolMap.get(key);
+        if (ds != null) {
             try {
                 // 获取连接
-                return poolMap.get(key).getConnection();
+                return ds.getConnection();
             } catch (SQLException e) {
                 // 抛出异常
-                throw new ConnectionPoolException(e.getMessage(), e);
+                throw new ConnectionPoolException("获取数据库连接失败", e);
             }
         } else {
             // 抛出异常
@@ -165,19 +167,29 @@ public class MutilConnectionPool {
         }
     }
 
+
     /**
      * 根据给定的键移除连接池中的连接
      *
      * @param key 键值，用于标识特定的连接池。此键用于在连接池映射中定位到特定的连接池资源。
      * @throws ConnectionPoolException 如果关闭连接池时发生异常，会抛出此异常。
      */
-    public static synchronized void remove(String key) {
-        // 检查连接池映射中是否存在指定的键
-        if (poolMap.containsKey(key)) {
-            // 从映射中获取到对应的连接池资源
-            DataSource ds = poolMap.get(key);
+    public static void remove(String key) {
+        DataSource ds = null;
+        synchronized (poolMap) {
+            // 检查连接池映射中是否存在指定的键
+            if (poolMap.containsKey(key)) {
+                // 从映射中获取到对应的连接池资源
+                ds = poolMap.get(key);
+                // 从连接池映射中移除指定的键值对，完成连接池的移除操作。
+                poolMap.remove(key);
+            }
+        }
+
+        if (ds != null) {
             // 检查DataSource是否实现了AutoCloseable接口，以支持资源的自动释放
-            if (ds instanceof AutoCloseable ac) {
+            if (ds instanceof AutoCloseable) {
+                AutoCloseable ac = (AutoCloseable) ds;
                 try {
                     // 安全关闭连接池，释放资源。这是移除连接池前的重要步骤。
                     ac.close();
@@ -186,10 +198,9 @@ public class MutilConnectionPool {
                     throw new ConnectionPoolException(e.getMessage(), e);
                 }
             }
-            // 从连接池映射中移除指定的键值对，完成连接池的移除操作。
-            poolMap.remove(key);
         }
     }
+
 
     /**
      * 清空连接池中的所有连接。
@@ -200,6 +211,9 @@ public class MutilConnectionPool {
      * @无返回值
      */
     public static synchronized void clear() {
+        // 记录清理过程中发生的异常
+        Exception lastException = null;
+
         // 遍历连接池中的所有键值对，尝试关闭每个数据源
         for (Map.Entry<String, DataSource> entry : poolMap.entrySet()) {
             // 关闭连接池
@@ -207,14 +221,21 @@ public class MutilConnectionPool {
                 try {
                     ac.close();
                 } catch (Exception e) {
-                    // 抛出连接池异常，封装原始异常信息
-                    throw new ConnectionPoolException(e.getMessage(), e);
+                    // 记录异常但继续处理其他连接
+                    lastException = e;
                 }
             }
         }
+
         // 清空连接池，准备接收新的连接
         poolMap.clear();
+
+        // 如果有异常发生，抛出连接池异常
+        if (lastException != null) {
+            throw new ConnectionPoolException("清理连接池时发生异常", lastException);
+        }
     }
+
 
     /**
      * 在数据库连接上执行Function函数
