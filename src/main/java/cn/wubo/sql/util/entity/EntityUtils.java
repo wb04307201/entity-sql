@@ -5,7 +5,7 @@ import cn.wubo.sql.util.cache.MemoryCache;
 import cn.wubo.sql.util.exception.ModelSqlException;
 import cn.wubo.sql.util.exception.TableModelException;
 import cn.wubo.sql.util.utils.MapUtils;
-import cn.wubo.sql.util.utils.StringUtils;
+import cn.wubo.sql.util.utils.ArgUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -42,7 +42,7 @@ public class EntityUtils {
             if (tableAnnOpt.isPresent()) {
                 // 如果存在@Table注解，解析注解信息创建表模型
                 Table table = (Table) tableAnnOpt.get();
-                tableModel = new TableModel(table.value(), StringUtils.defaultValue(table.desc(), clazz.getSimpleName()), table.init()).setDs(table.ds());
+                tableModel = new TableModel(table.value(), ArgUtils.defaultValue(table.desc(), clazz.getSimpleName()), table.init()).setDs(table.ds());
             } else {
                 // 如果没有@Table注解，使用类名作为默认表名和描述
                 tableModel = new TableModel(clazz.getSimpleName(), clazz.getSimpleName(), true);
@@ -99,8 +99,7 @@ public class EntityUtils {
      * @return 字段的值，经过适当格式化处理
      * @throws ModelSqlException 如果访问字段时发生异常
      */
-    public static <T> Object getValue(Field field, T data) {
-        try {
+    public static <T> Object getValue(Field field, T data) throws IllegalAccessException {
             field.setAccessible(true);  // 允许访问私有字段
             Object obj = field.get(data); // 获取字段的值
             if (obj != null) {
@@ -114,10 +113,6 @@ public class EntityUtils {
                 // 字段值为空时返回null
                 return null;
             }
-        } catch (IllegalAccessException e) {
-            // 访问字段发生异常时，抛出ModelSqlException
-            throw new ModelSqlException(e);
-        }
     }
 
     /**

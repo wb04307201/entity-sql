@@ -31,7 +31,7 @@ public class SQL<T> {
     private List<String> columns = new ArrayList<>();
     private List<Set> sets = new ArrayList<>();
     private List<Where> wheres = new ArrayList<>();
-    private AtomicInteger atomicInteger;
+    private AtomicInteger atomicInteger = new AtomicInteger(0);
     private DbType dbType;
     private List<String> sqls;
     private Map<Integer, Object> params = new HashMap<>();
@@ -425,7 +425,11 @@ public class SQL<T> {
      * @return SQL<T> 返回解析后的SQL对象。
      */
     private SQL<T> parse() {
-        atomicInteger = new AtomicInteger(0);
+        if (statementType == null) {
+            throw new IllegalArgumentException("statementType cannot be null");
+        }
+
+        atomicInteger.set(0); // 重设为0
         switch (statementType) { // 根据语句类型执行相应的解析方法
             case SELECT:
                 selectSQL();
@@ -446,7 +450,7 @@ public class SQL<T> {
                 dropSQL();
                 break;
             default:
-                // 如果没有匹配到任何类型，可能需要处理默认情况，此例中没有提供默认处理逻辑
+                throw new UnsupportedOperationException("Unsupported statement type: " + statementType);
         }
         return this; // 返回当前SQL对象实例，允许链式调用
     }
@@ -465,27 +469,41 @@ public class SQL<T> {
      * 9. 将构建好的SQL语句添加到sqls列表中。
      */
     private void selectSQL() {
+        // 初始化SQL构建器
         StringBuilder sb = new StringBuilder();
-        // 获取表信息
+        // 获取实体类对应的表信息
         TableModel tableModel = EntityUtils.getTable(clazz);
-        // 添加SELECT语句的类型
+        // 添加SELECT关键字
         sb.append(statementType.getValue());
-        // 如果columns不为空，则遍历columns列表，将每个字段名添加到sb中，并在每个字段名后面添加逗号
-        if (!columns.isEmpty()) columns.forEach(str -> sb.append(str).append(","));
-            // 如果columns为空，则添加"*"和逗号
-        else sb.append("*,");
-        // 删除最后一个逗号，并添加FROM和table
+        // 添加需要查询的字段列表
+        if (!columns.isEmpty()) {
+            // 遍历字段列表，依次添加到SQL中
+            columns.forEach(str -> sb.append(str).append(","));
+        } else {
+            // 若未指定字段，默认查询所有字段
+            sb.append("*,");
+        }
+        // 删除末尾多余的逗号并拼接FROM子句
         sb.delete(sb.length() - 1, sb.length()).append(" FROM ").append(tableModel.getName());
-        // 添加WHERE语句
+        // 添加WHERE条件子句
         whereSQL(sb);
         String sql = sb.toString();
-        // 根据dbType转换SQL字符串
-        if (dbType != null) sql = SQLUtils.toSQLString(SQLUtils.parseStatements(sb.toString(), dbType), dbType);
-        // 应用分页限制
-        if (offset != null && count != null) sql = PagerUtils.limit(sql, dbType, offset, count);
-        // 将构建好的SQL语句添加到集合中
+        // 根据数据库类型转换SQL语法格式
+        if (dbType != null) {
+            sql = SQLUtils.toSQLString(SQLUtils.parseStatements(sb.toString(), dbType), dbType);
+        }
+        // 处理分页逻辑
+        if (offset != null && count != null) {
+            // 分页时必须指定数据库类型
+            if (dbType == null) {
+                throw new SQLRuntimeException("设置分页时未找到数据库类型！");
+            }
+            sql = PagerUtils.limit(sql, dbType, offset, count);
+        }
+        // 将最终生成的SQL语句加入结果集合
         sqls.add(sql);
     }
+
 
     /**
      * 根据给定的where条件列表生成SQL WHERE子句。
@@ -732,10 +750,14 @@ public class SQL<T> {
      * @throws SQLRuntimeException 如果在设置分页前未使用dialect设置数据库类型，或者在非查询模式下调用此方法，将抛出异常。
      */
     public SQL<T> page(int offset, int count) {
-        // 检查数据库类型是否已设置
-        if (dbType == null) dialect();
-        if (dbType == null) throw new SQLRuntimeException("设置分页前，请使用dialect设置数据库类型!");
-        if (statementType != StatementType.SELECT) throw new SQLRuntimeException("非查询模式，不能调用page方法！");
+        // 校验参数合法性
+        if (offset < 0) {
+            throw new SQLRuntimeException("分页偏移量不能为负数！");
+        }
+        if (count < 0) {
+            throw new SQLRuntimeException("每页显示数量不能为负数！");
+        }
+
         this.offset = offset;
         this.count = count;
         return this;
@@ -749,13 +771,7 @@ public class SQL<T> {
      * @throws SQLRuntimeException 如果当前操作非查询模式，即statementType不为SELECT，抛出此异常。
      */
     public List<T> executeQuery(Connection connection) {
-        // 检查当前操作是否为查询模式
-        if (statementType != StatementType.SELECT)
-            throw new SQLRuntimeException("非查询模式，不能调用executeQuery方法！");
-
-        // 初始化数据库类型，如果还未设置
-        if (dbType == null) dialect();
-        if (dbType == null) dialect(connection);
+        checkTypenAndInitDialect(statementType != StatementType.SELECT, "非查询模式，不能调用executeQuery方法！", connection);
 
         // 解析查询语句及相关参数
         parse();
@@ -772,14 +788,7 @@ public class SQL<T> {
      * @throws SQLRuntimeException 如果当前操作模式不是新增、更新、删除，则抛出异常。
      */
     public int executeUpdate(Connection connection) {
-        // 检查操作类型是否为新增、更新或删除，否则抛出异常
-        if (statementType != StatementType.INSERT && statementType != StatementType.UPDATE && statementType != StatementType.DELETE)
-            throw new SQLRuntimeException("非新增、更新、删除模式，不能调用executeUpdate方法！");
-
-        // 如果数据库类型未设置，则自动识别数据库类型
-        if (dbType == null) dialect();
-        // 如果仍未设置数据库类型，则通过连接自动识别
-        if (dbType == null) dialect(connection);
+        checkTypenAndInitDialect(statementType != StatementType.INSERT && statementType != StatementType.UPDATE && statementType != StatementType.DELETE, "非新增、更新、删除模式，不能调用executeUpdate方法！", connection);
 
         // 解析SQL语句
         parse();
@@ -789,47 +798,78 @@ public class SQL<T> {
     }
 
     /**
-     * 判断表是否存在
+     * 检查数据库中是否存在指定的表
      *
-     * @param connection 数据库连接
-     * @return 存在返回true，否则返回false
+     * @param connection 数据库连接对象
+     * @return 如果表存在返回true，否则返回false
      */
     public Boolean isTableExists(Connection connection) {
         // 获取表信息
         TableModel tableModel = EntityUtils.getTable(clazz);
         String tableName = tableModel.getName();
+
+        // 确保数据库类型已初始化
         if (dbType == null) dialect();
         if (dbType == null) dialect(connection);
-        if (dbType.equals(DbType.h2) || dbType.equals(DbType.dm)) tableName = tableName.toUpperCase();
+
+        // 根据数据库类型调整表名大小写
+        if (dbType != null && (dbType.equals(DbType.h2) || dbType.equals(DbType.dm)))
+            tableName = tableName.toUpperCase();
         else tableName = tableName.toLowerCase();
+
         return ExecuteSqlUtils.isTableExists(connection, tableName);
     }
 
+
     /**
-     * 创建表
+     * 创建数据表
      *
-     * @param connection 数据库连接
-     * @return 创建成功返回0，否则返回-1
+     * @param connection 数据库连接对象
+     * @return 执行结果，返回影响的行数
+     * @throws SQLRuntimeException 当前语句类型不是CREATE时抛出异常
      */
     public int createTable(Connection connection) {
-        if (statementType != StatementType.CREATE) throw new SQLRuntimeException("非建表模式，不能调用createTable方法！");
-        if (dbType == null) dialect();
-        if (dbType == null) dialect(connection);
+        checkTypenAndInitDialect(statementType != StatementType.CREATE, "非建表模式，不能调用createTable方法！", connection);
+
+        // 解析SQL语句
         parse();
+
+        // 执行SQL更新操作
         return ExecuteSqlUtils.executeUpdate(connection, this.sqls);
     }
 
+
     /**
-     * 删除表
+     * 删除数据库表
      *
-     * @param connection 数据库连接
-     * @return 删除成功返回0，否则返回-1
+     * @param connection 数据库连接对象
+     * @return 执行删除操作影响的行数
+     * @throws SQLRuntimeException 当前语句类型不是DROP类型时抛出异常
      */
     public int dropTable(Connection connection) {
-        if (statementType != StatementType.DROP) throw new SQLRuntimeException("非删表模式，不能调用dropTable方法！");
-        if (dbType == null) dialect();
-        if (dbType == null) dialect(connection);
+        checkTypenAndInitDialect(statementType != StatementType.DROP, "非删表模式，不能调用dropTable方法！", connection);
+
+        // 解析SQL语句
         parse();
+        // 执行删除表的SQL语句
         return ExecuteSqlUtils.executeUpdate(connection, this.sqls.get(0));
     }
+
+    /**
+     * 检查类型并初始化数据库方言
+     *
+     * @param condition  条件判断，如果为true则抛出异常
+     * @param messzage   异常消息内容
+     * @param connection 数据库连接对象，用于获取数据库方言
+     */
+    private void checkTypenAndInitDialect(Boolean condition, String messzage, Connection connection) {
+        // 检查语句类型
+        if (condition) throw new SQLRuntimeException(messzage);
+
+        // 获取数据库方言类型
+        if (dbType == null) dialect();
+        if (dbType == null && connection != null) dialect(connection);
+    }
+
+
 }

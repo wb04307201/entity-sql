@@ -9,7 +9,7 @@ import cn.wubo.sql.util.enums.EditType;
 import cn.wubo.sql.util.enums.GenerationType;
 import cn.wubo.sql.util.enums.StatementCondition;
 import cn.wubo.sql.util.exception.EntityWebException;
-import cn.wubo.sql.util.utils.StringUtils;
+import cn.wubo.sql.util.utils.ArgUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -91,7 +91,7 @@ public class TableModel {
             if (columnAnnOpt.isPresent()) {
                 Column column = (Column) columnAnnOpt.get();
                 this.columnName = column.value();
-                this.desc = StringUtils.defaultValue(column.desc(), field.getName());
+                this.desc = ArgUtils.defaultValue(column.desc(), field.getName());
                 this.type = column.type().getValue();
                 this.definition = this.type;
                 this.sort = column.sort();

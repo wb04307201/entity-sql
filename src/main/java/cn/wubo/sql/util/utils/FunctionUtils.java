@@ -21,8 +21,23 @@ public class FunctionUtils {
      */
     @SafeVarargs
     public static Boolean compileConditionOr(SQL.Where where, Predicate<SQL.Where>... predicates) {
+        // 检查predicates数组是否为null
+        if (predicates == null) {
+            return false;
+        }
+
         // 使用流处理传入的断言数组，并测试每个断言是否对给定的SQL.Where对象返回true
-        return Arrays.stream(predicates).anyMatch(item -> item.test(where));
+        return Arrays.stream(predicates).anyMatch(item -> {
+            if (item == null) {
+                return false;
+            }
+            try {
+                return item.test(where);
+            } catch (Exception e) {
+                // 忽略单个predicate的异常，继续处理其他predicate
+                return false;
+            }
+        });
     }
 
 
@@ -39,24 +54,58 @@ public class FunctionUtils {
      */
     @SafeVarargs
     public static Boolean compileConditionAnd(SQL.Where where, Predicate<SQL.Where>... predicates) {
-        // 使用 Arrays.stream 将 predicates 数组转换成流，然后通过 allMatch 方法检查所有 Predicate 对象是否都返回 true
-        return Arrays.stream(predicates).allMatch(item -> item.test(where));
+        // 防止 predicates 为 null 导致 stream 抛异常
+        if (predicates == null || predicates.length == 0) {
+            return true;
+        }
+
+        // 防止 where 为 null 导致 Predicate.test 抛异常
+        return Arrays.stream(predicates).allMatch(item -> {
+            if (item == null) {
+                return true; // 或者根据业务需求决定是否抛异常
+            }
+            try {
+                return item.test(where);
+            } catch (Exception e) {
+                // 可选：记录日志或抛出运行时异常
+                return false; // 默认失败
+            }
+        });
     }
 
 
     /**
-     * 根据给定的 SQL.Where 对象、Predicate<SQL.Where> 对象和 Function<SQL.Where, String> 对象构建条件字符串。
-     *
-     * @param where     SQL.Where 对象，代表一个 SQL 查询中的 WHERE 子句。
-     * @param predicate Predicate<SQL.Where> 对象，用于测试 SQL.Where 对象是否满足某些条件。
-     * @param function  Function<SQL.Where, String> 对象，一个函数接口，用于根据满足条件的 SQL.Where 对象生成条件字符串。
-     * @return 返回构建好的条件字符串。
-     * @throws SQLRuntimeException 如果给定的 Predicate<SQL.Where> 对象测试不通过，则抛出此异常。
-     */
-    public static String buildCondition(SQL.Where where, Predicate<SQL.Where> predicate, Function<SQL.Where, String> function) {
-        // 根据 predicate 对 where 进行测试，如果满足条件，则应用 function 生成并返回条件字符串；否则抛出异常。
-        if (predicate.test(where)) return function.apply(where);
-        else throw new SQLRuntimeException("recieving incomplete where condition in values invalid");
+ * 根据给定的 SQL.Where 对象、Predicate<SQL.Where> 对象和 Function<SQL.Where, String> 对象构建条件字符串。
+ *
+ * @param where     SQL.Where 对象，代表一个 SQL 查询中的 WHERE 子句。
+ * @param predicate Predicate<SQL.Where> 对象，用于测试 SQL.Where 对象是否满足某些条件。
+ * @param function  Function<SQL.Where, String> 对象，一个函数接口，用于根据满足条件的 SQL.Where 对象生成条件字符串。
+ * @return 返回构建好的条件字符串。
+ * @throws SQLRuntimeException 如果给定的 Predicate<SQL.Where> 对象测试不通过，则抛出此异常。
+ */
+public static String buildCondition(SQL.Where where, Predicate<SQL.Where> predicate, Function<SQL.Where, String> function) {
+    // 参数校验
+    if (where == null) {
+        throw new IllegalArgumentException("where must not be null");
     }
+    if (predicate == null) {
+        throw new IllegalArgumentException("predicate must not be null");
+    }
+    if (function == null) {
+        throw new IllegalArgumentException("function must not be null");
+    }
+
+    // 判断条件是否满足
+    if (predicate.test(where)) {
+        String result = function.apply(where);
+        if (result == null) {
+            throw new SQLRuntimeException("Generated condition string is null");
+        }
+        return result;
+    } else {
+        throw new SQLRuntimeException("Received incomplete where condition, values invalid");
+    }
+}
+
 
 }
