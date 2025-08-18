@@ -10,6 +10,9 @@ import java.util.Map;
 
 public class FreemarkerUtils {
 
+    private FreemarkerUtils() {
+    }
+
         /**
      * 使用FreeMarker模板引擎生成字符串内容
      * @param templateName 模板文件名称

@@ -86,7 +86,7 @@ public class DataSourceHelper {
         try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
             return ExecuteSqlUtils.executeUpdate(connection, sql, params);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new EntitySqlRuntimeException(e);
         }
     }
 
@@ -96,14 +96,14 @@ public class DataSourceHelper {
      *
      * @param tableName 要检查的表名，不能为空
      * @return 如果表存在返回true，否则返回false
-     * @throws RuntimeException 当数据库连接或查询过程中发生SQL异常时抛出
+     * @throws EntitySqlRuntimeException 当数据库连接或查询过程中发生SQL异常时抛出
      */
     public Boolean isTableExists(String tableName) {
         // 获取数据库连接并检查表是否存在
         try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
             return ExecuteSqlUtils.isTableExists(connection, null, null, tableName, new String[]{"TABLE"});
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new EntitySqlRuntimeException(e);
         }
     }
 

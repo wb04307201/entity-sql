@@ -19,6 +19,9 @@ import java.util.Map;
 
 public class TableModelUtils {
 
+    private TableModelUtils() {
+    }
+
     /**
      * 根据给定的类获取对应的表模型信息
      *

@@ -8,6 +8,9 @@ import java.util.function.Predicate;
 
 public class FunctionUtils {
 
+    private FunctionUtils() {
+    }
+
     /**
      * 编译OR条件判断，对给定条件执行多个谓词测试，只要有一个谓词返回true则整体返回true
      *

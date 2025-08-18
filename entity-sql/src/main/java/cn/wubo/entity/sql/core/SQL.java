@@ -5,6 +5,9 @@ import cn.wubo.entity.sql.core.segment.sql.*;
 
 public class SQL {
 
+    private SQL() {
+    }
+
     /**
      * 创建一个用于查询指定实体类型的Query对象
      *

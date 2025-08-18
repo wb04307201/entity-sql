@@ -1,9 +1,7 @@
 package cn.wubo.entity.sql;
 
-import cn.wubo.entity.sql.utils.FreemarkerUtils;
 import cn.wubo.entity.sql.web.EntityWebService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -12,11 +10,9 @@ import org.springframework.web.servlet.function.RouterFunctions;
 import org.springframework.web.servlet.function.ServerResponse;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
 import java.util.Map;
 
 @AutoConfiguration
-//@ConditionalOnBean(DataSource.class)
 public class EntitySqlConfiguration {
 
     @Bean
@@ -29,7 +25,7 @@ public class EntitySqlConfiguration {
         return new EntityWebService(dataSourceHelper);
     }
 
-    @Bean("EntitySqlWebRouter")
+    @Bean("entitySqlWebRouter")
     public RouterFunction<ServerResponse> entitySqlWebRouter(EntityWebService entityWebService) {
         return RouterFunctions.route().GET("/entity/view/{id}", request -> {
                     String id = request.pathVariable("id");

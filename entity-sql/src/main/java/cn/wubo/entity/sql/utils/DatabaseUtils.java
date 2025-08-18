@@ -8,14 +8,19 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class DatabaseUtils {
 
-    private static final SimpleDateFormat TIMESTAMP_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
+    private DatabaseUtils() {
+    }
+
+
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
     /**
@@ -64,11 +69,11 @@ public class DatabaseUtils {
         } else if (targetType == BigDecimal.class) {
             return new BigDecimal(value.toString());
         } else if (targetType == Date.class || targetType == java.sql.Date.class) {
-            return DATE_FORMATTER.parse(value.toString());
+            return Date.from(java.time.LocalDate.parse(value.toString(), DATE_FORMATTER).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
         } else if (targetType == LocalDate.class) {
-            return LocalDate.parse(value.toString());
+            return LocalDate.parse(value.toString(), DATE_FORMATTER);
         } else if (targetType == Timestamp.class) {
-            return new Timestamp(TIMESTAMP_FORMATTER.parse(value.toString()).getTime());
+            return Timestamp.from(LocalDateTime.parse(value.toString(), TIMESTAMP_FORMATTER).atZone(java.time.ZoneId.systemDefault()).toInstant());
         } else {
             return value;
         }
@@ -87,15 +92,15 @@ public class DatabaseUtils {
         // 字符串类型直接返回
         if (value instanceof String) {
             return value;
-            // 时间戳类型格式化为字符串
+            // 时间戳类型转换为格式化字符串
         } else if (value instanceof Timestamp || value instanceof java.sql.Timestamp) {
-            return TIMESTAMP_FORMATTER.format(value);
-            // 日期类型格式化为字符串
+            return ((Timestamp) value).toLocalDateTime().format(TIMESTAMP_FORMATTER);
+            // 日期类型转换为格式化字符串
         } else if (value instanceof Date || value instanceof java.sql.Date) {
-            return DATE_FORMATTER.format(value);
-            // 本地日期类型转换为字符串
+            return ((Date) value).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate().format(DATE_FORMATTER);
+            // 本地日期类型转换为格式化字符串
         } else if (value instanceof LocalDate) {
-            return value.toString();
+            return ((LocalDate) value).format(DATE_FORMATTER);
             // 浮点数类型去除末尾的0和小数点
         } else if (value instanceof Float || value instanceof Double) {
             return StringUtils.subZeroAndDot(String.valueOf(value));
@@ -104,6 +109,5 @@ public class DatabaseUtils {
             return value;
         }
     }
-
 
 }

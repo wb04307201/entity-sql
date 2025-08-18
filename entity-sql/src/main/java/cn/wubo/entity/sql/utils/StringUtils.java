@@ -2,6 +2,9 @@ package cn.wubo.entity.sql.utils;
 
 public class StringUtils {
 
+    private StringUtils() {
+    }
+
     /**
      * 返回字符串的默认值
      * 如果第一个字符串为null、空字符串或只包含空白字符，则返回第二个字符串作为默认值

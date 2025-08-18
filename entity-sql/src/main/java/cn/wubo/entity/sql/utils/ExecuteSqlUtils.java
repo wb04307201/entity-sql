@@ -13,6 +13,9 @@ import java.util.Map;
 @Slf4j
 public class ExecuteSqlUtils {
 
+    private ExecuteSqlUtils() {
+    }
+
     /**
      * 执行SQL查询并返回结果列表
      *

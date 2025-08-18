@@ -8,6 +8,9 @@ import cn.wubo.entity.sql.core.segment.entity.Query;
 
 public class Entity {
 
+    private Entity() {
+    }
+
     /**
      * 创建一个插入或更新操作的构建器对象
      *

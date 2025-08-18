@@ -8,6 +8,9 @@ import java.lang.reflect.Method;
 
 public class LambdaUtils {
 
+    private LambdaUtils() {
+    }
+
     /**
      * 通过 Lambda 表达式获取对应的字段名。该方法要求传入的 Lambda 表达式必须是符合 Java 序列化规范的 getter 方法引用，
      * 如 {@code MyClass::getFieldName} 或 {@code MyClass::isFlag}。
