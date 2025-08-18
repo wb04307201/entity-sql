@@ -3,11 +3,11 @@
 Entity SQL 是一个轻量级的 Java ORM 工具库，旨在简化数据库操作，提供基于注解的实体映射和链式编程的 SQL 构建方式，快速构建单表维护和数据可视化界面。
 
 
-[![](https://jitpack.io/v/com.gitee.wb04307201/sql-util.svg)](https://jitpack.io/#com.gitee.wb04307201/sql-util)
-[![star](https://gitee.com/wb04307201/sql-util/badge/star.svg?theme=dark)](https://gitee.com/wb04307201/sql-util)
-[![fork](https://gitee.com/wb04307201/sql-util/badge/fork.svg?theme=dark)](https://gitee.com/wb04307201/sql-util)
-[![star](https://img.shields.io/github/stars/wb04307201/sql-util)](https://github.com/wb04307201/sql-util)
-[![fork](https://img.shields.io/github/forks/wb04307201/sql-util)](https://github.com/wb04307201/sql-util)  
+[![](https://jitpack.io/v/com.gitee.wb04307201/entity-sql.svg)](https://jitpack.io/#com.gitee.wb04307201/entity-sql)
+[![star](https://gitee.com/wb04307201/entity-sql/badge/star.svg?theme=dark)](https://gitee.com/wb04307201/entity-sql)
+[![fork](https://gitee.com/wb04307201/entity-sql/badge/fork.svg?theme=dark)](https://gitee.com/wb04307201/entity-sql)
+[![star](https://img.shields.io/github/stars/wb04307201/entity-sql)](https://github.com/wb04307201/entity-sql)
+[![fork](https://img.shields.io/github/forks/wb04307201/entity-sql)](https://github.com/wb04307201/entity-sql)  
 ![MIT](https://img.shields.io/badge/License-Apache2.0-blue.svg) ![JDK](https://img.shields.io/badge/JDK-17+-green.svg) ![SpringBoot](https://img.shields.io/badge/Srping%20Boot-3+-green.svg)
 
 ## 功能特性
