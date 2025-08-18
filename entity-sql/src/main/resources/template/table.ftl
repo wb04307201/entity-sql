@@ -130,7 +130,7 @@
                         <select name="xLabelValue">
                             <option value="">请选择</option>
                             <#list data.columns as item>
-                                <#if item.getView().viewable && item.getType() != 'NUMBER'>
+                                <#if item.getView().viewable && item.type != 'NUMBER'>
                                     <option value="${item.field}">${item.label}</option>
                                 </#if>
                             </#list>
@@ -145,7 +145,7 @@
                         <select name="yLabelValue">
                             <option value="">请选择</option>
                             <#list data.columns as item>
-                                <#if item.getView().viewable && item.getType() == 'NUMBER'>
+                                <#if item.getView().viewable && item.type == 'NUMBER'>
                                     <option value="${item.field}">${item.label}</option>
                                 </#if>
                             </#list>
@@ -168,7 +168,7 @@
         let tableData = [];
         let colNames = [
             <#list data.columns as item>
-            {value: '${item.field}', label: '${item.label}'},
+            {value: '${item.field}', label: '${item.label}'}, //${item.type}
             </#list>
         ];
 

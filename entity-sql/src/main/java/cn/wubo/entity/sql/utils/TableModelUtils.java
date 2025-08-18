@@ -128,6 +128,7 @@ public class TableModelUtils {
                 columnModel.setColumn(column.value());
                 columnModel.setLabel(StringUtils.defaultValue(column.label(), column.value()));
                 columnModel.setItems(Arrays.stream(column.items()).map(item -> new ItemModel(item.value(), item.label())).toList());
+                columnModel.setType(column.type());
 
                 // @formatter:off
                 columnModel.getView()
