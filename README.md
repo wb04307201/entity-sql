@@ -1,33 +1,74 @@
-# sql-util 实体SQL工具
+# Entity SQL - Java ORM 工具库
 
-[![](https://jitpack.io/v/com.gitee.wb04307201/sql-util.svg)](https://jitpack.io/#com.gitee.wb04307201/sql-util)
-[![star](https://gitee.com/wb04307201/sql-util/badge/star.svg?theme=dark)](https://gitee.com/wb04307201/sql-util)
-[![fork](https://gitee.com/wb04307201/sql-util/badge/fork.svg?theme=dark)](https://gitee.com/wb04307201/sql-util)
-[![star](https://img.shields.io/github/stars/wb04307201/sql-util)](https://github.com/wb04307201/sql-util)
-[![fork](https://img.shields.io/github/forks/wb04307201/sql-util)](https://github.com/wb04307201/sql-util)  
+Entity SQL 是一个轻量级的 Java ORM 工具库，旨在简化数据库操作，提供基于注解的实体映射和链式编程的 SQL 构建方式，快速构建单表维护和数据可视化界面。
+
+
+[![](https://jitpack.io/v/com.gitee.wb04307201/entity-sql.svg)](https://jitpack.io/#com.gitee.wb04307201/entity-sql)
+[![star](https://gitee.com/wb04307201/entity-sql/badge/star.svg?theme=dark)](https://gitee.com/wb04307201/entity-sql)
+[![fork](https://gitee.com/wb04307201/entity-sql/badge/fork.svg?theme=dark)](https://gitee.com/wb04307201/entity-sql)
+[![star](https://img.shields.io/github/stars/wb04307201/entity-sql)](https://github.com/wb04307201/entity-sql)
+[![fork](https://img.shields.io/github/forks/wb04307201/entity-sql)](https://github.com/wb04307201/entity-sql)  
 ![MIT](https://img.shields.io/badge/License-Apache2.0-blue.svg) ![JDK](https://img.shields.io/badge/JDK-17+-green.svg) ![SpringBoot](https://img.shields.io/badge/Srping%20Boot-3+-green.svg)
 
-> 提供一套高效、便捷的数据库操作工具集，  
-> 包括多数据源连接池管理类、SQL语句执行类、SQL语句构建器、实体类构建SQL语句并执行工具类，  
-> 亦可以快速构造普通的增删改查页面和功能。
+## 功能特性
 
-## 代码示例
-1. 使用[实体SQL工具](https://gitee.com/wb04307201/sql-util)实现的[实体SQL工具Demo](https://gitee.com/wb04307201/sql-util-demo)
-2. 使用[文档在线预览](https://gitee.com/wb04307201/file-preview-spring-boot-starter)、[多平台文件存储](https://gitee.com/wb04307201/file-storage-spring-boot-starter)、[实体SQL工具](https://gitee.com/wb04307201/sql-util)实现的[文件预览Demo](https://gitee.com/wb04307201/file-preview-demo)
-3. 使用[多平台文件存储](https://gitee.com/wb04307201/file-storage-spring-boot-starter)、[实体SQL工具](https://gitee.com/wb04307201/sql-util)实现的[文件存储Demo](https://gitee.com/wb04307201/file-storage-demo)
-4. 使用[消息中间件](https://gitee.com/wb04307201/message-spring-boot-starter)、[实体SQL工具](https://gitee.com/wb04307201/sql-util)实现的[消息发送代码示例](https://gitee.com/wb04307201/message-demo)
-5. 使用[动态调度](https://gitee.com/wb04307201/dynamic-schedule-spring-boot-starter)、[消息中间件](https://gitee.com/wb04307201/message-spring-boot-starter)、[动态编译加载执行工具](https://gitee.com/wb04307201/loader-util)、[实体SQL工具](https://gitee.com/wb04307201/sql-util)实现的[在线编码、动态调度、发送钉钉群消息、快速构造web页面Demo](https://gitee.com/wb04307201/dynamic-schedule-demo)
+### 1. 实体映射
+- 基于注解的实体类与数据库表映射
+- 支持主键自动生成（UUID）
+- 字段级别的详细配置（展示、编辑、搜索等）
 
-## 工具
-| 序号 | 工具类                 | 描述               |
-|----|---------------------|------------------|
-| 1  | MutilConnectionPool | 多数据源连接池管理类       |
-| 2  | ExecuteSqlUtils     | SQL语句执行类         |
-| 3  | SQL                 | SQL语句构建器         |
-| 4  | ModelSqlUtils       | 实体类构建SQL语句并执行工具类 |
-| 5  | EntityWeb           | 快速构造普通的增删改查页面和功能 |
+### 2. SQL 构建
+- 链式编程 API，易于使用和理解
+- 支持常见的 CRUD 操作
+- 自动处理 SQL 注入防护
+- 支持分页查询
+- 多种条件查询（等于、模糊匹配、范围查询等）
 
-## 快速开始
+### 3. 多数据源支持
+- 灵活的数据源配置
+- 自动连接管理和释放
+
+### 4. 类型转换
+- 自动处理 Java 对象与数据库类型之间的转换
+- 支持常见的数据类型（String、Integer、Date、BigDecimal 等）
+[Table.java](entity-sql/src/main/java/cn/wubo/entity/sql/core/annotations/Table.java)
+### 注解系统
+- [@Table](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\Table.java#L5-L11): 标注实体类对应的表名
+- [@Column](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\Column.java#L6-L21): 配置字段属性（类型、长度、展示方式等）
+- [@Key](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\Key.java#L7-L12): 标识主键字段及生成策略
+- [@View](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\View.java#L5-L12): 配置字段的展示属性
+- [@Edit](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\Edit.java#L7-L15): 配置字段的编辑属性
+- [@Search](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\Search.java#L8-L14): 配置字段的搜索属性
+
+### SQL API（面向SQL构建）
+- [SQL](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L4-L38): 静态方法入口，用于构建各种 SQL 语句
+    - [SQL.query()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L7-L10): 构建查询语句
+      - 条件构建器:
+        - 等值查询 ([eq](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L8-L8))
+        - 不等值查询 ([neq](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L10-L10))
+        - 模糊查询 ([like](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L20-L20), [notLike](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L22-L22), [llike](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L24-L24), [rlike](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L26-L26))
+        - 范围查询 ([between](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L28-L28), [notBetween](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L30-L30))
+        - 集合查询 ([in](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L32-L34), [notIn](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L38-L40))
+        - 空值查询 ([isNull](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L44-L44), [isNotNull](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L46-L46))
+        - 比较查询 ([gt](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L12-L12), [ge](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L14-L14), [lt](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L16-L16), [le](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L18-L18))
+      - 分页支持
+        - [page(int page, int pageSize)](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IPage.java#L4-L4)分页查询。
+    - [SQL.update()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L10-L12): 构建更新语句
+    - [SQL.insert()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L14-L16): 构建插入语句
+    - [SQL.delete()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L18-L20): 构建删除语句
+    - [SQL.createTable()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L30-L32): 构建建表语句
+    - [SQL.dropTable()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L26-L28): 构建删表语句
+    - [SQL.isTableExists()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L22-L24): 检查表是否存在
+
+### Entity API（面向实体操作）
+- [Entity](entity-sql\src\main\java\cn\wubo\entity\sql\core\Entity.java#L8-L25): 针对实体对象的操作入口
+    - [Entity.insertOrUpdate()](entity-sql\src\main\java\cn\wubo\entity\sql\core\Entity.java#L10-L12): 插入或更新实体
+    - [Entity.query()](entity-sql\src\main\java\cn\wubo\entity\sql\core\Entity.java#L14-L16): 查询实体列表
+    - [Entity.grtById()](entity-sql\src\main\java\cn\wubo\entity\sql\core\Entity.java#L18-L20): 根据主键获取实体
+    - [Entity.deleteById()](entity-sql\src\main\java\cn\wubo\entity\sql\core\Entity.java#L22-L24): 根据主键删除实体
+
+
+## 使用
 ### 引入依赖
 增加 JitPack 仓库
 ```xml
@@ -39,248 +80,147 @@
 </repositories>
 ```
 
-1.3.0版本后升级到jdk17 SpringBoot3+
-继续使用jdk 8请查看jdk8分支
 ```xml
 <dependency>
     <groupId>com.gitee.wb04307201</groupId>
-    <artifactId>sql-util</artifactId>
-    <version>1.3.8</version>
+    <artifactId>entity-sql-spring-boot-starter</artifactId>
+    <version>1.4.0</version>
 </dependency>
 ```
 
-### 使用
-#### MutilConnectionPool使用示例
+## 使用
+
+### SQL API（面向SQL构建）使用示例
 ```java
-        // 判断数据源是否加载
-        if (Boolean.FALSE.equals(MutilConnectionPool.check("test"))) {
-            // 加载数据源
-            MutilConnectionPool.init("test", "jdbc:h2:file:./data/demo;AUTO_SERVER=TRUE", "sa", "");
+        if (dataSourceHelper.execute(SQL.isTableExists(User.class))) {
+        dataSourceHelper.execute(SQL.dropTable(User.class));
         }
-        // 获取数据源，注意使用完之后释放连接
-        Connection connection = MutilConnectionPool.getConnection("test");
-        connection.close();
-        // 通过传入函数式接口执行方法，内部会自动创建连接并在使用之后释放
-        MutilConnectionPool.run("test", conn -> null);
+        dataSourceHelper.execute(SQL.createTable(User.class));
+
+int count = dataSourceHelper.execute(SQL.insert(User.class).set(User::getId, "11111").set(User::getUserName, "11111"));
+        Assertions.assertEquals(count, 1);
+
+count = dataSourceHelper.execute(SQL.update(User.class).set(User::getUserName, "11111+++").eq(User::getId, "11111"));
+        Assertions.assertEquals(count, 1);
+
+        IntStream.range(0, 10).forEach(i -> {
+        dataSourceHelper.execute(SQL.insert(User.class).set(User::getId, UUID.randomUUID()).set(User::getUserName, UUID.randomUUID()));
+        });
+
+List<User> userList = dataSourceHelper.execute(SQL.query(User.class));
+        Assertions.assertEquals(userList.size(), 11);
+
+count = dataSourceHelper.execute(SQL.delete(User.class).eq(User::getId, "11111"));
+
+userList = dataSourceHelper.execute(SQL.query(User.class));
+        Assertions.assertEquals(userList.size(), 10);
+
+count = dataSourceHelper.execute(SQL.delete(User.class).isNotNull(User::getUserName));
+        Assertions.assertEquals(count, 10);
+
+userList = dataSourceHelper.execute(SQL.query(User.class).page(0,1));
+        Assertions.assertEquals(userList.size(), 1);
 ```
 
-#### ExecuteSqlUtils使用示例
+### Entity API（面向实体操作）使用示例
+先创建一个类
 ```java
-        // 判断数据源是否加载
-        if (Boolean.FALSE.equals(MutilConnectionPool.check("test"))) {
-        // 加载数据源
-        MutilConnectionPool.init("test", "jdbc:h2:file:./data/demo;AUTO_SERVER=TRUE", "sa", "");
-        }
+package cn.wubo.entity.sql;
 
-Connection connection = MutilConnectionPool.getConnection("test");
-
-// 判断表是否存在
-Boolean check = ExecuteSqlUtils.isTableExists(connection, "test_user".toUpperCase());
-        if(check){
-        ExecuteSqlUtils.executeUpdate(connection, "drop table test_user");
-        }
-                ExecuteSqlUtils.executeUpdate(connection, "create table test_user (id VARCHAR(200),user_name VARCHAR(20),department VARCHAR(200),birth DATE,age NUMBER(10),amount NUMBER(10,2),status VARCHAR(1))");
-
-Map<Integer, Object> params = new HashMap<>();
-        params.put(1, "123123");
-        ExecuteSqlUtils.executeUpdate(connection, "INSERT INTO test_user (user_name) VALUES (?)", params);
-
-params = new HashMap<>();
-        params.put(1, "321123");
-// 执行插入、更新的sql语句
-int count = ExecuteSqlUtils.executeUpdate(connection, "update test_user set user_name = ?", params);
-
-// 执行查询的sql语句
-List<Map<String, Object>> list = ExecuteSqlUtils.executeQuery(connection, "select * from test_user where user_name = ?", params, new TypeReference<>() {
-});
-
-// 执行删除的sql语句
-        ExecuteSqlUtils.executeUpdate(connection, "delete from test_user where user_name = ?", params);
-
-        connection.close();
-```
-
-#### 在测试SQL、ModelSqlUtils前，请先创建一个测试实体类，例如
-```java
-package cn.wubo.sql.util.test;
-
-import cn.wubo.sql.util.annotations.Column;
-import cn.wubo.sql.util.annotations.Key;
-import cn.wubo.sql.util.annotations.Table;
-import cn.wubo.sql.util.enums.ColumnType;
+import cn.wubo.entity.sql.core.annotations.*;
+import cn.wubo.entity.sql.core.enums.ColumnType;
+import cn.wubo.entity.sql.core.enums.EditType;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
-@Table(value = "test_user", desc = "用户")
-public class User {
-
-    @Key
-    @Column(value = "id")
-    private String id;
-
-    @Column(value = "user_name",desc = "用户名", type = ColumnType.VARCHAR, length = 20)
-    private String userName;
-
-    @Column(value = "department")
-    private String department;
-
-    @Column(value = "birth", type = ColumnType.DATE)
-    private Date birth;
-
-    @Column(value = "birth1")
-    private Date birth1;
-
-    @Column(value = "age", type = ColumnType.NUMBER, precision = 10, scale = 0)
-    private Integer age;
-
-    @Column(value = "age1")
-    private Integer age1;
-}
-```
-
-#### SQL使用示例
-```java
-        // 判断数据源是否加载
-        if (Boolean.FALSE.equals(MutilConnectionPool.check("test"))) {
-        // 加载数据源
-        MutilConnectionPool.init("test", "jdbc:h2:file:./data/demo;AUTO_SERVER=TRUE", "sa", "");
-        }
-SQL<User> userSQL = new SQL<User>() {
-};
-// 判断表是否存在
-        if (Boolean.TRUE.equals(MutilConnectionPool.run("test", conn -> userSQL.isTableExists(conn)))) {
-        // 删除表
-        MutilConnectionPool.run("test", conn -> userSQL.drop().dropTable(conn));
-        }
-        // 创建表
-        MutilConnectionPool.run("test", conn -> userSQL.create().createTable(conn));
-        Assertions.assertEquals(true, MutilConnectionPool.check("test"));
-// 插入数据
-int count = MutilConnectionPool.run("test", conn -> userSQL.insert().addSet("user_name", "11111").executeUpdate(conn));
-        Assertions.assertEquals(count, 1);
-// 更新数据
-count = MutilConnectionPool.run("test", conn -> userSQL.update().addSet("user_name", "22222").addWhereEQ("user_name", "11111").executeUpdate(conn));
-        Assertions.assertEquals(count, 1);
-// 查询数据
-List<User> userList = MutilConnectionPool.run("test", conn -> userSQL.select().addWhereEQ("user_name", "22222").executeQuery(conn));
-        Assertions.assertEquals(userList.size(), 1);
-// 删除数据
-count = MutilConnectionPool.run("test", conn -> userSQL.delete().addWhereEQ("user_name", "22222").executeUpdate(conn));
-        Assertions.assertEquals(count, 1);
-```
-
-#### ModelSqlUtils使用示例
-```java
-        // 判断数据源是否加载
-        if (Boolean.FALSE.equals(MutilConnectionPool.check("test"))) {
-        // 加载数据源
-        MutilConnectionPool.init("test", "jdbc:h2:file:./data/demo;AUTO_SERVER=TRUE", "sa", "");
-        }
-
-User user = new User();
-// 判断表是否存在
-        if (MutilConnectionPool.run("test", conn -> ModelSqlUtils.SQL(user).isTableExists(conn))) {
-        // 删除表
-        MutilConnectionPool.run("test", conn -> ModelSqlUtils.dropSql(user).dropTable(conn));
-        }
-        // 创建表
-        MutilConnectionPool.run("test", conn -> ModelSqlUtils.createSql(user).createTable(conn));
-        // 插入数据
-        user.setUserName("112233");
-int count = MutilConnectionPool.run("test", conn -> ModelSqlUtils.saveSql(user).executeUpdate(conn));
-        Assertions.assertEquals(count, 1);
-// 查询数据
-List<User> userList = MutilConnectionPool.run("test", conn -> ModelSqlUtils.selectSql(user).executeQuery(conn));
-        Assertions.assertEquals(userList.size(), 1);
-        user.setId(userList.get(0).getId());
-        user.setUserName("332211");
-// 更新数据
-count = MutilConnectionPool.run("test", conn -> ModelSqlUtils.saveSql(user).executeUpdate(conn));
-        Assertions.assertEquals(count, 1);
-// 可以使用 ModelSqlUtils.insertSql(user)强行插入数据
-// 可以使用 ModelSqlUtils.updateSql(user)强行更新数据
-// 删除数据
-count = MutilConnectionPool.run("test", conn -> ModelSqlUtils.deleteSql(user).executeUpdate(conn));
-        Assertions.assertEquals(count, 1);
-```
-
-#### EntityWeb使用示例
-###### 在启动类上加上`@EnableEntityWeb`注解
-```java
-@EnableEntityWeb
-@SpringBootApplication
-public class SqlUtilDemoApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(SqlUtilDemoApplication.class, args);
-    }
-
-}
-```
-
-###### 按照需求构建实体类
-```java
-package cn.wubo.sql.util.demo;
-
-import cn.wubo.sql.util.annotations.*;
-import cn.wubo.sql.util.enums.ColumnType;
-import cn.wubo.sql.util.enums.EditType;
-import cn.wubo.sql.util.enums.StatementCondition;
-import lombok.Data;
-
-import java.util.Date;
-
-@Data
-@Table(value = "test_user", desc = "用户", ds = @Ds(url = "jdbc:h2:file:./data/demo;AUTO_SERVER=TRUE", username = "sa", passowrd = ""))
+@Table(value = "test_user")
 public class User {
     @Key
     @Column(value = "id")
     private String id;
 
-    @Condition(value = StatementCondition.LIKE)
-    @Column(value = "user_name", desc = "用户名", type = ColumnType.VARCHAR, length = 20, edit = @Edit(notNull = true))
+    @Column(value = "user_name", label = "用户名", type = ColumnType.VARCHAR, length = 20, edit = @Edit(required = true),search = @Search(searchable = true))
     private String userName;
 
-    @Column(value = "department", desc = "部门", view = @View(width = 300, translatable = true, items = {@Item(value = "1", label = "部门1"), @Item(value = "2", label = "部门2"), @Item(value = "3", label = "部门3")}), edit = @Edit(type = EditType.SELECT, items = {@Item(value = "1", label = "部门1"), @Item(value = "2", label = "部门2"), @Item(value = "3", label = "部门3")}))
+    @Column(value = "department", label = "部门",
+            items = {@Item(value = "1", label = "部门1"), @Item(value = "2", label = "部门2"), @Item(value = "3", label = "部门3")},
+            view = @View(width = 300),
+            edit = @Edit(type = EditType.SELECT),
+            search = @Search(searchable = true))
     private String department;
 
-    @Column(value = "birth", desc = "生日", type = ColumnType.DATE, edit = @Edit(type = EditType.DATE))
-    private Date birth;
+    @Column(value = "birth", label = "生日", type = ColumnType.DATE,edit = @Edit(type = EditType.DATE))
+    private LocalDate birth;
 
-    @Condition(value = StatementCondition.LIKE)
-    @Column(value = "age", desc = "年龄", type = ColumnType.NUMBER, precision = 10, scale = 0, edit = @Edit(type = EditType.NUMBER))
+    @Column(value = "age", label = "年龄", type = ColumnType.NUMBER, precision = 10, scale = 0,edit = @Edit(type = EditType.NUMBER))
     private Integer age;
 
-    @Condition(value = StatementCondition.LIKE)
-    @Column(value = "amount", desc = "薪酬", type = ColumnType.NUMBER, precision = 10, scale = 2, edit = @Edit(type = EditType.NUMBER))
+    @Column(value = "amount", label = "薪酬", type = ColumnType.NUMBER, precision = 10, scale = 2,edit = @Edit(type = EditType.NUMBER))
     private Float amount;
 
-    @Column(value = "status", desc = "在职", type = ColumnType.VARCHAR, length = 1, view = @View(translatable = true, items = {@Item(value = "Y", label = "在职"), @Item(value = "N", label = "离职")}), edit = @Edit(type = EditType.CHECKBOX, items = {@Item(value = "Y", label = "在职"), @Item(value = "N", label = "离职")}))
+    @Column(value = "status", label = "在职", type = ColumnType.VARCHAR, length = 1,
+            items = {@Item(value = "Y", label = "在职"), @Item(value = "N", label = "离职")},
+            view = @View(),
+            edit = @Edit(type = EditType.CHECKBOX)
+    )
     private String status;
 }
+
 ```
 
-###### 加载web页面
+使用
 ```java
-@Slf4j
-@Component
-public class InitEntityWeb implements ApplicationRunner {
+        if (dataSourceHelper.execute(SQL.isTableExists(User.class))) {
+        dataSourceHelper.execute(SQL.dropTable(User.class));
+        }
+        dataSourceHelper.execute(SQL.createTable(User.class));
+User user = new User();
+        user.setUserName("99999");
+        user.setBirth(LocalDate.now());
+        dataSourceHelper.execute(Entity.insertOrUpdate(user));
 
-    @Resource
-    EntityWebService entityWebService;
+        user.setUserName("99999+");
+        dataSourceHelper.execute(Entity.insertOrUpdate(user));
+
+User user1 = dataSourceHelper.execute(Entity.grtById(user));
+        Assertions.assertEquals(user1.getUserName(), "99999+");
+
+List<User> userList = dataSourceHelper.execute(Entity.query(new User()));
+        Assertions.assertEquals(userList.size(), 1);
+
+Integer count = dataSourceHelper.execute(Entity.deleteById(user));
+        Assertions.assertEquals(count, 1);
+
+userList = dataSourceHelper.execute(Entity.query(new User()));
+        Assertions.assertEquals(userList.size(), 0);
+```
+
+### 快速构建单表维护和数据可视化界面
+
+```java
+@Component
+public class AppReadyListener implements ApplicationRunner {
+
+    private final EntityWebService entityWebService;
+
+    @Autowired
+    public AppReadyListener(EntityWebService entityWebService) {
+        this.entityWebService = entityWebService;
+    }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // 使用给定的id和实体定义加载EntityWeb页面
-        entityWebService.build("1111", User.class);
+        // user 为页面访问标识，多个界面注意标识不要重复
+        entityWebService.build("user", User.class);
     }
 }
+
 ```
 
-###### 通过id访问页面
-http://ip:port/entity/view/1111
+#### 页面访问标识访问页面
+http://ip:port/entity/view/user
 单表维护  
 ![img.png](img.png)
 绘制图表  
