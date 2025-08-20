@@ -82,7 +82,7 @@ Entity SQL 是一个轻量级的 Java ORM 工具库，旨在简化数据库操�
 
 ```xml
 <dependency>
-    <groupId>com.gitee.wb04307201</groupId>
+    <groupId>com.gitee.wb04307201.entity-sql</groupId>
     <artifactId>entity-sql-spring-boot-starter</artifactId>
     <version>1.4.1</version>
 </dependency>
