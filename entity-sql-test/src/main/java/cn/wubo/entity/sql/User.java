@@ -8,7 +8,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-@Table(value = "test_user")
+@Table(value = "test_user", init = true)
 public class User {
     @Key
     @Column(value = "id")
