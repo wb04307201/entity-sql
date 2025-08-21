@@ -79,7 +79,7 @@
     <div class="layui-form" lay-filter="filter-edit-layer" style="margin: 16px;">
         <#list data.columns as item>
             <#if item.getEdit().editable>
-                <div class="layui-col-md4"<#if item.isKey> style="display: none"</#if>>
+                <div class="layui-col-md4"<#if item.getKey().isKey> style="display: none"</#if>>
                     <div class="layui-form-item">
                         <label class="layui-form-label">${item.label}</label>
                         <div class="layui-input-block">
@@ -220,7 +220,7 @@
                     field: '${item.field}',
                     title: '${item.label}',
                     <#if item.getView().width??>width: ${item.getView().width}, </#if>
-                    <#if item.isKey>hide: true, </#if>
+                    <#if item.getKey().isKey>hide: true, </#if>
                     <#if item.getView().sortable>sort: true, </#if>
                     <#if item.items?size gt 0>templet: function (d) {
                         <#list item.items as option>

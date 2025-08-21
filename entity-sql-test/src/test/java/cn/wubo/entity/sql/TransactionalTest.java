@@ -3,7 +3,6 @@ package cn.wubo.entity.sql;
 import cn.wubo.entity.sql.core.Entity;
 import cn.wubo.entity.sql.core.SQL;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +20,6 @@ public class TransactionalTest {
 
     @Autowired
     private DataSourceHelper dataSourceHelper;
-
-    @Autowired
-    private TransactionalTestService transactionalTestService;
 
 
     @BeforeEach

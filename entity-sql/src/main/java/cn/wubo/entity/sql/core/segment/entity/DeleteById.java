@@ -22,7 +22,7 @@ public class DeleteById<T> extends AbstractObject<T, DeleteById<T>, Integer> {
     protected Integer executeSql(Connection connection) {
         try {
             for (ColumnModel columnModel : tableModel.getColumns()) {
-                if (columnModel.getIsKey()) {
+                if (columnModel.getKey().getIsKey()) {
                     Field field = columnModel.getF();
                     field.setAccessible(true);
                     Object value = field.get(obj);

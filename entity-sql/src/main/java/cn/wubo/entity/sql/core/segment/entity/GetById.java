@@ -25,7 +25,7 @@ public class GetById<T> extends AbstractObject<T, GetById<T>, T> {
     protected T executeSql(Connection connection) {
         try {
             for (ColumnModel columnModel : tableModel.getColumns()) {
-                if (columnModel.getIsKey()) {
+                if (columnModel.getKey().getIsKey()) {
                     Field field = columnModel.getF();
                     field.setAccessible(true);
                     Object value = field.get(obj);

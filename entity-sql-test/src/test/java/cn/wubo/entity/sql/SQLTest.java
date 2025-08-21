@@ -47,10 +47,13 @@ public class SQLTest {
         userList = dataSourceHelper.execute(SQL.query(User.class));
         Assertions.assertEquals(10, userList.size());
 
+        userList = dataSourceHelper.execute(SQL.query(User.class).page(0,1));
+        Assertions.assertEquals(1, userList.size());
+
         count = dataSourceHelper.execute(SQL.delete(User.class).isNotNull(User::getUserName));
         Assertions.assertEquals(10, count);
 
         userList = dataSourceHelper.execute(SQL.query(User.class).page(0,1));
-        Assertions.assertEquals(1, userList.size());
+        Assertions.assertEquals(0, userList.size());
     }
 }
