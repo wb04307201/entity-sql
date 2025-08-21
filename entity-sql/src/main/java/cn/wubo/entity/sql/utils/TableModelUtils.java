@@ -96,33 +96,17 @@ public class TableModelUtils {
             String defaultColumn = StringUtils.toSnakeCase(fieldName);
 
             Annotation[] columnAnns = field.getAnnotations();
-
-            Annotation keyAnn = null;
             Annotation columnAnn = null;
 
             // 一次遍历找出 Key 和 Column 注解
             for (Annotation ann : columnAnns) {
-                if (ann instanceof Key) {
-                    keyAnn = ann;
-                } else if (ann instanceof Column) {
+                if (ann instanceof Column) {
                     columnAnn = ann;
                 }
             }
 
-            // 处理 @Key 注解：标识主键字段，设置不可查看、编辑、搜索
-            if (keyAnn != null) {
-                Key key = (Key) keyAnn;
-                columnModel.setField(fieldName);
-                columnModel.setColumn(defaultColumn);
-                columnModel.setLabel(defaultColumn);
-                columnModel.getView().setViewable(false);
-                columnModel.getEdit().setEditable(false);
-                columnModel.getSearch().setSearchable(false);
-                columnModel.setIsKey(true);
-                columnModel.setGenerationType(key.value());
-            }
             // 处理 @Column 注解：详细配置字段展示、编辑、搜索等行为
-            else if (columnAnn != null) {
+            if (columnAnn != null) {
                 Column column = (Column) columnAnn;
                 columnModel.setField(fieldName);
                 columnModel.setColumn(column.value());
@@ -150,6 +134,10 @@ public class TableModelUtils {
                         .setType(column.search().type())
                         .setCondition(column.search().condition())
                         .setSearchOrder(column.search().searchOrder());
+
+                columnModel.getKey()
+                        .setIsKey(column.key().isKey())
+                        .setType(column.key().type());
                 // @formatter:on
             }
             // 没有注解时使用默认配置

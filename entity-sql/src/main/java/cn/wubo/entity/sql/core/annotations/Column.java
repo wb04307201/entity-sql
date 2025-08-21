@@ -71,5 +71,7 @@ public @interface Column {
      * @return 搜索注解，默认为Search实例
      */
     Search search() default @Search();
+
+    Key key() default @Key();
 }
 

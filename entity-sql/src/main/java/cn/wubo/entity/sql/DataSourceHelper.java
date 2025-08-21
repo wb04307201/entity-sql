@@ -34,12 +34,14 @@ public class DataSourceHelper {
      * @throws SQLException 当数据库操作发生错误时抛出
      */
     public <R> R run(Function<Connection, R> function) {
-        // 获取数据库连接并在使用完毕后自动关闭
-        try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
-            // 在数据库连接上执行Function函数
+        Connection connection = null;
+        try {
+            connection = DataSourceUtils.getConnection(dataSource);
             return function.apply(connection);
-        } catch (Exception e) {
-            throw new EntitySqlRuntimeException(e);
+        } finally {
+            if (connection != null) {
+                DataSourceUtils.releaseConnection(connection, dataSource);
+            }
         }
     }
 

@@ -3,6 +3,9 @@ package cn.wubo.entity.sql;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
@@ -15,6 +18,16 @@ public class DataSourceConfig {
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         return dataSource;
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager(DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
+    }
+
+    @Bean
+    public TransactionalTestService transactionalTestService(){
+        return new TransactionalTestService();
     }
 
 }

@@ -24,7 +24,7 @@ public class ColumnModel {
     private ViewModel view = new ViewModel();
     private EditModel edit = new EditModel();
     private SearchModel search = new SearchModel();
-    private Boolean isKey = false;
+    private KeyModel key = new KeyModel();
     GenerationType generationType;
     private Field f;
 
@@ -38,7 +38,7 @@ public class ColumnModel {
             str = String.format("%s %s", column, type.getValue());
         }
 
-        return isKey ? str + " PRIMARY KEY" : str;
+        return key.getIsKey() ? str + " PRIMARY KEY" : str;
     }
 
 }

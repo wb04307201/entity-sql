@@ -2,6 +2,7 @@ package cn.wubo.entity.sql;
 
 import cn.wubo.entity.sql.core.SQL;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,13 +18,17 @@ public class SQLTest {
     @Autowired
     private DataSourceHelper dataSourceHelper;
 
-    @Test
-    void test() throws SQLException {
+    @BeforeEach
+    public void test0() {
         if (dataSourceHelper.execute(SQL.isTableExists(User.class))) {
             dataSourceHelper.execute(SQL.dropTable(User.class));
         }
         dataSourceHelper.execute(SQL.createTable(User.class));
+    }
 
+
+    @Test
+    void test() throws SQLException {
         int count = dataSourceHelper.execute(SQL.insert(User.class).set(User::getId, "11111").set(User::getUserName, "11111"));
         Assertions.assertEquals(count, 1);
 
@@ -35,17 +40,20 @@ public class SQLTest {
         });
 
         List<User> userList = dataSourceHelper.execute(SQL.query(User.class));
-        Assertions.assertEquals(userList.size(), 11);
+        Assertions.assertEquals(11, userList.size());
 
         count = dataSourceHelper.execute(SQL.delete(User.class).eq(User::getId, "11111"));
 
         userList = dataSourceHelper.execute(SQL.query(User.class));
-        Assertions.assertEquals(userList.size(), 10);
-
-        count = dataSourceHelper.execute(SQL.delete(User.class).isNotNull(User::getUserName));
-        Assertions.assertEquals(count, 10);
+        Assertions.assertEquals(10, userList.size());
 
         userList = dataSourceHelper.execute(SQL.query(User.class).page(0,1));
-        Assertions.assertEquals(userList.size(), 1);
+        Assertions.assertEquals(1, userList.size());
+
+        count = dataSourceHelper.execute(SQL.delete(User.class).isNotNull(User::getUserName));
+        Assertions.assertEquals(10, count);
+
+        userList = dataSourceHelper.execute(SQL.query(User.class).page(0,1));
+        Assertions.assertEquals(0, userList.size());
     }
 }

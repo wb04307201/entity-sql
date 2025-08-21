@@ -89,7 +89,7 @@
 <dependency>
     <groupId>com.gitee.wb04307201.entity-sql</groupId>
     <artifactId>entity-sql-spring-boot-starter</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
 </dependency>
 ```
 
@@ -140,10 +140,10 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-@Table(value = "test_user")
+@Table(value = "test_user", init = true)
 public class User {
     @Key
-    @Column(value = "id")
+    @Column(value = "id",key = @Key(isKey = true))
     private String id;
 
     @Column(value = "user_name", label = "用户名", type = ColumnType.VARCHAR, length = 20, edit = @Edit(required = true),search = @Search(searchable = true))
@@ -172,7 +172,6 @@ public class User {
     )
     private String status;
 }
-
 ```
 
 使用
@@ -221,7 +220,6 @@ public class AppReadyListener implements ApplicationRunner {
         entityWebService.build("user", User.class);
     }
 }
-
 ```
 
 #### 页面访问标识访问页面

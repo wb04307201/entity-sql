@@ -1,5 +1,6 @@
 package cn.wubo.entity.sql.core.segment.entity;
 
+import cn.wubo.entity.sql.core.enums.GenerationType;
 import cn.wubo.entity.sql.core.enums.StatementCondition;
 import cn.wubo.entity.sql.core.enums.StatementType;
 import cn.wubo.entity.sql.core.model.ColumnModel;
@@ -26,7 +27,7 @@ public class InsertOrUpdate<T> extends AbstractObject<T, InsertOrUpdate<T>, T> {
         try {
             Boolean isUpdate = false;
             for (ColumnModel columnModel : tableModel.getColumns()) {
-                if (columnModel.getIsKey()) {
+                if (columnModel.getKey().getIsKey() && columnModel.getKey().getType() == GenerationType.UUID) {
                     Field field = columnModel.getF();
                     field.setAccessible(true);
                     String keyValue = (String) field.get(obj);

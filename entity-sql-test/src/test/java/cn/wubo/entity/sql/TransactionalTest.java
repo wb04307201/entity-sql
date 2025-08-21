@@ -7,18 +7,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
+import org.springframework.test.context.transaction.TestTransaction;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.IntStream;
 
 @SpringBootTest(classes = {DataSourceConfig.class, EntitySqlConfiguration.class})
-public class EntityTest {
+@Transactional
+public class TransactionalTest {
 
     @Autowired
     private DataSourceHelper dataSourceHelper;
+
 
     @BeforeEach
     public void test0() {
@@ -29,25 +31,32 @@ public class EntityTest {
     }
 
     @Test
-    void test() {
+    @Commit
+    public void test1() {
         User user = new User();
         user.setUserName("99999");
         user.setBirth(LocalDate.now());
         dataSourceHelper.execute(Entity.insertOrUpdate(user));
 
-        user.setUserName("99999+");
+        List<User> userList = dataSourceHelper.execute(SQL.query(User.class));
+        Assertions.assertEquals(1, userList.size());
+    }
+
+    @Test
+    public void test2() {
+        User user = new User();
+        user.setUserName("99999");
+        user.setBirth(LocalDate.now());
         dataSourceHelper.execute(Entity.insertOrUpdate(user));
 
-        User user1 = dataSourceHelper.execute(Entity.grtById(user));
-        Assertions.assertEquals("99999+", user1.getUserName());
-
-        List<User> userList = dataSourceHelper.execute(Entity.query(new User()));
+        List<User> userList = dataSourceHelper.execute(SQL.query(User.class));
         Assertions.assertEquals(1, userList.size());
+        TestTransaction.flagForRollback();
+        TestTransaction.end();
 
-        Integer count = dataSourceHelper.execute(Entity.deleteById(user));
-        Assertions.assertEquals(1, count);
-
-        userList = dataSourceHelper.execute(Entity.query(new User()));
+        TestTransaction.start();
+        userList = dataSourceHelper.execute(SQL.query(User.class));
         Assertions.assertEquals(0, userList.size());
     }
+
 }

@@ -8,10 +8,10 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-@Table(value = "test_user")
+@Table(value = "test_user", init = true)
 public class User {
     @Key
-    @Column(value = "id")
+    @Column(value = "id",key = @Key(isKey = true))
     private String id;
 
     @Column(value = "user_name", label = "用户名", type = ColumnType.VARCHAR, length = 20, edit = @Edit(required = true),search = @Search(searchable = true))
