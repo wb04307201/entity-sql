@@ -38,39 +38,39 @@
 - 支持常见的数据类型（String、Integer、Date、BigDecimal 等）
 [Table.java](entity-sql/src/main/java/cn/wubo/entity/sql/core/annotations/Table.java)
 ### 注解系统
-- [@Table](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\Table.java#L5-L11): 标注实体类对应的表名
-- [@Column](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\Column.java#L6-L21): 配置字段属性（类型、长度、展示方式等）
-- [@Key](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\Key.java#L7-L12): 标识主键字段及生成策略
-- [@View](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\View.java#L5-L12): 配置字段的展示属性
-- [@Edit](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\Edit.java#L7-L15): 配置字段的编辑属性
-- [@Search](entity-sql\src\main\java\cn\wubo\entity\sql\core\annotations\Search.java#L8-L14): 配置字段的搜索属性
+- [@Table](entity-sql/src/main/java/cn/wubo/entity/sql/core/annotations/Table.java#L5-L11): 标注实体类对应的表名
+- [@Column](entity-sql/src/main/java/cn/wubo/entity/sql/core/annotations/Column.java#L6-L21): 配置字段属性（类型、长度、展示方式等）
+- [@Key](entity-sql/src/main/java/cn/wubo/entity/sql/core/annotations/Key.java#L7-L12): 标识主键字段及生成策略
+- [@View](entity-sql/src/main/java/cn/wubo/entity/sql/core/annotations/View.java#L5-L12): 配置字段的展示属性
+- [@Edit](entity-sql/src/main/java/cn/wubo/entity/sql/core/annotations/Edit.java#L7-L15): 配置字段的编辑属性
+- [@Search](entity-sql/src/main/java/cn/wubo/entity/sql/core/annotations/Search.java#L8-L14): 配置字段的搜索属性
 
 ### SQL API（面向SQL构建）
-- [SQL](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L4-L38): 静态方法入口，用于构建各种 SQL 语句
-    - [SQL.query()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L7-L10): 构建查询语句
+- [SQL](entity-sql/src/main/java/cn/wubo/entity/sql/core/SQL.java#L4-L38): 静态方法入口，用于构建各种 SQL 语句
+    - [SQL.query()](entity-sql/src/main/java/cn/wubo/entity/sql/core/SQL.java#L7-L10): 构建查询语句
       - 条件构建器:
-        - 等值查询 ([eq](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L8-L8))
-        - 不等值查询 ([neq](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L10-L10))
-        - 模糊查询 ([like](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L20-L20), [notLike](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L22-L22), [llike](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L24-L24), [rlike](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L26-L26))
-        - 范围查询 ([between](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L28-L28), [notBetween](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L30-L30))
-        - 集合查询 ([in](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L32-L34), [notIn](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L38-L40))
-        - 空值查询 ([isNull](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L44-L44), [isNotNull](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L46-L46))
-        - 比较查询 ([gt](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L12-L12), [ge](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L14-L14), [lt](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L16-L16), [le](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IWhere.java#L18-L18))
+        - 等值查询 ([eq](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L8-L8))
+        - 不等值查询 ([neq](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L10-L10))
+        - 模糊查询 ([like](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L20-L20), [notLike](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L22-L22), [llike](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L24-L24), [rlike](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L26-L26))
+        - 范围查询 ([between](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L28-L28), [notBetween](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L30-L30))
+        - 集合查询 ([in](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L32-L34), [notIn](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L38-L40))
+        - 空值查询 ([isNull](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L44-L44), [isNotNull](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L46-L46))
+        - 比较查询 ([gt](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L12-L12), [ge](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L14-L14), [lt](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L16-L16), [le](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IWhere.java#L18-L18))
       - 分页支持
-        - [page(int page, int pageSize)](entity-sql\src\main\java\cn\wubo\entity\sql\core\segment\IPage.java#L4-L4)分页查询。
-    - [SQL.update()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L10-L12): 构建更新语句
-    - [SQL.insert()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L14-L16): 构建插入语句
-    - [SQL.delete()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L18-L20): 构建删除语句
-    - [SQL.createTable()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L30-L32): 构建建表语句
-    - [SQL.dropTable()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L26-L28): 构建删表语句
-    - [SQL.isTableExists()](entity-sql\src\main\java\cn\wubo\entity\sql\core\SQL.java#L22-L24): 检查表是否存在
+        - [page(int page, int pageSize)](entity-sql/src/main/java/cn/wubo/entity/sql/core/segment/IPage.java#L4-L4)分页查询。
+    - [SQL.update()](entity-sql/src/main/java/cn/wubo/entity/sql/core/SQL.java#L10-L12): 构建更新语句
+    - [SQL.insert()](entity-sql/src/main/java/cn/wubo/entity/sql/core/SQL.java#L14-L16): 构建插入语句
+    - [SQL.delete()](entity-sql/src/main/java/cn/wubo/entity/sql/core/SQL.java#L18-L20): 构建删除语句
+    - [SQL.createTable()](entity-sql/src/main/java/cn/wubo/entity/sql/core/SQL.java#L30-L32): 构建建表语句
+    - [SQL.dropTable()](entity-sql/src/main/java/cn/wubo/entity/sql/core/SQL.java#L26-L28): 构建删表语句
+    - [SQL.isTableExists()](entity-sql/src/main/java/cn/wubo/entity/sql/core/SQL.java#L22-L24): 检查表是否存在
 
 ### Entity API（面向实体操作）
-- [Entity](entity-sql\src\main\java\cn\wubo\entity\sql\core\Entity.java#L8-L25): 针对实体对象的操作入口
-    - [Entity.insertOrUpdate()](entity-sql\src\main\java\cn\wubo\entity\sql\core\Entity.java#L10-L12): 插入或更新实体
-    - [Entity.query()](entity-sql\src\main\java\cn\wubo\entity\sql\core\Entity.java#L14-L16): 查询实体列表
-    - [Entity.grtById()](entity-sql\src\main\java\cn\wubo\entity\sql\core\Entity.java#L18-L20): 根据主键获取实体
-    - [Entity.deleteById()](entity-sql\src\main\java\cn\wubo\entity\sql\core\Entity.java#L22-L24): 根据主键删除实体
+- [Entity](entity-sql/src/main/java/cn/wubo/entity/sql/core/Entity.java#L8-L25): 针对实体对象的操作入口
+    - [Entity.insertOrUpdate()](entity-sql/src/main/java/cn/wubo/entity/sql/core/Entity.java#L10-L12): 插入或更新实体
+    - [Entity.query()](entity-sql/src/main/java/cn/wubo/entity/sql/core/Entity.java#L14-L16): 查询实体列表
+    - [Entity.grtById()](entity-sql/src/main/java/cn/wubo/entity/sql/core/Entity.java#L18-L20): 根据主键获取实体
+    - [Entity.deleteById()](entity-sql/src/main/java/cn/wubo/entity/sql/core/Entity.java#L22-L24): 根据主键删除实体
 
 
 ## 使用
