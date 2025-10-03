@@ -40,9 +40,14 @@
                                    placeholder="${item.getEdit().placeholder}"
                                    lay-affix="clear">
                         <#elseif item.getEdit().type?? && item.getEdit().type == 'CHECKBOX'>
-                            <input type="checkbox" name="${item.field}" lay-skin="switch" lay-filter="switchTest"
-                                   title="${item.getEdit().items[0].label}|全部"
-                                   value="${item.getEdit().items[0].value}">
+                            <select name="${item.field}">
+                                <option value="" selected>全部</option>
+                                <#if item.items?size gt 0>
+                                    <#list item.items as option>
+                                        <option value="${option.value}">${option.label}</option>
+                                    </#list>
+                                </#if>
+                            </select>
                         <#else>
                             <input type="text" name="${item.field}" placeholder="${item.getEdit().placeholder}"
                                    class="layui-input"

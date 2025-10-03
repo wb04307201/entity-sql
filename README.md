@@ -12,7 +12,7 @@
 ## 代码示例
 - [一键生成单表维护界面AI项目](https://gitee.com/wb04307201/one-table-ai)  
 这是一个基于Spring Boot和AI技术的一键生成单表维护界面的应用。用户只需描述业务需求，系统会自动分析需求并生成相应的Java实体类和Web界面。  
-<img src="img_7.gif" width="300" alt="示例图片">
+<img src="gif.gif" width="300" alt="示例图片">
 
 
 ## 功能特性
@@ -89,7 +89,7 @@
 <dependency>
     <groupId>com.gitee.wb04307201.entity-sql</groupId>
     <artifactId>entity-sql-spring-boot-starter</artifactId>
-    <version>1.4.2</version>
+    <version>1.4.3</version>
 </dependency>
 ```
 
