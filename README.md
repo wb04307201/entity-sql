@@ -89,7 +89,7 @@
 <dependency>
     <groupId>com.gitee.wb04307201.entity-sql</groupId>
     <artifactId>entity-sql-spring-boot-starter</artifactId>
-    <version>1.4.2</version>
+    <version>1.4.3</version>
 </dependency>
 ```
 
