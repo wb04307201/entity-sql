@@ -25,6 +25,11 @@
             <artifactId>h2</artifactId>
             <version>2.2.224</version>
         </dependency>
+        <dependency>
+            <groupId>com.gitee.wb04307201</groupId>
+            <artifactId>dynamic-loader-utility</artifactId>
+            <version>1.2.1</version>
+        </dependency>
     </dependencies>
 
 </project>
