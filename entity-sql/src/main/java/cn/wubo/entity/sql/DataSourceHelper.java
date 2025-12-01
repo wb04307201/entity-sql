@@ -19,7 +19,7 @@ import java.util.function.Function;
 @Slf4j
 public class DataSourceHelper {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public DataSourceHelper(DataSource dataSource) {
         this.dataSource = dataSource;
