@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    driver-class-name: com.kingbase8.Driver
+    url: jdbc:kingbase8://10.107.128.77:33321/mail_db?currentSchema=yggztipd_db
+    username: yjxtdbdev
+    password: KbyjXTdB01!2024
