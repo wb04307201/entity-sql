@@ -4,16 +4,23 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.gitee.wb04307201</groupId>
-        <artifactId>entity-sql-parent</artifactId>
+        <artifactId>sql-forge-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>entity-sql</artifactId>
+    <artifactId>sql-forge-core</artifactId>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
-            <groupId>com.gitee.wb04307201</groupId>
-            <artifactId>entity-sql</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 

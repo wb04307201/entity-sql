@@ -1,1 +1,0 @@
-package cn.wubo.entity.sql;

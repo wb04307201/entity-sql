@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.gitee.wb04307201</groupId>
-    <artifactId>entity-sql-parent</artifactId>
+    <artifactId>sql-forge-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
@@ -25,22 +25,24 @@
     </developers>
 
     <modules>
-        <module>entity-sql</module>
-        <module>entity-sql-spring-boot-autoconfigure</module>
-        <module>entity-sql-spring-boot-starter</module>
-        <module>entity-sql-test</module>
-        <module>entity-sql-ddl</module>
+<!--        <module>entity-sql</module>-->
+<!--        <module>entity-sql-spring-boot-autoconfigure</module>-->
+<!--        <module>entity-sql-spring-boot-starter</module>-->
+<!--        <module>entity-sql-test</module>-->
+        <module>sql-forge-core</module>
+        <module>sql-forge-test</module>
     </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot.version>3.5.3</spring-boot.version>
-        <lombok.version>1.18.38</lombok.version>
-        <logback.version>1.5.18</logback.version>
-        <fastjson2.version>2.0.58</fastjson2.version>
-        <CHMCache.version>1.0.0</CHMCache.version>
+        <spring-boot.version>3.5.8</spring-boot.version>
+        <lombok.version>1.18.42</lombok.version>
+<!--        <logback.version>1.5.18</logback.version>-->
+<!--        <fastjson2.version>2.0.58</fastjson2.version>-->
+<!--        <CHMCache.version>1.0.0</CHMCache.version>-->
+<!--        <calcite.version>1.41.0</calcite.version>-->
     </properties>
 
     <dependencyManagement>
@@ -57,21 +59,26 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alibaba.fastjson2</groupId>
-                <artifactId>fastjson2</artifactId>
-                <version>${fastjson2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.gitee.wb04307201</groupId>
-                <artifactId>CHMCache</artifactId>
-                <version>${CHMCache.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.calcite</groupId>-->
+<!--                <artifactId>calcite-core</artifactId>-->
+<!--                <version>${calcite.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>ch.qos.logback</groupId>-->
+<!--                <artifactId>logback-classic</artifactId>-->
+<!--                <version>${logback.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.alibaba.fastjson2</groupId>-->
+<!--                <artifactId>fastjson2</artifactId>-->
+<!--                <version>${fastjson2.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.gitee.wb04307201</groupId>-->
+<!--                <artifactId>CHMCache</artifactId>-->
+<!--                <version>${CHMCache.version}</version>-->
+<!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
 
