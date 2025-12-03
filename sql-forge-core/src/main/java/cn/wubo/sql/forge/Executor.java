@@ -4,6 +4,7 @@ package cn.wubo.sql.forge;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -15,23 +16,23 @@ import java.util.Map;
 public record Executor(DataSource dataSource) {
 
     private void buildPrepareStatement(@NotNull PreparedStatement preparedStatement, Map<Integer, Object> params) throws SQLException {
-    if (params != null && !params.isEmpty()) {
-        for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-            Integer index = entry.getKey();
-            Object value = entry.getValue();
+        if (params != null && !params.isEmpty()) {
+            for (Map.Entry<Integer, Object> entry : params.entrySet()) {
+                Integer index = entry.getKey();
+                Object value = entry.getValue();
 
-            if (index == null) {
-                throw new SQLException("Parameter index cannot be null");
+                if (index == null) {
+                    throw new SQLException("Parameter index cannot be null");
+                }
+
+                if (index <= 0) {
+                    throw new SQLException("Parameter index must be positive, got: " + entry.getKey());
+                }
+
+                preparedStatement.setObject(index, value);
             }
-
-            if (index <= 0) {
-                throw new SQLException("Parameter index must be positive, got: " + entry.getKey());
-            }
-
-            preparedStatement.setObject(index, value);
         }
     }
-}
 
 
     private List<Map<String, Object>> resultSetToList(@NonNull ResultSet rs) throws SQLException {
@@ -61,9 +62,13 @@ public record Executor(DataSource dataSource) {
         return list;
     }
 
+    private Connection getConnection() {
+        return DataSourceUtils.getConnection(dataSource);
+    }
+
     public List<Map<String, Object>> executeQuery(@NotBlank String sql, Map<Integer, Object> params) throws
             SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 buildPrepareStatement(preparedStatement, params);
 
@@ -76,7 +81,7 @@ public record Executor(DataSource dataSource) {
 
 
     public int executeUpdate(String sql, Map<Integer, Object> params) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 buildPrepareStatement(preparedStatement, params);
                 return preparedStatement.executeUpdate();

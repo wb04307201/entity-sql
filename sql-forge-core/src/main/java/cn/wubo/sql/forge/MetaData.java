@@ -2,6 +2,7 @@ package cn.wubo.sql.forge;
 
 import cn.wubo.sql.forge.enums.TableType;
 import cn.wubo.sql.forge.records.*;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -13,8 +14,12 @@ import java.util.List;
 
 public record MetaData(DataSource dataSource) {
 
+    private Connection getConnection() {
+        return DataSourceUtils.getConnection(dataSource);
+    }
+
     public DatabaseInfo getDatabase() throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
 
             return new DatabaseInfo(
@@ -30,7 +35,7 @@ public record MetaData(DataSource dataSource) {
     }
 
     public List<CatalogInfo> getCatalogs() throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
             try (ResultSet rs = databaseMetaData.getCatalogs()) {
                 List<CatalogInfo> catalogs = new ArrayList<>();
@@ -45,7 +50,7 @@ public record MetaData(DataSource dataSource) {
     }
 
     public List<SchemaInfo> getSchemas(String catalog, String schemaPattern) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
             try (ResultSet rs = databaseMetaData.getSchemas(catalog, schemaPattern)) {
                 List<SchemaInfo> schemas = new ArrayList<>();
@@ -62,7 +67,7 @@ public record MetaData(DataSource dataSource) {
 
     public List<TableInfo> getTables(String catalog, String schemaPattern,
                                      String tableNamePattern, String[] types) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
             try (ResultSet rs = databaseMetaData.getTables(catalog, schemaPattern, tableNamePattern, types)) {
                 List<TableInfo> tables = new ArrayList<>();
@@ -85,7 +90,7 @@ public record MetaData(DataSource dataSource) {
 
     public List<ColumnInfo> getColumns(String catalog, String schemaPattern,
                                        String tableNamePattern, String columnNamePattern) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
             try (ResultSet rs = databaseMetaData.getColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern)) {
                 List<ColumnInfo> columns = new ArrayList<>();
