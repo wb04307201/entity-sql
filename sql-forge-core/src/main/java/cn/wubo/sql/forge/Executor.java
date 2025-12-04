@@ -40,17 +40,21 @@ public record Executor(DataSource dataSource) {
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
 
-        if (rs.getType() != ResultSet.TYPE_FORWARD_ONLY) {
-            rs.last();
-            int rowCount = rs.getRow();
-            if (rowCount > 0) {
-                list = new ArrayList<>(rowCount);
+        try {
+            if (rs.getType() != ResultSet.TYPE_FORWARD_ONLY) {
+                rs.last();
+                int rowCount = rs.getRow();
+                if (rowCount > 0) {
+                    list = new ArrayList<>(rowCount);
+                }
+                rs.beforeFirst();
             }
-            rs.beforeFirst();
+        } catch (SQLException e) {
+            list = new ArrayList<>();
         }
 
         while (rs.next()) {
-            Map<String, Object> row = new HashMap<>();
+            Map<String, Object> row = new HashMap<>(columnCount);
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = metaData.getColumnLabel(i);
                 Object value = rs.getObject(i);
@@ -79,7 +83,33 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    public long executeUpdate(String sql, Map<Integer, Object> params) throws SQLException {
+    public Object executeInsert(@NotBlank String sql, Map<Integer, Object> params) throws SQLException {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                buildPrepareStatement(preparedStatement, params);
+
+                preparedStatement.executeUpdate();
+
+                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                    if (generatedKeys.next())
+                        return generatedKeys.getObject(1);
+                    else
+                        return null;
+                }
+            }
+        }
+    }
+
+    public int executeUpdate(@NotBlank String sql, Map<Integer, Object> params) throws SQLException {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                buildPrepareStatement(preparedStatement, params);
+                return preparedStatement.executeUpdate();
+            }
+        }
+    }
+
+    public long executeLargeUpdate(@NotBlank String sql, Map<Integer, Object> params) throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 buildPrepareStatement(preparedStatement, params);
@@ -91,17 +121,42 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    public int[] executeBatch(String sql, List<Map<Integer, Object>> paramsList) throws SQLException {
+    public Object[] executeBatchInsert(@NotBlank String sql, List<Map<Integer, Object>> paramsList) throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                for(Map<Integer, Object> params : paramsList)
+                for (Map<Integer, Object> params : paramsList) {
                     buildPrepareStatement(preparedStatement, params);
+                    preparedStatement.addBatch();
+                }
+
+                preparedStatement.executeBatch();
+
+                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                    Object[] ids = new Object[paramsList.size()];
+                    int index = 0;
+                    while (generatedKeys.next() && index < ids.length) {
+                        ids[index++] = generatedKeys.getObject(1);
+                    }
+                    return ids;
+                }
+            }
+        }
+    }
+
+    public int[] executeBatch(@NotBlank String sql, List<Map<Integer, Object>> paramsList) throws SQLException {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                for (Map<Integer, Object> params : paramsList) {
+                    buildPrepareStatement(preparedStatement, params);
+                    preparedStatement.addBatch();
+                }
+
                 return preparedStatement.executeBatch();
             }
         }
     }
 
-    public Object execute(String sql, Map<Integer, Object> params) throws SQLException {
+    public Object execute(@NotBlank String sql, Map<Integer, Object> params) throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 buildPrepareStatement(preparedStatement, params);
