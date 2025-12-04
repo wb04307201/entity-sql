@@ -42,6 +42,7 @@
         <spring-boot.version>3.5.8</spring-boot.version>
         <lombok.version>1.18.42</lombok.version>
         <jakarta.version>3.2.0</jakarta.version>
+        <jsqlparser.version>5.3</jsqlparser.version>
 <!--        <logback.version>1.5.18</logback.version>-->
 <!--        <fastjson2.version>2.0.58</fastjson2.version>-->
 <!--        <CHMCache.version>1.0.0</CHMCache.version>-->
@@ -66,6 +67,11 @@
                 <groupId>jakarta.persistence</groupId>
                 <artifactId>jakarta.persistence-api</artifactId>
                 <version>${jakarta.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jsqlparser</groupId>
+                <artifactId>jsqlparser</artifactId>
+                <version>${jsqlparser.version}</version>
             </dependency>
 <!--            <dependency>-->
 <!--                <groupId>org.apache.calcite</groupId>-->
