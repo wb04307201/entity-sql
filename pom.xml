@@ -30,6 +30,7 @@
 <!--        <module>entity-sql-spring-boot-starter</module>-->
 <!--        <module>entity-sql-test</module>-->
         <module>sql-forge-core</module>
+        <module>sql-forge-entity</module>
         <module>sql-forge-spring-boot-autoconfigure</module>
         <module>sql-forge-test</module>
     </modules>
@@ -40,6 +41,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.5.8</spring-boot.version>
         <lombok.version>1.18.42</lombok.version>
+        <jakarta.version>3.2.0</jakarta.version>
 <!--        <logback.version>1.5.18</logback.version>-->
 <!--        <fastjson2.version>2.0.58</fastjson2.version>-->
 <!--        <CHMCache.version>1.0.0</CHMCache.version>-->
@@ -59,6 +61,11 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.persistence</groupId>
+                <artifactId>jakarta.persistence-api</artifactId>
+                <version>${jakarta.version}</version>
             </dependency>
 <!--            <dependency>-->
 <!--                <groupId>org.apache.calcite</groupId>-->

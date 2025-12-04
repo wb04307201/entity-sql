@@ -88,4 +88,20 @@ public record Executor(DataSource dataSource) {
             }
         }
     }
+
+    public Object execute(String sql, Map<Integer, Object> params) throws SQLException {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                buildPrepareStatement(preparedStatement, params);
+                boolean isResultSet = preparedStatement.execute();
+                if (isResultSet) {
+                    try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                        return resultSetToList(resultSet);
+                    }
+                } else {
+                    return preparedStatement.getUpdateCount();
+                }
+            }
+        }
+    }
 }
