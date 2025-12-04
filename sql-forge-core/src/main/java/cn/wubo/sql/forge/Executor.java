@@ -79,17 +79,7 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-
-    public int executeUpdate(String sql, Map<Integer, Object> params) throws SQLException {
-        try (Connection connection = getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                buildPrepareStatement(preparedStatement, params);
-                return preparedStatement.executeUpdate();
-            }
-        }
-    }
-
-    public long executeLargeUpdate(String sql, Map<Integer, Object> params) throws SQLException {
+    public long executeUpdate(String sql, Map<Integer, Object> params) throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 buildPrepareStatement(preparedStatement, params);
