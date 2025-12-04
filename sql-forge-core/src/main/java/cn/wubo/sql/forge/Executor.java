@@ -89,6 +89,16 @@ public record Executor(DataSource dataSource) {
         }
     }
 
+    public int[] executeBatch(String sql, List<Map<Integer, Object>> paramsList) throws SQLException {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                for(Map<Integer, Object> params : paramsList)
+                    buildPrepareStatement(preparedStatement, params);
+                return preparedStatement.executeBatch();
+            }
+        }
+    }
+
     public Object execute(String sql, Map<Integer, Object> params) throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
