@@ -33,6 +33,9 @@
         <module>sql-forge-entity</module>
         <module>sql-forge-spring-boot-autoconfigure</module>
         <module>sql-forge-test</module>
+        <module>sql-forge-console</module>
+        <module>sql-forge-json-api</module>
+        <module>sql-forge-common</module>
     </modules>
 
     <properties>

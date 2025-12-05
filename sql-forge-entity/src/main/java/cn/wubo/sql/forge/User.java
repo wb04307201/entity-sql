@@ -36,7 +36,6 @@ public class User {
 
     @Lob
     @Column(name = "description",columnDefinition = "TEXT",comment = "描述")
-//    @Column(name = "description",columnDefinition = "CLOB",comment = "描述")
     private String description;
 
     @Lob
@@ -45,4 +44,7 @@ public class User {
 
     @Lob
     private byte[] data;
+
+    @Column(name = "is_alive")
+    private Boolean alive;
 }
