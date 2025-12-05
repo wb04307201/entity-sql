@@ -1,4 +1,4 @@
-package cn.wubo.sql.forge;
+package cn.wubo.sql.forge.enums;
 
 import lombok.Getter;
 

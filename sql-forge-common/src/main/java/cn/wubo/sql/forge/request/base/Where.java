@@ -1,6 +1,6 @@
 package cn.wubo.sql.forge.request.base;
 
-import cn.wubo.sql.forge.ConditionType;
+import cn.wubo.sql.forge.enums.ConditionType;
 import jakarta.validation.constraints.NotBlank;
 
 public record Where(
