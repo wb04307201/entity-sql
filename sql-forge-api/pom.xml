@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sql-forge-json-api</artifactId>
+    <artifactId>sql-forge-api</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -24,14 +24,8 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.gitee.wb04307201</groupId>
-            <artifactId>sql-forge-core</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gitee.wb04307201</groupId>
-            <artifactId>sql-forge-common</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
         </dependency>
     </dependencies>
 

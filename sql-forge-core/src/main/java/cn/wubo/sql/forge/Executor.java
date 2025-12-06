@@ -1,6 +1,10 @@
 package cn.wubo.sql.forge;
 
 
+import cn.wubo.sql.forge.map.ParamMap;
+import cn.wubo.sql.forge.map.RowMap;
+import cn.wubo.sql.forge.records.SqlScript;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
@@ -9,13 +13,12 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public record Executor(DataSource dataSource) {
 
-    private void buildPrepareStatement(@NotNull PreparedStatement preparedStatement, Map<Integer, Object> params) throws SQLException {
+    private void buildPrepareStatement(@NotNull PreparedStatement preparedStatement, ParamMap params) throws SQLException {
         if (params != null && !params.isEmpty()) {
             for (Map.Entry<Integer, Object> entry : params.entrySet()) {
                 Integer index = entry.getKey();
@@ -35,8 +38,8 @@ public record Executor(DataSource dataSource) {
     }
 
 
-    private List<Map<String, Object>> resultSetToList(@NonNull ResultSet rs) throws SQLException {
-        List<Map<String, Object>> list = new ArrayList<>();
+    private List<RowMap> resultSetToList(@NonNull ResultSet rs) throws SQLException {
+        List<RowMap> list = new ArrayList<>();
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
 
@@ -54,7 +57,7 @@ public record Executor(DataSource dataSource) {
         }
 
         while (rs.next()) {
-            Map<String, Object> row = new HashMap<>(columnCount);
+            RowMap row = new RowMap(columnCount);
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = metaData.getColumnLabel(i);
                 Object value = rs.getObject(i);
@@ -70,11 +73,11 @@ public record Executor(DataSource dataSource) {
         return DataSourceUtils.getConnection(dataSource);
     }
 
-    public List<Map<String, Object>> executeQuery(@NotBlank String sql, Map<Integer, Object> params) throws
+    public List<RowMap> executeQuery(@Valid SqlScript sqlScript) throws
             SQLException {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                buildPrepareStatement(preparedStatement, params);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
+                buildPrepareStatement(preparedStatement, sqlScript.params());
 
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     return resultSetToList(resultSet);
@@ -83,10 +86,10 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    public Object executeInsert(@NotBlank String sql, Map<Integer, Object> params) throws SQLException {
+    public Object executeInsert(@Valid SqlScript sqlScript) throws SQLException {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                buildPrepareStatement(preparedStatement, params);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
+                buildPrepareStatement(preparedStatement, sqlScript.params());
 
                 preparedStatement.executeUpdate();
 
@@ -100,19 +103,19 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    public int executeUpdate(@NotBlank String sql, Map<Integer, Object> params) throws SQLException {
+    public int executeUpdate(@Valid SqlScript sqlScript) throws SQLException {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                buildPrepareStatement(preparedStatement, params);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
+                buildPrepareStatement(preparedStatement, sqlScript.params());
                 return preparedStatement.executeUpdate();
             }
         }
     }
 
-    public long executeLargeUpdate(@NotBlank String sql, Map<Integer, Object> params) throws SQLException {
+    public long executeLargeUpdate(@Valid SqlScript sqlScript) throws SQLException {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                buildPrepareStatement(preparedStatement, params);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
+                buildPrepareStatement(preparedStatement, sqlScript.params());
                 if (preparedStatement.isWrapperFor(PreparedStatement.class))
                     return preparedStatement.executeLargeUpdate();
                 else
@@ -121,10 +124,10 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    public Object[] executeBatchInsert(@NotBlank String sql, List<Map<Integer, Object>> paramsList) throws SQLException {
+    public Object[] executeBatchInsert(@NotBlank String sql, List<ParamMap> paramsList) throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                for (Map<Integer, Object> params : paramsList) {
+                for (ParamMap params : paramsList) {
                     buildPrepareStatement(preparedStatement, params);
                     preparedStatement.addBatch();
                 }
@@ -143,10 +146,10 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    public int[] executeBatch(@NotBlank String sql, List<Map<Integer, Object>> paramsList) throws SQLException {
+    public int[] executeBatch(@NotBlank String sql, List<ParamMap> paramsList) throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                for (Map<Integer, Object> params : paramsList) {
+                for (ParamMap params : paramsList) {
                     buildPrepareStatement(preparedStatement, params);
                     preparedStatement.addBatch();
                 }
@@ -156,10 +159,10 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    public Object execute(@NotBlank String sql, Map<Integer, Object> params) throws SQLException {
+    public Object execute(@Valid SqlScript sqlScript) throws SQLException {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                buildPrepareStatement(preparedStatement, params);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
+                buildPrepareStatement(preparedStatement, sqlScript.params());
                 boolean isResultSet = preparedStatement.execute();
                 if (isResultSet) {
                     try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -170,5 +173,13 @@ public record Executor(DataSource dataSource) {
                 }
             }
         }
+    }
+
+    public List<Object> executeByLine(@Valid List<SqlScript> sqlScripts) throws SQLException {
+        List<Object> list = new ArrayList<>();
+        for (SqlScript sqlScript : sqlScripts) {
+            list.add(execute(sqlScript));
+        }
+        return list;
     }
 }

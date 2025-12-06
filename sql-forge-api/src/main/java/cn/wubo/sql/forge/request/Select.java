@@ -1,5 +1,6 @@
 package cn.wubo.sql.forge.request;
 
+import cn.wubo.sql.forge.request.base.Join;
 import cn.wubo.sql.forge.request.base.Page;
 import cn.wubo.sql.forge.request.base.Where;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,7 +19,8 @@ public record Select (
         @Valid
         Page page,
         @JsonProperty("@join")
-        List<String> joins,
+        @Valid
+        List<Join> joins,
         @JsonProperty("@order")
         String[] orders,
         @JsonProperty("@group")
