@@ -1,5 +1,6 @@
 package cn.wubo.sql.forge;
 
+import cn.wubo.sql.forge.enums.JoinType;
 import cn.wubo.sql.forge.jdbc.SQL;
 import cn.wubo.sql.forge.map.ParamMap;
 import cn.wubo.sql.forge.map.RowMap;
@@ -16,6 +17,8 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 import static cn.wubo.sql.forge.constant.Constant.QUESTION_MARK;
 
