@@ -10,4 +10,5 @@ public record Page(
         @NotNull
         @Min(1)
         Integer pageSize
-) { }
+) {
+}

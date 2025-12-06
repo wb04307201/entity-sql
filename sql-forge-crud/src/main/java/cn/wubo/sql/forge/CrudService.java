@@ -21,6 +21,37 @@ import static cn.wubo.sql.forge.constant.Constant.QUESTION_MARK;
 
 public record CrudService(Executor executor) {
 
+    public Object delete(@NotBlank String tableName, @Valid Delete delete) throws SQLException {
+        ParamMap params = new ParamMap();
+        SQL sql = new SQL().DELETE_FROM(tableName);
+
+        applyWheres(sql, delete.wheres(), params);
+
+        int count = executor.executeUpdate(new SqlScript(sql.toString(), params));
+
+        if (delete.select() != null)
+            return select(tableName, delete.select());
+        else
+            return count;
+    }
+
+    public Object insert(@NotBlank String tableName, @Valid Insert insert) throws SQLException {
+        ParamMap params = new ParamMap();
+        SQL sql = new SQL().INSERT_INTO(tableName);
+
+        for (Set set : insert.sets()) {
+            params.put(set.value());
+            sql.VALUES(set.column(), QUESTION_MARK);
+        }
+
+        Object key = executor.executeInsert(new SqlScript(sql.toString(), params));
+
+        if (insert.select() != null)
+            return select(tableName, insert.select());
+        else
+            return key;
+    }
+
     public List<RowMap> select(@NotBlank String tableName, @Valid Select select) throws SQLException {
         ParamMap params = new ParamMap();
         SQL sql = new SQL().FROM(tableName);
@@ -42,10 +73,7 @@ public record CrudService(Executor executor) {
             }
         }
 
-        if (select.wheres() != null && !select.wheres().isEmpty()) {
-            for (Where where : select.wheres())
-                sql.WHERE(where.create(params));
-        }
+        applyWheres(sql, select.wheres(), params);
 
         if (select.groups() != null && select.groups().length > 0)
             sql.GROUP_BY(select.groups());
@@ -65,32 +93,12 @@ public record CrudService(Executor executor) {
         return executor.executeQuery(new SqlScript(sql.toString(), params));
     }
 
-    public Object insert(@NotBlank String tableName,@Valid Insert insert) throws SQLException {
-        ParamMap params = new ParamMap();
-        SQL sql = new SQL().INSERT_INTO(tableName);
 
-        for(Set set:insert.sets()){
-            params.put(set.value());
-            sql.VALUES(set.column(), QUESTION_MARK);
-        }
-
-        Object key = executor.executeInsert(new SqlScript(sql.toString(), params));
-
-        if (insert.select() != null)
-            return select(tableName, insert.select());
-        else
-            return key;
-    }
-
-
-    public Object update(@NotBlank String tableName,@Valid Update update) throws SQLException {
+    public Object update(@NotBlank String tableName, @Valid Update update) throws SQLException {
         ParamMap params = new ParamMap();
         SQL sql = new SQL().UPDATE(tableName);
 
-        if (update.wheres() != null && !update.wheres().isEmpty()) {
-            for (Where where : update.wheres())
-                sql.WHERE(where.create(params));
-        }
+        applyWheres(sql, update.wheres(), params);
 
         int count = executor.executeUpdate(new SqlScript(sql.toString(), params));
 
@@ -100,21 +108,11 @@ public record CrudService(Executor executor) {
             return count;
     }
 
-
-    public Object delete(@NotBlank String tableName,@Valid Delete delete) throws SQLException {
-        ParamMap params = new ParamMap();
-        SQL sql = new SQL().DELETE_FROM(tableName);
-
-        if (delete.wheres() != null && !delete.wheres().isEmpty()) {
-            for (Where where : delete.wheres())
+    private void applyWheres(SQL sql, List<Where> wheres, ParamMap params) {
+        if (wheres != null && !wheres.isEmpty()) {
+            for (Where where : wheres) {
                 sql.WHERE(where.create(params));
+            }
         }
-
-        int count = executor.executeUpdate(new SqlScript(sql.toString(), params));
-
-        if (delete.select() != null)
-            return select(tableName, delete.select());
-        else
-            return count;
     }
 }

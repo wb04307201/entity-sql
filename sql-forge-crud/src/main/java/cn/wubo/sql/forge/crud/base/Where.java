@@ -37,7 +37,7 @@ public record Where(
                 yield UPPER + OPERN_PAREN + column + CLOSE_PAREN + condition.getValue() + UPPER_QUESTION_MARK;
             case BETWEEN, NOT_BETWEEN, IN, NOT_IN:
                 if (value instanceof List<?> list) {
-                    yield column + condition.getValue() + OPERN_PAREN + getListValueStr(list,params) + CLOSE_PAREN;
+                    yield column + condition.getValue() + OPERN_PAREN + getListValueStr(list, params) + CLOSE_PAREN;
                 } else {
                     throw new IllegalArgumentException("Invalid condition,  value must be a List");
                 }

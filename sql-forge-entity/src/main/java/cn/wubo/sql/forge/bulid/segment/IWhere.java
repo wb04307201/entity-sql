@@ -1,6 +1,8 @@
 package cn.wubo.sql.forge.bulid.segment;
 
 
+import cn.wubo.sql.forge.inter.SFunction;
+
 import java.util.List;
 
 public interface IWhere<T, Children> {

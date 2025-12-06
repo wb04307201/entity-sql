@@ -8,7 +8,7 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 
-public record Select (
+public record Select(
         @JsonProperty("@column")
         String[] columns,
         @JsonProperty("@where")
@@ -26,4 +26,5 @@ public record Select (
         String[] groups,
         @JsonProperty("@distince")
         boolean distinct
-){ }
+) {
+}

@@ -6,4 +6,5 @@ public record Set(
         @NotBlank
         String column,
         Object value
-) { }
+) {
+}

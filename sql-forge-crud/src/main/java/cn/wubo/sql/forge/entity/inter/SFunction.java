@@ -1,4 +1,4 @@
-package cn.wubo.sql.forge.bulid.segment;
+package cn.wubo.sql.forge.entity.inter;
 
 import java.io.Serializable;
 import java.util.function.Function;
