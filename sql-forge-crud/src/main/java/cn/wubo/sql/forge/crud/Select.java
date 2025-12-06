@@ -1,11 +1,10 @@
-package cn.wubo.sql.forge.request;
+package cn.wubo.sql.forge.crud;
 
-import cn.wubo.sql.forge.request.base.Join;
-import cn.wubo.sql.forge.request.base.Page;
-import cn.wubo.sql.forge.request.base.Where;
+import cn.wubo.sql.forge.crud.base.Join;
+import cn.wubo.sql.forge.crud.base.Page;
+import cn.wubo.sql.forge.crud.base.Where;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package cn.wubo.sql.forge.request.base;
+package cn.wubo.sql.forge.crud.base;
 
 import cn.wubo.sql.forge.enums.ConditionType;
 import cn.wubo.sql.forge.map.ParamMap;

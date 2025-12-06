@@ -1,4 +1,4 @@
-package cn.wubo.sql.forge.request.base;
+package cn.wubo.sql.forge.crud.base;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

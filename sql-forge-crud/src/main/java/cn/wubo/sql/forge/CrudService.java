@@ -4,13 +4,13 @@ import cn.wubo.sql.forge.jdbc.SQL;
 import cn.wubo.sql.forge.map.ParamMap;
 import cn.wubo.sql.forge.map.RowMap;
 import cn.wubo.sql.forge.records.SqlScript;
-import cn.wubo.sql.forge.request.Delete;
-import cn.wubo.sql.forge.request.Insert;
-import cn.wubo.sql.forge.request.Select;
-import cn.wubo.sql.forge.request.Update;
-import cn.wubo.sql.forge.request.base.Join;
-import cn.wubo.sql.forge.request.base.Set;
-import cn.wubo.sql.forge.request.base.Where;
+import cn.wubo.sql.forge.crud.Delete;
+import cn.wubo.sql.forge.crud.Insert;
+import cn.wubo.sql.forge.crud.Select;
+import cn.wubo.sql.forge.crud.Update;
+import cn.wubo.sql.forge.crud.base.Join;
+import cn.wubo.sql.forge.crud.base.Set;
+import cn.wubo.sql.forge.crud.base.Where;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
@@ -19,7 +19,7 @@ import java.util.List;
 
 import static cn.wubo.sql.forge.constant.Constant.QUESTION_MARK;
 
-public record ApiSerice(Executor executor) {
+public record CrudService(Executor executor) {
 
     public List<RowMap> select(@NotBlank String tableName, @Valid Select select) throws SQLException {
         ParamMap params = new ParamMap();

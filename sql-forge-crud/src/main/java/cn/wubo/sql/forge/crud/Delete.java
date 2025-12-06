@@ -1,21 +1,15 @@
-package cn.wubo.sql.forge.request;
+package cn.wubo.sql.forge.crud;
 
-import cn.wubo.sql.forge.request.base.Set;
-import cn.wubo.sql.forge.request.base.Where;
+import cn.wubo.sql.forge.crud.base.Where;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-public record Update(
-        @JsonProperty("@set")
-        @NotNull
-        @Size(min = 1)
-        @Valid
-        List<Set> sets,
+public record Delete(
         @JsonProperty("@where")
+        @NotNull
         @Valid
         List<Where> wheres,
         @JsonProperty("@with_select")
