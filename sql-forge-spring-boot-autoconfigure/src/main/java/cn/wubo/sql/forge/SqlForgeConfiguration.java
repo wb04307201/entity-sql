@@ -21,6 +21,11 @@ public class SqlForgeConfiguration {
         return new MetaData(dataSource);
     }
 
+    @Bean
+    public CrudService crudService(Executor executor) {
+        return new CrudService(executor);
+    }
+
     @Bean("sqlForgeRouter")
     public RouterFunction<ServerResponse> sqlForgeRouter(MetaData metaData) {
         RouterFunctions.Builder builder = RouterFunctions.route();

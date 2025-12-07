@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
-public class ExecutorTest {
+class ExecutorTest {
 
     @Autowired
     private Executor executor;

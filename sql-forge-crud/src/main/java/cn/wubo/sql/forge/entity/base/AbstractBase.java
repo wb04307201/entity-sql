@@ -13,5 +13,5 @@ public abstract class AbstractBase<T, R, C extends AbstractBase<T, R, C>> {
         this.entityClass = entityClass;
     }
 
-    public abstract R build();
+    public abstract EntityResult<R> build();
 }
