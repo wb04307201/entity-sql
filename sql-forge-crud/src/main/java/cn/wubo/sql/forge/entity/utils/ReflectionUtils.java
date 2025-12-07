@@ -12,22 +12,6 @@ import java.lang.reflect.InvocationTargetException;
 @UtilityClass
 public class ReflectionUtils {
 
-    public <T> String getColumnName(Class<?> entityClass, SFunction<T, ?> fn) throws NoSuchFieldException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        String fieldName = LambdaUtils.getFieldName(fn);
-        Field field = entityClass.getDeclaredField(fieldName);
-        if (field.isAnnotationPresent(Transient.class)) {
-            return null;
-        }
-        if (field.isAnnotationPresent(Column.class)) {
-            Column columnAnnotation = field.getAnnotation(Column.class);
-            String columnName = columnAnnotation.name();
-            if (!columnName.isEmpty()) {
-                return columnName;
-            }
-        }
-        return StringUtils.camelToUnderscore(fieldName);
-    }
-
     public TableStructureInfo extractTableInfo(Class<?> entityClass) {
         TableStructureInfo info = new TableStructureInfo();
 
@@ -42,6 +26,9 @@ public class ReflectionUtils {
         // 遍历所有字段
         Field[] fields = entityClass.getDeclaredFields();
         for (Field field : fields) {
+            if (field.isAnnotationPresent(Transient.class))
+                continue;
+
             ColumnInfo columnInfo = new ColumnInfo();
             columnInfo.setField(field);
             columnInfo.setFieldName(field.getName());

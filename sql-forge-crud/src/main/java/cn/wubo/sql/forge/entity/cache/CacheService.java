@@ -9,7 +9,7 @@ public class CacheService {
 
     private static final Map<Class<?>, TableStructureInfo> metadataCache = new ConcurrentHashMap<>();
 
-    public static TableStructureInfo getTableInfo(Class<?> entityClass) {
+    public TableStructureInfo getTableInfo(Class<?> entityClass) {
         return metadataCache.computeIfAbsent(entityClass, ReflectionUtils::extractTableInfo);
     }
 }

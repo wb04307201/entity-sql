@@ -24,4 +24,11 @@ public class StringUtils {
         }
         return result.toString();
     }
+
+    public String toCamelCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+        return Character.toLowerCase(input.charAt(0)) + input.substring(1);
+    }
 }
