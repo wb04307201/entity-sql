@@ -85,6 +85,7 @@ public class EntitySelect<T> extends AbstractSelect<T, List<T>, EntitySelect<T>>
                         } else if (javaType == Boolean.class || javaType == boolean.class) {
                             field.set(obj, Boolean.valueOf(value.toString()));
                         }
+                    }
                 }
             }
             result.add(obj);
