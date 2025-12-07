@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -14,34 +15,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@ActiveProfiles("kingbase8")
 @Slf4j
-class MetaDataKingbase8Test {
+@SpringBootTest
+@ActiveProfiles("test")
+class MetaDataTest {
 
+    @Autowired
     private MetaData metaData;
-
-    @Value("${spring.datasource.driver-class-name}")
-    private String driverClassName;
-
-    @Value("${spring.datasource.url}")
-    private String url;
-
-    @Value("${spring.datasource.username}")
-    private String username;
-
-    @Value("${spring.datasource.password}")
-    private String password;
-
-    @BeforeEach
-    void setUp() throws Exception {
-        Class.forName(driverClassName);
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl(url);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
-        metaData = new MetaData(dataSource);
-    }
 
     @Test
     void testGetDatabase() throws SQLException {

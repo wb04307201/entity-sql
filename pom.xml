@@ -31,7 +31,6 @@
 <!--        <module>entity-sql-test</module>-->
         <module>sql-forge-core</module>
         <module>sql-forge-crud</module>
-        <module>sql-forge-entity</module>
         <module>sql-forge-console</module>
         <module>sql-forge-spring-boot-autoconfigure</module>
         <module>sql-forge-test</module>

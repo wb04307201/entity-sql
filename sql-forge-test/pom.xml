@@ -25,9 +25,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>cn.com.kingbase</groupId>
-            <artifactId>kingbase8</artifactId>
-            <version>9.0.1</version>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
         </dependency>
     </dependencies>
 
