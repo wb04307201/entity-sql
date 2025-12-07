@@ -30,7 +30,6 @@ public class User {
     @Column(name = "income", precision = 10, scale = 2, comment = "收入")
     private Integer income;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "gender", comment = "性别")
     private Gender gender;
 
