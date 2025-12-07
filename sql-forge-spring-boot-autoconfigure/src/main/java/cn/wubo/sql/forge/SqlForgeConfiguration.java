@@ -1,5 +1,6 @@
 package cn.wubo.sql.forge;
 
+import cn.wubo.sql.forge.entity.cache.CacheService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.function.RouterFunction;
@@ -24,6 +25,16 @@ public class SqlForgeConfiguration {
     @Bean
     public CrudService crudService(Executor executor) {
         return new CrudService(executor);
+    }
+
+    @Bean
+    public CacheService cacheService() {
+        return new CacheService();
+    }
+
+    @Bean
+    public EntityService entityService(CrudService crudService, CacheService cacheService) {
+        return new EntityService(crudService, cacheService);
     }
 
     @Bean("sqlForgeRouter")

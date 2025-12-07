@@ -15,5 +15,5 @@ public abstract class AbstractBase<T, R, C extends AbstractBase<T, R, C>> {
         this.entityClass = entityClass;
     }
 
-    public abstract R build(CacheService cacheService, CrudService crudService);
+    public abstract R run(CacheService cacheService, CrudService crudService) throws Exception;
 }

@@ -59,7 +59,7 @@ public class ReflectionUtils {
                 columnInfo.setLob(true);
             }
 
-            info.getColumnNameColumnInfoMap().put(columnInfo.getColumnName(), columnInfo);
+            info.getColumnNameColumnInfoMap().put(columnInfo.getColumnName().toLowerCase(), columnInfo);
             info.getFieldNameColumnInfoMap().put(columnInfo.getFieldName(), columnInfo);
         }
 

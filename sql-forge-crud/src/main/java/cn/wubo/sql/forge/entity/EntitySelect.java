@@ -10,9 +10,9 @@ import cn.wubo.sql.forge.entity.cache.CacheService;
 import cn.wubo.sql.forge.entity.cache.ColumnInfo;
 import cn.wubo.sql.forge.entity.cache.TableStructureInfo;
 import cn.wubo.sql.forge.entity.inter.SFunction;
-import cn.wubo.sql.forge.jdbc.SQL;
 import cn.wubo.sql.forge.map.RowMap;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +23,8 @@ public class EntitySelect<T> extends AbstractSelect<T, List<T>, EntitySelect<T>>
     }
 
     @Override
-    public List<T> build(CacheService cacheService, CrudService crudService) {
+    public List<T> run(CacheService cacheService, CrudService crudService) throws Exception {
         TableStructureInfo tableStructureInfo = cacheService.getTableInfo(entityClass);
-
-        SQL sql = new SQL();
-        sql.FROM(tableStructureInfo.getTableName());
 
         List<String> sqlColumns = new ArrayList<>();
         if (columns != null && !columns.isEmpty())
@@ -36,10 +33,6 @@ public class EntitySelect<T> extends AbstractSelect<T, List<T>, EntitySelect<T>>
                 if (columnInfo != null)
                     sqlColumns.add(columnInfo.getColumnName());
             }
-        if (!sqlColumns.isEmpty())
-            sql.SELECT(sqlColumns.toArray(new String[0]));
-        else
-            sql.SELECT("*");
 
         List<Where> sqlWheres = new ArrayList<>();
         if (entityConditions != null && !entityConditions.isEmpty()) {
@@ -71,10 +64,31 @@ public class EntitySelect<T> extends AbstractSelect<T, List<T>, EntitySelect<T>>
                 false
         );
         List<RowMap> list = crudService.select(tableStructureInfo.getTableName(), select);
+        List<T> result = new ArrayList<>();
+        for (RowMap rowMap : list) {
+            T obj = entityClass.getDeclaredConstructor().newInstance();
+            for (String key : rowMap.keySet()) {
+                ColumnInfo columnInfo = tableStructureInfo.getColumnNameColumnInfoMap().getOrDefault(key.toLowerCase(), null);
+                if (columnInfo != null) {
+                    Field field = columnInfo.getField();
+                    field.setAccessible(true);
 
-
-        return null;
+                    Object value = rowMap.get(key);
+                    if (value != null) {
+                        Class<?> javaType = columnInfo.getJavaType();
+                        if (javaType == Integer.class || javaType == int.class) {
+                            field.set(obj, ((Number) value).intValue());
+                        } else if (javaType == Long.class || javaType == long.class) {
+                            field.set(obj, ((Number) value).longValue());
+                        } else if (javaType == String.class) {
+                            field.set(obj, value.toString());
+                        } else if (javaType == Boolean.class || javaType == boolean.class) {
+                            field.set(obj, Boolean.valueOf(value.toString()));
+                        }
+                }
+            }
+            result.add(obj);
+        }
+        return result;
     }
-
-
 }

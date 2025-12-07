@@ -13,7 +13,7 @@ import java.time.LocalDate;
 //@Enumerated - 枚举类型映射
 //@Lob - 大对象映射
 @Table(name = "test_user")
-public class User {
+public class TestUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
