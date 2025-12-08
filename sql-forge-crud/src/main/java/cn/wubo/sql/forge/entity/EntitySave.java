@@ -49,10 +49,10 @@ public class EntitySave<T> extends AbstractEntity<T, T, EntitySave<T>> {
         if (primaryKeyValue == null && primaryKeyColumnInfo.getJavaType() == String.class) {
             // insert
             String key = UUID.randomUUID().toString();
-            primaryKeyField.set(entity, key);
             sqlSets.add(new Set(primaryKeyColumnInfo.getColumnName(), key));
             Insert insert = new Insert(sqlSets, null);
             crudService.insert(tableStructureInfo.getTableName(), insert);
+            primaryKeyField.set(entity, key);
         }else if (primaryKeyValue == null){
             // insert
             Insert insert = new Insert(sqlSets, null);
