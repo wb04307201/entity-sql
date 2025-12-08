@@ -6,13 +6,16 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Data
 public class TableStructureInfo {
     private String tableName;
+    List<ColumnInfo> columnInfos = new ArrayList<>();
     private Map<String, ColumnInfo> columnNameColumnInfoMap = new HashMap<>();
     private Map<String, ColumnInfo> fieldNameColumnInfoMap = new HashMap<>();
 

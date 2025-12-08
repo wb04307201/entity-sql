@@ -1,5 +1,6 @@
 package cn.wubo.sql.forge.entity.cache;
 
+import jakarta.persistence.GenerationType;
 import lombok.Data;
 
 import java.lang.reflect.Field;

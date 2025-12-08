@@ -1,5 +1,6 @@
 package cn.wubo.sql.forge;
 
+import cn.wubo.sql.forge.entity.EntityInsert;
 import cn.wubo.sql.forge.entity.base.AbstractBase;
 import cn.wubo.sql.forge.entity.cache.CacheService;
 

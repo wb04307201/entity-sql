@@ -1,5 +1,6 @@
 package cn.wubo.sql.forge;
 
+import cn.wubo.sql.forge.enums.ConditionType;
 import cn.wubo.sql.forge.jdbc.SQL;
 import cn.wubo.sql.forge.map.ParamMap;
 import cn.wubo.sql.forge.map.RowMap;
@@ -96,6 +97,11 @@ public record CrudService(Executor executor) {
     public Object update(@NotBlank String tableName, @Valid Update update) throws SQLException {
         ParamMap params = new ParamMap();
         SQL sql = new SQL().UPDATE(tableName);
+
+        for (Set set : update.sets()) {
+            params.put(set.value());
+            sql.SET(set.column() + ConditionType.EQ.getValue() + QUESTION_MARK);
+        }
 
         applyWheres(sql, update.wheres(), params);
 

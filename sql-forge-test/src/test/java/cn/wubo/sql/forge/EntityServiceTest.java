@@ -18,16 +18,28 @@ class EntityServiceTest {
     private EntityService entityService;
 
     @Test
-    void test() throws Exception {
+    void testEntitySelect() throws Exception {
         EntitySelect<User> select = Entity.select(User.class)
                 .distinct(true)
-                .columns(User::getId,User::getUsername,User::getEmail)
+                .columns(User::getId, User::getUsername, User::getEmail)
                 .orders(User::getUsername)
-                .in(User::getUsername, "alice","bob")
-                .page(0,1);
+                .in(User::getUsername, "alice", "bob")
+                .page(0, 1);
         List<User> users = entityService.run(select);
-        log.info("{}",users);
+        log.info("{}", users);
     }
 
-
+    @Test
+    void testEntity() throws Exception {
+        User user = new User();
+        user.setUsername("wb04307201");
+        user.setEmail("wb04307201@gitee.com");
+        user = entityService.run(Entity.save(user));
+        log.info("{}", user);
+        user.setEmail("wb04307201@github.com");
+        user = entityService.run(Entity.save(user));
+        log.info("{}", user);
+        int count = entityService.run(Entity.delete(user));
+        log.info("{}", count);
+    }
 }
