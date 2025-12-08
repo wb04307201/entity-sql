@@ -4,14 +4,9 @@ const { Header, Content, Footer, Sider } = Layout;
 function App() {
 
   return (
-      <Layout>
-          <Header>header</Header>
-          <Layout>
-              <Sider>left sidebar</Sider>
+      <Layout style={{height: '100%'}}>
+              <Sider theme={'light'}>left sidebar</Sider>
               <Content>main content</Content>
-              <Sider>right sidebar</Sider>
-          </Layout>
-          <Footer>footer</Footer>
       </Layout>
   )
 }
