@@ -83,11 +83,10 @@ public record CrudService(Executor executor) {
             sql.ORDER_BY(select.orders());
 
         if (select.page() != null) {
-            long offset = (long) select.page().pageIndex() * select.page().pageSize();
-            params.put(offset);
             params.put(select.page().pageSize());
-            sql.OFFSET(QUESTION_MARK)
-                    .LIMIT(QUESTION_MARK);
+            params.put((long) select.page().pageIndex() * select.page().pageSize());
+            sql.LIMIT(QUESTION_MARK)
+                    .OFFSET(QUESTION_MARK);
         }
 
         return executor.executeQuery(new SqlScript(sql.toString(), params));

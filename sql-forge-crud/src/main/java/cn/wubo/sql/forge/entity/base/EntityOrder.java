@@ -7,4 +7,12 @@ public record EntityOrder<T>(
         SFunction<T, ?> colum,
         OrderType orderType
 ) {
+
+    public static <T> EntityOrder<T> asc(SFunction<T, ?> colum) {
+        return new EntityOrder<>(colum, OrderType.ASC);
+    }
+
+    public static <T> EntityOrder<T> desc(SFunction<T, ?> colum) {
+        return new EntityOrder<>(colum, OrderType.DESC);
+    }
 }

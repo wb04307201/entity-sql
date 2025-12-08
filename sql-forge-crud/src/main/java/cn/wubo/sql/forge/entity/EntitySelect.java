@@ -10,6 +10,7 @@ import cn.wubo.sql.forge.entity.cache.CacheService;
 import cn.wubo.sql.forge.entity.cache.ColumnInfo;
 import cn.wubo.sql.forge.entity.cache.TableStructureInfo;
 import cn.wubo.sql.forge.entity.inter.SFunction;
+import cn.wubo.sql.forge.entity.utils.ValueUtils;
 import cn.wubo.sql.forge.map.RowMap;
 
 import java.lang.reflect.Field;
@@ -61,7 +62,7 @@ public class EntitySelect<T> extends AbstractSelect<T, List<T>, EntitySelect<T>>
                 null,
                 sqlOrders.toArray(new String[0]),
                 null,
-                false
+                distinct
         );
         List<RowMap> list = crudService.select(tableStructureInfo.getTableName(), select);
         List<T> result = new ArrayList<>();
@@ -75,16 +76,8 @@ public class EntitySelect<T> extends AbstractSelect<T, List<T>, EntitySelect<T>>
 
                     Object value = rowMap.get(key);
                     if (value != null) {
-                        Class<?> javaType = columnInfo.getJavaType();
-                        if (javaType == Integer.class || javaType == int.class) {
-                            field.set(obj, ((Number) value).intValue());
-                        } else if (javaType == Long.class || javaType == long.class) {
-                            field.set(obj, ((Number) value).longValue());
-                        } else if (javaType == String.class) {
-                            field.set(obj, value.toString());
-                        } else if (javaType == Boolean.class || javaType == boolean.class) {
-                            field.set(obj, Boolean.valueOf(value.toString()));
-                        }
+                        Object convertedValue = ValueUtils.convertValueToFieldType(value, columnInfo.getJavaType());
+                        field.set(obj, convertedValue);
                     }
                 }
             }

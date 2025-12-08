@@ -1,12 +1,14 @@
 package cn.wubo.sql.forge;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
+@Data
 @Table(name = "users")
 public class User {
 
     @Id
-    private Long id;
+    private String id;
 
     @Column(name = "username")
     private String username;

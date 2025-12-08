@@ -1,26 +1,51 @@
 package cn.wubo.sql.forge.entity.base;
 
 import cn.wubo.sql.forge.crud.base.Page;
+import cn.wubo.sql.forge.entity.enums.OrderType;
 import cn.wubo.sql.forge.entity.inter.SFunction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractSelect<T, R, C extends AbstractSelect<T, R, C>> extends AbstractWhere<T, R, C> {
-    protected List<SFunction<T, ?>> columns;
+    protected List<SFunction<T, ?>> columns = new ArrayList<>();
     protected Page page;
-    protected List<EntityOrder<T>> orders;
+    protected List<EntityOrder<T>> orders = new ArrayList<>();
+    protected boolean distinct;
 
     protected AbstractSelect(Class<T> entityClass) {
         super(entityClass);
     }
 
-    public C select(SFunction<T, ?> column) {
+    public C column(SFunction<T, ?> column) {
         this.columns.add(column);
         return typedThis;
     }
 
-    public C select(SFunction<T, ?>... columns) {
+    public C columns(SFunction<T, ?>... columns) {
         this.columns.addAll(List.of(columns));
+        return typedThis;
+    }
+
+    public C orderAsc(SFunction<T, ?> column) {
+        this.orders.add(new EntityOrder<>(column, OrderType.ASC));
+        return typedThis;
+    }
+
+    public C orderDesc(SFunction<T, ?> column) {
+        this.orders.add(new EntityOrder<>(column, OrderType.DESC));
+        return typedThis;
+    }
+
+    public C orders(SFunction<T, ?>... columns) {
+        for (SFunction<T, ?> column : columns) {
+            this.orders.add(new EntityOrder<>(column, OrderType.ASC));
+        }
+        return typedThis;
+    }
+
+    public C distinct(Boolean distinct) {
+        this.distinct = distinct;
         return typedThis;
     }
 

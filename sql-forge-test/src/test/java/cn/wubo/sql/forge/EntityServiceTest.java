@@ -19,7 +19,12 @@ class EntityServiceTest {
 
     @Test
     void test() throws Exception {
-        EntitySelect<User> select = Entity.select(User.class);
+        EntitySelect<User> select = Entity.select(User.class)
+                .distinct(true)
+                .columns(User::getId,User::getUsername,User::getEmail)
+                .orders(User::getUsername)
+                .in(User::getUsername, "alice","bob")
+                .page(0,1);
         List<User> users = entityService.run(select);
         log.info("{}",users);
     }

@@ -9,7 +9,6 @@ public abstract class AbstractBase<T, R, C extends AbstractBase<T, R, C>> {
     protected final C typedThis = (C) this;
 
     protected Class<T> entityClass;
-    protected SFunction<T, ?>[] columns;
 
     protected AbstractBase(Class<T> entityClass) {
         this.entityClass = entityClass;

@@ -24,12 +24,12 @@ public class EntityUpdate<T> extends AbstractUpdate<T, Integer, EntityUpdate<T>>
     public Integer run(CacheService cacheService, CrudService crudService) throws Exception {
         TableStructureInfo tableStructureInfo = cacheService.getTableInfo(entityClass);
 
-        List<Set> sets = new ArrayList<>();
-        if (entitySets != null && !entitySets.isEmpty()){
-            for (EntitySet<T> entitySet : entitySets) {
+        List<Set> sqlSets = new ArrayList<>();
+        if (sets != null && !sets.isEmpty()){
+            for (EntitySet<T> entitySet : sets) {
                 ColumnInfo columnInfo = tableStructureInfo.getColumnInfo(entitySet.column());
                 if (columnInfo != null) {
-                    sets.add(new Set(columnInfo.getColumnName(), entitySet.value()));
+                    sqlSets.add(new Set(columnInfo.getColumnName(), entitySet.value()));
                 }
             }
         }
@@ -45,7 +45,7 @@ public class EntityUpdate<T> extends AbstractUpdate<T, Integer, EntityUpdate<T>>
         }
 
         Update update = new Update(
-                sets,
+                sqlSets,
                 sqlWheres,
                 null
         );

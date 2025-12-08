@@ -2,12 +2,14 @@ package cn.wubo.sql.forge.entity.base;
 
 import cn.wubo.sql.forge.entity.inter.SFunction;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static cn.wubo.sql.forge.enums.ConditionType.*;
 
 public abstract class AbstractWhere<T, R, C extends AbstractWhere<T, R, C>> extends AbstractBase<T, R, C> {
-    protected List<EntityCondition<T>> entityConditions;
+    protected List<EntityCondition<T>> entityConditions = new ArrayList<>();
 
     protected AbstractWhere(Class<T> entityClass) {
         super(entityClass);
@@ -64,17 +66,17 @@ public abstract class AbstractWhere<T, R, C extends AbstractWhere<T, R, C>> exte
     }
 
     public C between(SFunction<T, ?> column, Object value1, Object value2) {
-        entityConditions.add(new EntityCondition<>(column, BETWEEN, new Object[]{value1, value2}));
+        entityConditions.add(new EntityCondition<>(column, BETWEEN, Arrays.asList(value1, value2)));
         return typedThis;
     }
 
     public C notBetween(SFunction<T, ?> column, Object value1, Object value2) {
-        entityConditions.add(new EntityCondition<>(column, NOT_BETWEEN, new Object[]{value1, value2}));
+        entityConditions.add(new EntityCondition<>(column, NOT_BETWEEN, Arrays.asList(value1, value2)));
         return typedThis;
     }
 
     public C in(SFunction<T, ?> column, Object... value) {
-        entityConditions.add(new EntityCondition<>(column, IN, value));
+        entityConditions.add(new EntityCondition<>(column, IN, Arrays.asList(value)));
         return typedThis;
     }
 
