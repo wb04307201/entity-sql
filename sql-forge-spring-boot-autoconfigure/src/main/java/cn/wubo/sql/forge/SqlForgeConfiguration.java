@@ -1,13 +1,23 @@
 package cn.wubo.sql.forge;
 
+import cn.wubo.sql.forge.crud.Delete;
+import cn.wubo.sql.forge.crud.Insert;
+import cn.wubo.sql.forge.crud.Select;
+import cn.wubo.sql.forge.crud.Update;
 import cn.wubo.sql.forge.entity.cache.CacheService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.RouterFunctions;
 import org.springframework.web.servlet.function.ServerResponse;
 
 import javax.sql.DataSource;
+
+import static org.springframework.web.servlet.function.RequestPredicates.accept;
+import static org.springframework.web.servlet.function.RouterFunctions.route;
 
 @AutoConfiguration
 public class SqlForgeConfiguration {
@@ -37,7 +47,27 @@ public class SqlForgeConfiguration {
         return new EntityService(crudService, cacheService);
     }
 
+    @Bean("sqlForgeApiRouter")
+    @ConditionalOnProperty(name = "sql.forge.api.enabled", havingValue = "true", matchIfMissing = true)
+    public RouterFunction<ServerResponse> sqlForgeApiRouter(CrudService crudService) {
+        RouterFunctions.Builder builder = route();
+        builder.POST("/{method}/{tableName}", accept(MediaType.APPLICATION_JSON), request -> {
+            String method = request.pathVariable("method");
+            String tableName = request.pathVariable("tableName");
+            Object obj = switch (method) {
+                case "delete" -> crudService.delete(tableName, request.body(Delete.class));
+                case "insert" -> crudService.insert(tableName, request.body(Insert.class));
+                case "select" -> crudService.select(tableName, request.body(Select.class));
+                case "update" -> crudService.update(tableName, request.body(Update.class));
+                default -> throw new IllegalArgumentException("method not found");
+            };
+            return ServerResponse.ok().body(obj);
+        });
+        return builder.build();
+    }
+
     @Bean("sqlForgeRouter")
+    @ConditionalOnProperty(name = "sql.forge.console.enabled", havingValue = "true", matchIfMissing = true)
     public RouterFunction<ServerResponse> sqlForgeRouter(MetaData metaData) {
         RouterFunctions.Builder builder = RouterFunctions.route();
         builder.GET("/sql/forge/database", request -> ServerResponse.ok().body(metaData.getDatabase()));
