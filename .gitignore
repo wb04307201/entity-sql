@@ -30,4 +30,3 @@ build/
 
 ### VS Code ###
 .vscode/
-/sql-forge-test/data/

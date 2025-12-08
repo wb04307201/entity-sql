@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+/node/
+/target/maven-archiver/
+/target/sql-forge-console-1.0-SNAPSHOT.jar
