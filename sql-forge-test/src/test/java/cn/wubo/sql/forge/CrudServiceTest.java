@@ -16,6 +16,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
@@ -50,6 +52,6 @@ class CrudServiceTest {
 
         List<RowMap> rowMapList = crudService.select("orders o",select);
         log.info("rowMapList: {}", rowMapList);
-
+        assertEquals(rowMapList.size(), 4);
     }
 }

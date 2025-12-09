@@ -48,8 +48,6 @@ class EntityServiceTest {
         log.info("{}", count);
     }
 
-
-
     @Test
     void test() throws Exception {
         String id = UUID.randomUUID().toString();
