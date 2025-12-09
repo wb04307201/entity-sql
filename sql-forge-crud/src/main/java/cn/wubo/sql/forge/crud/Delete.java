@@ -9,7 +9,6 @@ import java.util.List;
 
 public record Delete(
         @JsonProperty("@where")
-        @NotNull
         @Valid
         List<Where> wheres,
         @JsonProperty("@with_select")
