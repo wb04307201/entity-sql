@@ -37,7 +37,6 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-
     private List<RowMap> resultSetToList(@NonNull ResultSet rs) throws SQLException {
         List<RowMap> list = new ArrayList<>();
         ResultSetMetaData metaData = rs.getMetaData();
@@ -75,7 +74,8 @@ public record Executor(DataSource dataSource) {
 
     public List<RowMap> executeQuery(@Valid SqlScript sqlScript) throws
             SQLException {
-        try (Connection connection = getConnection()) {
+        Connection connection = getConnection();
+        try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());
 
@@ -83,12 +83,15 @@ public record Executor(DataSource dataSource) {
                     return resultSetToList(resultSet);
                 }
             }
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
     public Object executeInsert(@Valid SqlScript sqlScript) throws SQLException {
-        try (Connection connection = getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
+        Connection connection = getConnection();
+        try {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql(), Statement.RETURN_GENERATED_KEYS)) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());
 
                 preparedStatement.executeUpdate();
@@ -100,20 +103,26 @@ public record Executor(DataSource dataSource) {
                         return null;
                 }
             }
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
     public int executeUpdate(@Valid SqlScript sqlScript) throws SQLException {
-        try (Connection connection = getConnection()) {
+        Connection connection = getConnection();
+        try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());
                 return preparedStatement.executeUpdate();
             }
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
     public long executeLargeUpdate(@Valid SqlScript sqlScript) throws SQLException {
-        try (Connection connection = getConnection()) {
+        Connection connection = getConnection();
+        try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());
                 if (preparedStatement.isWrapperFor(PreparedStatement.class))
@@ -121,12 +130,15 @@ public record Executor(DataSource dataSource) {
                 else
                     return preparedStatement.executeUpdate();
             }
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
     public Object[] executeBatchInsert(@NotBlank String sql, List<ParamMap> paramsList) throws SQLException {
-        try (Connection connection = getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        Connection connection = getConnection();
+        try {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 for (ParamMap params : paramsList) {
                     buildPrepareStatement(preparedStatement, params);
                     preparedStatement.addBatch();
@@ -143,11 +155,14 @@ public record Executor(DataSource dataSource) {
                     return ids;
                 }
             }
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
     public int[] executeBatch(@NotBlank String sql, List<ParamMap> paramsList) throws SQLException {
-        try (Connection connection = getConnection()) {
+        Connection connection = getConnection();
+        try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 for (ParamMap params : paramsList) {
                     buildPrepareStatement(preparedStatement, params);
@@ -156,11 +171,14 @@ public record Executor(DataSource dataSource) {
 
                 return preparedStatement.executeBatch();
             }
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
     public Object execute(@Valid SqlScript sqlScript) throws SQLException {
-        try (Connection connection = getConnection()) {
+        Connection connection = getConnection();
+        try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());
                 boolean isResultSet = preparedStatement.execute();
@@ -172,6 +190,8 @@ public record Executor(DataSource dataSource) {
                     return preparedStatement.getUpdateCount();
                 }
             }
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 

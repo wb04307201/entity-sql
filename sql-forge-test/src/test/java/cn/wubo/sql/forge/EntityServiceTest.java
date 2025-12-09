@@ -1,13 +1,18 @@
 package cn.wubo.sql.forge;
 
+import cn.wubo.sql.forge.entity.EntityDelete;
+import cn.wubo.sql.forge.entity.EntityInsert;
 import cn.wubo.sql.forge.entity.EntitySelect;
+import cn.wubo.sql.forge.entity.EntityUpdate;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @SpringBootTest
@@ -40,6 +45,29 @@ class EntityServiceTest {
         user = entityService.run(Entity.save(user));
         log.info("{}", user);
         int count = entityService.run(Entity.delete(user));
+        log.info("{}", count);
+    }
+
+
+
+    @Test
+    void test() throws Exception {
+        String id = UUID.randomUUID().toString();
+       EntityInsert<User> insert = Entity.insert(User.class).set(User::getId, id)
+                .set(User::getUsername, "wb04307201")
+                .set(User::getEmail, "wb04307201@gitee.com");
+       Object key = entityService.run(insert);
+       log.info("{}", key);
+
+        EntityUpdate<User> update = Entity.update(User.class)
+                .set(User::getEmail, "wb04307201@github.com")
+                .eq(User::getId, id);
+        int count = entityService.run(update);
+        log.info("{}", count);
+
+        EntityDelete<User> delete = Entity.delete(User.class)
+                .eq(User::getId, id);
+        count = entityService.run(delete);
         log.info("{}", count);
     }
 }
