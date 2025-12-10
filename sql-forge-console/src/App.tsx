@@ -1,4 +1,4 @@
-import {Col, Layout, Row, Tabs, Input, Table} from 'antd';
+import {Col, Layout, Row, Tabs, Input, Table, Tree} from 'antd';
 import {useRef, useState} from "react";
 import type {TableProps} from 'antd';
 import TabItemContent from "./TabItemContent.tsx";
@@ -6,6 +6,36 @@ import TabItemContent from "./TabItemContent.tsx";
 const {Content, Sider} = Layout;
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
+
+interface DataNode {
+    title: string;
+    key: string;
+    isLeaf?: boolean;
+    children?: DataNode[];
+}
+
+const initTreeData: DataNode[] = [
+    { title: 'Expand to load', key: '0' },
+    { title: 'Expand to load', key: '1' },
+    { title: 'Tree Node', key: '2', isLeaf: true },
+];
+
+const updateTreeData = (list: DataNode[], key: React.Key, children: DataNode[]): DataNode[] =>
+    list.map((node) => {
+        if (node.key === key) {
+            return {
+                ...node,
+                children,
+            };
+        }
+        if (node.children) {
+            return {
+                ...node,
+                children: updateTreeData(node.children, key, children),
+            };
+        }
+        return node;
+    });
 
 function App() {
 
@@ -18,6 +48,8 @@ function App() {
     ]);
     const [activeKey, setActiveKey] = useState(items[0].key);
     const newTabIndex = useRef(2);
+    const [treeData, setTreeData] = useState(initTreeData);
+
 
     const onChange = (newActiveKey: string) => {
         setActiveKey(newActiveKey);
@@ -69,9 +101,29 @@ function App() {
         }
     };
 
+    const onLoadData = ({ key, children }: any) =>
+        new Promise<void>((resolve) => {
+            if (children) {
+                resolve();
+                return;
+            }
+            setTimeout(() => {
+                setTreeData((origin) =>
+                    updateTreeData(origin, key, [
+                        { title: 'Child Node', key: `${key}-0` },
+                        { title: 'Child Node', key: `${key}-1` },
+                    ]),
+                );
+
+                resolve();
+            }, 1000);
+        });
+
     return (
         <Layout style={{height: '100%'}}>
-            <Sider theme={'light'}>left sidebar</Sider>
+            <Sider theme={'light'}>
+                <Tree loadData={onLoadData} treeData={treeData} />
+            </Sider>
             <Content>
                 <Tabs
                     type="editable-card"

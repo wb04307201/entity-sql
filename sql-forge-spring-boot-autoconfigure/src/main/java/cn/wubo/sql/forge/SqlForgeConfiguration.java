@@ -9,7 +9,6 @@ import cn.wubo.sql.forge.records.SqlScript;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.RouterFunctions;
@@ -91,5 +90,4 @@ public class SqlForgeConfiguration {
         });
         return builder.build();
     }
-
 }
