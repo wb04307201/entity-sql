@@ -1,5 +1,6 @@
 package cn.wubo.sql.forge.enums;
 
+import cn.wubo.sql.forge.records.TableTypeR;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -24,7 +25,13 @@ public enum TableType {
         this.description = description;
     }
 
-    public static List<TableType> getAllTypes() {
-        return Arrays.stream(TableType.values()).toList();
+    public TableTypeR getTableTypeR() {
+        return new TableTypeR(type, description);
+    }
+
+    public static List<TableTypeR> getAllTypes() {
+        return  Arrays.stream(TableType.values())
+                .map(TableType::getTableTypeR)
+                .toList();
     }
 }

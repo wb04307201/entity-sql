@@ -1,6 +1,5 @@
-import {Col, Layout, Row, Tabs, Input, Table, Tree} from 'antd';
-import {useRef, useState} from "react";
-import type {TableProps} from 'antd';
+import {Layout, Tabs, Tree} from 'antd';
+import {useEffect, useRef, useState} from "react";
 import TabItemContent from "./TabItemContent.tsx";
 
 const {Content, Sider} = Layout;
@@ -13,12 +12,6 @@ interface DataNode {
     isLeaf?: boolean;
     children?: DataNode[];
 }
-
-const initTreeData: DataNode[] = [
-    { title: 'Expand to load', key: '0' },
-    { title: 'Expand to load', key: '1' },
-    { title: 'Tree Node', key: '2', isLeaf: true },
-];
 
 const updateTreeData = (list: DataNode[], key: React.Key, children: DataNode[]): DataNode[] =>
     list.map((node) => {
@@ -48,7 +41,33 @@ function App() {
     ]);
     const [activeKey, setActiveKey] = useState(items[0].key);
     const newTabIndex = useRef(2);
-    const [treeData, setTreeData] = useState(initTreeData);
+    const [treeData, setTreeData] = useState<DataNode[]>([
+        {title: 'Expand to load', key: '0'},
+        {title: 'Expand to load', key: '1'},
+        {title: 'Tree Node', key: '2', isLeaf: true},
+    ]);
+    const [tableTypes, setTableTypes] = useState<{ description: string; type: string; }>()
+
+    useEffect(() => {
+        fetch('/sql/forge/database')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                const tempTableTypes = data.tableTypes.map((item: {
+                    description: string;
+                    type: string;
+                }) => ({title: item.description, key: item.type}))
+                setTableTypes(tempTableTypes)
+
+                const children = []
+
+                children.push({title: '表', key: 'tables', children: [...tempTableTypes]})
+                children.push({title: '目录', key: 'catalogs'})
+                children.push({title: '模式', key: 'schemas'})
+
+                setTreeData([{title: data.productName, key: 'datasource', children: children}])
+            })
+    },[])
 
 
     const onChange = (newActiveKey: string) => {
@@ -101,7 +120,7 @@ function App() {
         }
     };
 
-    const onLoadData = ({ key, children }: any) =>
+    const onLoadData = ({ key, children }: { key: string; children?: DataNode[] }) =>
         new Promise<void>((resolve) => {
             if (children) {
                 resolve();
@@ -110,10 +129,12 @@ function App() {
             setTimeout(() => {
                 setTreeData((origin) =>
                     updateTreeData(origin, key, [
-                        { title: 'Child Node', key: `${key}-0` },
-                        { title: 'Child Node', key: `${key}-1` },
+                        {title: 'Child Node', key: `${key}-0`},
+                        {title: 'Child Node', key: `${key}-1`},
                     ]),
                 );
+
+                console.log(tableTypes)
 
                 resolve();
             }, 1000);
@@ -122,7 +143,7 @@ function App() {
     return (
         <Layout style={{height: '100%'}}>
             <Sider theme={'light'}>
-                <Tree loadData={onLoadData} treeData={treeData} />
+                <Tree loadData={onLoadData} treeData={treeData}/>
             </Sider>
             <Content>
                 <Tabs

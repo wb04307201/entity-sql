@@ -1,7 +1,5 @@
 package cn.wubo.sql.forge.records;
 
-import cn.wubo.sql.forge.enums.TableType;
-
 import java.util.List;
 
 /**
@@ -14,6 +12,6 @@ public record DatabaseInfo(
         String userName,
         String driverName,
         String driverVersion,
-        List<TableType> tableTypes
+        List<TableTypeR> tableTypes
 ) {
 }
