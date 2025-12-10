@@ -5,6 +5,7 @@ import cn.wubo.sql.forge.crud.Insert;
 import cn.wubo.sql.forge.crud.Select;
 import cn.wubo.sql.forge.crud.Update;
 import cn.wubo.sql.forge.entity.cache.CacheService;
+import cn.wubo.sql.forge.records.SqlScript;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -68,7 +69,7 @@ public class SqlForgeConfiguration {
 
     @Bean("sqlForgeRouter")
     @ConditionalOnProperty(name = "sql.forge.console.enabled", havingValue = "true", matchIfMissing = true)
-    public RouterFunction<ServerResponse> sqlForgeRouter(MetaData metaData) {
+    public RouterFunction<ServerResponse> sqlForgeRouter(MetaData metaData, Executor executor) {
         RouterFunctions.Builder builder = RouterFunctions.route();
         builder.GET("/sql/forge/database", request -> ServerResponse.ok().body(metaData.getDatabase()));
         builder.GET("/sql/forge/database/catalogs", request -> ServerResponse.ok().body(metaData.getCatalogs()));
@@ -83,6 +84,10 @@ public class SqlForgeConfiguration {
             String tableNamePattern = request.param("tableNamePattern").orElse(null);
             String[] types = request.param("types").map(typesStr -> typesStr.split(",")).orElse(null);
             return ServerResponse.ok().body(metaData.getTables(catalog, schemaPattern, tableNamePattern, types));
+        });
+        builder.GET("/sql/forge/sql", request -> {
+            String sql = request.param("sql").orElseThrow(() -> new IllegalArgumentException("sql is required"));
+            return ServerResponse.ok().body(executor.execute(new SqlScript(sql, null)));
         });
         return builder.build();
     }

@@ -1,35 +1,39 @@
-import {Layout, Tabs, type TabsProps} from 'antd';
+import {Col, Layout, Row, Tabs, Input, Table} from 'antd';
 import {useRef, useState} from "react";
+import type {TableProps} from 'antd';
+import TabItemContent from "./TabItemContent.tsx";
 
 const {Content, Sider} = Layout;
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
-const initialItems = [
-    { label: 'Tab 1', children: 'Content of Tab 1', key: '1' },
-    { label: 'Tab 2', children: 'Content of Tab 2', key: '2' },
-    {
-        label: 'Tab 3',
-        children: 'Content of Tab 3',
-        key: '3',
-        closable: false,
-    },
-];
-
 function App() {
 
-    const [activeKey, setActiveKey] = useState(initialItems[0].key);
-    const [items, setItems] = useState(initialItems);
-    const newTabIndex = useRef(0);
+    const [items, setItems] = useState([
+        {
+            label: '标签页1',
+            children: <TabItemContent textAreaId="Tab1TextArea" dataSource={[]} columns={[]}/>,
+            key: 'Tab1'
+        }
+    ]);
+    const [activeKey, setActiveKey] = useState(items[0].key);
+    const newTabIndex = useRef(2);
 
     const onChange = (newActiveKey: string) => {
         setActiveKey(newActiveKey);
     };
 
     const add = () => {
-        const newActiveKey = `newTab${newTabIndex.current++}`;
+        const index = `${newTabIndex.current++}`;
+        const newActiveKey = `Tab${index}`;
+        const newLabel = `标签页${index}`;
+        const newTextAreaId = `Tab${index}TextArea`;
         const newPanes = [...items];
-        newPanes.push({ label: 'New Tab', children: 'Content of new Tab', key: newActiveKey });
+        newPanes.push({
+            label: newLabel,
+            children: <TabItemContent textAreaId={newTextAreaId} dataSource={[]} columns={[]}/>,
+            key: newActiveKey,
+        });
         setItems(newPanes);
         setActiveKey(newActiveKey);
     };
@@ -65,7 +69,6 @@ function App() {
         }
     };
 
-
     return (
         <Layout style={{height: '100%'}}>
             <Sider theme={'light'}>left sidebar</Sider>
@@ -76,6 +79,10 @@ function App() {
                     activeKey={activeKey}
                     onEdit={onEdit}
                     items={items}
+                    style={{height: '100vh'}}
+                    styles={{
+                        content: {height: 'calc(100vh - 56px)', padding: '0 16px'}
+                    }}
                 />
             </Content>
         </Layout>
