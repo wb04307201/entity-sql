@@ -27,7 +27,9 @@ public record MetaData(DataSource dataSource) {
                     databaseMetaData.getURL(),
                     databaseMetaData.getUserName(),
                     databaseMetaData.getDriverName(),
-                    databaseMetaData.getDriverVersion()
+                    databaseMetaData.getDriverVersion(),
+                    connection.getCatalog(),
+                    connection.getSchema()
             );
         }
     }

@@ -76,6 +76,7 @@ public class SqlForgeConfiguration {
         RouterFunctions.Builder builder = RouterFunctions.route();
         builder.GET("/sql/forge", request -> ServerResponse.temporaryRedirect(URI.create("/sql/forge/index.html")).build());
         builder.GET("/sql/forge/", request -> ServerResponse.temporaryRedirect(URI.create("/sql/forge/index.html")).build());
+        builder.GET("/sql/forge/database", request -> ServerResponse.ok().body(metaData.getDatabase()));
         builder.GET("/sql/forge/tables", request -> {
             String catalog = request.param("catalog").orElse(null);
             String schemaPattern = request.param("schemaPattern").orElse(null);

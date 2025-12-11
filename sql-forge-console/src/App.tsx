@@ -1,5 +1,6 @@
 import {Layout, Tabs, Tree} from 'antd';
 import {useEffect, useRef, useState} from "react";
+import {SearchOutlined} from '@ant-design/icons';
 import TabItemContent from "./TabItemContent.tsx";
 
 const {Content, Sider} = Layout;
@@ -18,66 +19,74 @@ function App() {
     const [items, setItems] = useState([
         {
             label: '标签页1',
-            children: <TabItemContent />,
+            children: <TabItemContent/>,
             key: 'Tab1'
         }
     ]);
     const [activeKey, setActiveKey] = useState(items[0].key);
     const newTabIndex = useRef(2);
-    const [treeData, setTreeData] = useState<DataNode[]>(
-        [
-            {
-                title: '数据库', key: 'datasource', children:
+    const [treeData, setTreeData] = useState<DataNode[]>([]);
+
+    useEffect(() => {
+        loadDataBase()
+    }, [])
+
+    const loadDataBase = () => {
+        fetch('/sql/forge/database')
+            .then(response => response.json())
+            .then(data => {
+                setTreeData(
                     [
                         {
-                            title: '表', key: 'datasource-tables', children:
+                            title: '数据库',
+                            key: JSON.stringify({catalog: data.catalog, schema: data.schema}),
+                            children:
                                 [
-                                    {title: '表', key: 'datasource-tables-TABLE'},
-                                    {title: '视图', key: 'datasource-tables-VIEW'},
+                                    {
+                                        title: '表',
+                                        key: JSON.stringify({
+                                            catalog: data.catalog,
+                                            schema: data.schema,
+                                            tableType: 'TABLE'
+                                        })
+                                    },
+                                    {
+                                        title: '视图',
+                                        key: JSON.stringify({
+                                            catalog: data.catalog,
+                                            schema: data.schema,
+                                            tableType: 'VIEW'
+                                        })
+                                    },
                                 ]
-                        },
+                        }
                     ]
-            }
-        ]);
-
-    useEffect(() =>{
-        loadDataSourceTables()
-    },[])
-
-    const loadDataSourceTables = () => {
-        Promise.all([
-            fetch('/sql/forge/tables?types=TABLE').then(response => response.json()),
-            fetch('/sql/forge/tables?types=VIEW').then(response => response.json())
-        ]).then(([data1, data2]) => {
-            const tables: DataNode[] = data1.map((item:{tableName: string, remarks: string}) => ({
-                title: item.remarks ? item.remarks : item.tableName,
-                key: `datasource-tables-TABLE-${item.tableName}`
-            }));
-
-            const views: DataNode[] = data2.map((item:{tableName: string, remarks: string}) => ({
-                title: item.remarks ? item.remarks : item.tableName,
-                key: `datasource-tables-VIEW-${item.tableName}`
-            }));
-
-            setTreeData([
-                {
-                    title: '数据库',
-                    key: 'datasource',
-                    children: [
-                        {
-                            title: '表',
-                            key: 'datasource-tables',
-                            children: [
-                                {title: '表', key: 'datasource-tables-TABLE', children: tables},
-                                {title: '视图', key: 'datasource-tables-VIEW', children: views},
-                            ]
-                        },
-                    ]
-                }
-            ]);
-        });
+                )
+            })
     };
 
+    const loadTables = async (catalog: string, schemaPattern: string, tableType: string) => {
+        const data = await fetch(`/sql/forge/tables?catalog=${catalog}&schemaPattern=${schemaPattern}&types=${tableType}`).then(response => response.json());
+
+        const tables: DataNode[] = data.map((item: { tableName: string }) => ({
+            title: item.tableName,
+            key: JSON.stringify({catalog: catalog, schema: schemaPattern, tableTypes: tableType, table: item.tableName})
+        }));
+
+        return tables;
+    };
+
+    const loadColumns = async (catalog: string, schemaPattern: string, tableType: string,tableNamePattern: string) => {
+        const data = await fetch(`/sql/forge/columns?catalog=${catalog}&schemaPattern=${schemaPattern}&tableNamePattern=${tableNamePattern}`).then(response => response.json());
+
+        const columns: DataNode[] = data.map((item: { columnName: string }) => ({
+            title: <div><span>item.columnName</span><SearchOutlined /></div>,
+            key: JSON.stringify({catalog: catalog, schema: schemaPattern, tableTypes: tableType, table: tableNamePattern, column: item.columnName}),
+            isLeaf: true
+        }));
+
+        return columns;
+    }
 
 
     const onChange = (newActiveKey: string) => {
@@ -91,7 +100,7 @@ function App() {
         const newPanes = [...items];
         newPanes.push({
             label: newLabel,
-            children: <TabItemContent />,
+            children: <TabItemContent/>,
             key: newActiveKey,
         });
         setItems(newPanes);
@@ -130,30 +139,31 @@ function App() {
     };
 
     const onLoadData = ({key, children}: { key: string; children?: DataNode[] }) =>
-        new Promise<void>((resolve) => {
-            console.log('onLoadData', key, children);
+        new Promise<void>(async (resolve) => {
             if (children) {
                 resolve();
                 return;
             }
 
-            const keys = key.split('-');
+            const json = JSON.parse(key);
 
-            fetch(`/sql/forge/columns?tableNamePattern=${keys[keys.length - 1]}`)
-                .then(response => response.json())
-                .then(data => {
-                    const columns: DataNode[] = data.map((item:{columnName: string, remarks: string}) => ({
-                        title: item.remarks ? item.remarks : item.columnName,
-                        key: `${key}-${item.columnName}`,
-                        isLeaf: true,
-                    }));
+            if (json.table){
+                const columns: DataNode[] = await loadColumns(json.catalog, json.schema, json.tableType,json.table)
+                setTreeData((origin) =>
+                    updateTreeData(origin, key, columns),
+                );
+                resolve();
+                return;
+            }
 
-                    setTreeData((origin) =>
-                        updateTreeData(origin, key, columns),
-                    );
-
-                    resolve();
-                });
+            if (json.tableType) {
+                const tables: DataNode[] = await loadTables(json.catalog, json.schema, json.tableType)
+                setTreeData((origin) =>
+                    updateTreeData(origin, key, tables),
+                );
+                resolve();
+                return;
+            }
         });
 
     const updateTreeData = (list: DataNode[], key: React.Key, children: DataNode[]): DataNode[] =>
