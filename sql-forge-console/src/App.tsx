@@ -1,6 +1,6 @@
 import {Layout, Tabs, Tree} from 'antd';
 import {useEffect, useRef, useState} from "react";
-import {SearchOutlined} from '@ant-design/icons';
+import {DeleteOutlined, EditOutlined, FileAddOutlined, SearchOutlined} from '@ant-design/icons';
 import TabItemContent from "./TabItemContent.tsx";
 
 const {Content, Sider} = Layout;
@@ -80,7 +80,7 @@ function App() {
         const data = await fetch(`/sql/forge/columns?catalog=${catalog}&schemaPattern=${schemaPattern}&tableNamePattern=${tableNamePattern}`).then(response => response.json());
 
         const columns: DataNode[] = data.map((item: { columnName: string }) => ({
-            title: <div><span>item.columnName</span><SearchOutlined /></div>,
+            title: <div>item.columnName<SearchOutlined /><FileAddOutlined /><EditOutlined /><DeleteOutlined /></div>,
             key: JSON.stringify({catalog: catalog, schema: schemaPattern, tableTypes: tableType, table: tableNamePattern, column: item.columnName}),
             isLeaf: true
         }));
