@@ -13,61 +13,71 @@ interface DataNode {
     children?: DataNode[];
 }
 
-const updateTreeData = (list: DataNode[], key: React.Key, children: DataNode[]): DataNode[] =>
-    list.map((node) => {
-        if (node.key === key) {
-            return {
-                ...node,
-                children,
-            };
-        }
-        if (node.children) {
-            return {
-                ...node,
-                children: updateTreeData(node.children, key, children),
-            };
-        }
-        return node;
-    });
-
 function App() {
 
     const [items, setItems] = useState([
         {
             label: '标签页1',
-            children: <TabItemContent textAreaId="Tab1TextArea" dataSource={[]} columns={[]}/>,
+            children: <TabItemContent />,
             key: 'Tab1'
         }
     ]);
     const [activeKey, setActiveKey] = useState(items[0].key);
     const newTabIndex = useRef(2);
-    const [treeData, setTreeData] = useState<DataNode[]>([
-        {title: 'Expand to load', key: '0'},
-        {title: 'Expand to load', key: '1'},
-        {title: 'Tree Node', key: '2', isLeaf: true},
-    ]);
-    const [tableTypes, setTableTypes] = useState<{ description: string; type: string; }>()
+    const [treeData, setTreeData] = useState<DataNode[]>(
+        [
+            {
+                title: '数据库', key: 'datasource', children:
+                    [
+                        {
+                            title: '表', key: 'datasource-tables', children:
+                                [
+                                    {title: '表', key: 'datasource-tables-TABLE'},
+                                    {title: '视图', key: 'datasource-tables-VIEW'},
+                                ]
+                        },
+                    ]
+            }
+        ]);
 
-    useEffect(() => {
-        fetch('/sql/forge/database')
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                const tempTableTypes = data.tableTypes.map((item: {
-                    description: string;
-                    type: string;
-                }) => ({title: item.description, key: item.type}))
-                setTableTypes(tempTableTypes)
-
-                const children = []
-
-                children.push({title: '表', key: 'tables', children: [...tempTableTypes]})
-                children.push({title: '目录', key: 'catalogs'})
-                children.push({title: '模式', key: 'schemas'})
-
-                setTreeData([{title: data.productName, key: 'datasource', children: children}])
-            })
+    useEffect(() =>{
+        loadDataSourceTables()
     },[])
+
+    const loadDataSourceTables = () => {
+        Promise.all([
+            fetch('/sql/forge/tables?types=TABLE').then(response => response.json()),
+            fetch('/sql/forge/tables?types=VIEW').then(response => response.json())
+        ]).then(([data1, data2]) => {
+            const tables: DataNode[] = data1.map((item:{tableName: string, remarks: string}) => ({
+                title: item.remarks ? item.remarks : item.tableName,
+                key: `datasource-tables-TABLE-${item.tableName}`
+            }));
+
+            const views: DataNode[] = data2.map((item:{tableName: string, remarks: string}) => ({
+                title: item.remarks ? item.remarks : item.tableName,
+                key: `datasource-tables-VIEW-${item.tableName}`
+            }));
+
+            setTreeData([
+                {
+                    title: '数据库',
+                    key: 'datasource',
+                    children: [
+                        {
+                            title: '表',
+                            key: 'datasource-tables',
+                            children: [
+                                {title: '表', key: 'datasource-tables-TABLE', children: tables},
+                                {title: '视图', key: 'datasource-tables-VIEW', children: views},
+                            ]
+                        },
+                    ]
+                }
+            ]);
+        });
+    };
+
 
 
     const onChange = (newActiveKey: string) => {
@@ -78,11 +88,10 @@ function App() {
         const index = `${newTabIndex.current++}`;
         const newActiveKey = `Tab${index}`;
         const newLabel = `标签页${index}`;
-        const newTextAreaId = `Tab${index}TextArea`;
         const newPanes = [...items];
         newPanes.push({
             label: newLabel,
-            children: <TabItemContent textAreaId={newTextAreaId} dataSource={[]} columns={[]}/>,
+            children: <TabItemContent />,
             key: newActiveKey,
         });
         setItems(newPanes);
@@ -120,30 +129,58 @@ function App() {
         }
     };
 
-    const onLoadData = ({ key, children }: { key: string; children?: DataNode[] }) =>
+    const onLoadData = ({key, children}: { key: string; children?: DataNode[] }) =>
         new Promise<void>((resolve) => {
+            console.log('onLoadData', key, children);
             if (children) {
                 resolve();
                 return;
             }
-            setTimeout(() => {
-                setTreeData((origin) =>
-                    updateTreeData(origin, key, [
-                        {title: 'Child Node', key: `${key}-0`},
-                        {title: 'Child Node', key: `${key}-1`},
-                    ]),
-                );
 
-                console.log(tableTypes)
+            const keys = key.split('-');
 
-                resolve();
-            }, 1000);
+            fetch(`/sql/forge/columns?tableNamePattern=${keys[keys.length - 1]}`)
+                .then(response => response.json())
+                .then(data => {
+                    const columns: DataNode[] = data.map((item:{columnName: string, remarks: string}) => ({
+                        title: item.remarks ? item.remarks : item.columnName,
+                        key: `${key}-${item.columnName}`,
+                        isLeaf: true,
+                    }));
+
+                    setTreeData((origin) =>
+                        updateTreeData(origin, key, columns),
+                    );
+
+                    resolve();
+                });
+        });
+
+    const updateTreeData = (list: DataNode[], key: React.Key, children: DataNode[]): DataNode[] =>
+        list.map((node) => {
+            if (node.key === key) {
+                return {
+                    ...node,
+                    children,
+                };
+            }
+            if (node.children) {
+                return {
+                    ...node,
+                    children: updateTreeData(node.children, key, children),
+                };
+            }
+            return node;
         });
 
     return (
         <Layout style={{height: '100%'}}>
-            <Sider theme={'light'}>
-                <Tree loadData={onLoadData} treeData={treeData}/>
+            <Sider theme={'light'} width={'300px'}>
+                <Tree
+                    loadData={onLoadData}
+                    treeData={treeData}
+                    defaultExpandAll={true}
+                />
             </Sider>
             <Content>
                 <Tabs
@@ -162,4 +199,4 @@ function App() {
     )
 }
 
-export default App
+export default App;

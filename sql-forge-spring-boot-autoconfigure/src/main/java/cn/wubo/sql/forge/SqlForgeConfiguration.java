@@ -17,6 +17,9 @@ import org.springframework.web.servlet.function.ServerResponse;
 
 import javax.sql.DataSource;
 
+import java.net.URI;
+import java.net.URL;
+
 import static org.springframework.web.servlet.function.RequestPredicates.accept;
 import static org.springframework.web.servlet.function.RouterFunctions.route;
 
@@ -71,13 +74,8 @@ public class SqlForgeConfiguration {
     @ConditionalOnProperty(name = "sql.forge.console.enabled", havingValue = "true", matchIfMissing = true)
     public RouterFunction<ServerResponse> sqlForgeRouter(MetaData metaData, Executor executor) {
         RouterFunctions.Builder builder = RouterFunctions.route();
-        builder.GET("/sql/forge/database", request -> ServerResponse.ok().body(metaData.getDatabase()));
-        builder.GET("/sql/forge/database/catalogs", request -> ServerResponse.ok().body(metaData.getCatalogs()));
-        builder.GET("/sql/forge/schemas", request -> {
-            String catalog = request.param("catalog").orElse(null);
-            String schemaPattern = request.param("schemaPattern").orElse(null);
-            return ServerResponse.ok().body(metaData.getSchemas(catalog, schemaPattern));
-        });
+        builder.GET("/sql/forge", request -> ServerResponse.temporaryRedirect(URI.create("/sql/forge/index.html")).build());
+        builder.GET("/sql/forge/", request -> ServerResponse.temporaryRedirect(URI.create("/sql/forge/index.html")).build());
         builder.GET("/sql/forge/tables", request -> {
             String catalog = request.param("catalog").orElse(null);
             String schemaPattern = request.param("schemaPattern").orElse(null);
@@ -85,9 +83,16 @@ public class SqlForgeConfiguration {
             String[] types = request.param("types").map(typesStr -> typesStr.split(",")).orElse(null);
             return ServerResponse.ok().body(metaData.getTables(catalog, schemaPattern, tableNamePattern, types));
         });
-        builder.GET("/sql/forge/sql", request -> {
-            String sql = request.param("sql").orElseThrow(() -> new IllegalArgumentException("sql is required"));
-            return ServerResponse.ok().body(executor.execute(new SqlScript(sql, null)));
+        builder.GET("/sql/forge/columns", request -> {
+            String catalog = request.param("catalog").orElse(null);
+            String schemaPattern = request.param("schemaPattern").orElse(null);
+            String tableNamePattern = request.param("tableNamePattern").orElse(null);
+            String columnNamePattern = request.param("columnNamePattern").orElse(null);
+            return ServerResponse.ok().body(metaData.getColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern));
+        });
+        builder.POST("/sql/forge/execute", request -> {
+            SqlScript sqlScript =  request.body(SqlScript.class);
+            return ServerResponse.ok().body(executor.execute(sqlScript));
         });
         return builder.build();
     }

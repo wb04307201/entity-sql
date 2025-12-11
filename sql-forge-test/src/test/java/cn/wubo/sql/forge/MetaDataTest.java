@@ -34,7 +34,6 @@ class MetaDataTest {
         assertNotNull(databaseInfo.userName());
         assertNotNull(databaseInfo.driverName());
         assertNotNull(databaseInfo.driverVersion());
-        assertNotNull(databaseInfo.tableTypes());
     }
 
     @Test

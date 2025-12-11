@@ -1,6 +1,5 @@
 package cn.wubo.sql.forge;
 
-import cn.wubo.sql.forge.enums.TableType;
 import cn.wubo.sql.forge.records.*;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
@@ -28,8 +27,7 @@ public record MetaData(DataSource dataSource) {
                     databaseMetaData.getURL(),
                     databaseMetaData.getUserName(),
                     databaseMetaData.getDriverName(),
-                    databaseMetaData.getDriverVersion(),
-                    TableType.getAllTypes()
+                    databaseMetaData.getDriverVersion()
             );
         }
     }
