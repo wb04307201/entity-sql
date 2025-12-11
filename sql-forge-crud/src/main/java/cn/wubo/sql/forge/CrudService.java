@@ -1,14 +1,11 @@
 package cn.wubo.sql.forge;
 
+import cn.wubo.sql.forge.crud.*;
 import cn.wubo.sql.forge.enums.ConditionType;
 import cn.wubo.sql.forge.jdbc.SQL;
 import cn.wubo.sql.forge.map.ParamMap;
 import cn.wubo.sql.forge.map.RowMap;
 import cn.wubo.sql.forge.records.SqlScript;
-import cn.wubo.sql.forge.crud.Delete;
-import cn.wubo.sql.forge.crud.Insert;
-import cn.wubo.sql.forge.crud.Select;
-import cn.wubo.sql.forge.crud.Update;
 import cn.wubo.sql.forge.crud.base.Join;
 import cn.wubo.sql.forge.crud.base.Set;
 import cn.wubo.sql.forge.crud.base.Where;
