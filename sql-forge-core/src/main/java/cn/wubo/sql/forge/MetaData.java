@@ -34,6 +34,14 @@ public record MetaData(DataSource dataSource) {
         }
     }
 
+
+    public String getSQLKeywords() throws SQLException {
+        try (Connection connection = getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            return databaseMetaData.getSQLKeywords();
+        }
+    }
+
     public List<CatalogInfo> getCatalogs() throws SQLException {
         try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -61,6 +69,19 @@ public record MetaData(DataSource dataSource) {
                     ));
                 }
                 return schemas;
+            }
+        }
+    }
+
+    public List<String> getTableTypes() throws SQLException {
+        try (Connection connection = getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            try (ResultSet rs = databaseMetaData.getTableTypes()) {
+                List<String> tableTypes = new ArrayList<>();
+                while (rs.next()) {
+                    tableTypes.add(rs.getString("TABLE_TYPE"));
+                }
+                return tableTypes;
             }
         }
     }
@@ -119,4 +140,82 @@ public record MetaData(DataSource dataSource) {
             }
         }
     }
+
+    public List<PrimaryKeyInfo> getPrimaryKeys(String catalog, String schema, String table) throws SQLException {
+        try (Connection connection = getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            try (ResultSet rs = databaseMetaData.getPrimaryKeys(catalog, schema, table)) {
+                List<PrimaryKeyInfo> primaryKeys = new ArrayList<>();
+                while (rs.next()) {
+                    primaryKeys.add(new PrimaryKeyInfo(
+                            rs.getString("TABLE_CAT"),
+                            rs.getString("TABLE_SCHEM"),
+                            rs.getString("TABLE_NAME"),
+                            rs.getString("COLUMN_NAME"),
+                            rs.getShort("KEY_SEQ"),
+                            rs.getString("PK_NAME")
+                    ));
+                }
+                return primaryKeys;
+            }
+        }
+    }
+
+    public List<ForeignKeyInfo> getImportedKeys(String catalog, String schema, String table) throws SQLException {
+        try (Connection connection = getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            try (ResultSet rs = databaseMetaData.getImportedKeys(catalog, schema, table)) {
+                List<ForeignKeyInfo> foreignKeys = new ArrayList<>();
+                while (rs.next()) {
+                    foreignKeys.add(new ForeignKeyInfo(
+                            rs.getString("PKTABLE_CAT"),
+                            rs.getString("PKTABLE_SCHEM"),
+                            rs.getString("PKTABLE_NAME"),
+                            rs.getString("PKCOLUMN_NAME"),
+                            rs.getString("FKTABLE_CAT"),
+                            rs.getString("FKTABLE_SCHEM"),
+                            rs.getString("FKTABLE_NAME"),
+                            rs.getString("FKCOLUMN_NAME"),
+                            rs.getShort("KEY_SEQ"),
+                            rs.getShort("UPDATE_RULE"),
+                            rs.getShort("DELETE_RULE"),
+                            rs.getString("FK_NAME"),
+                            rs.getString("PK_NAME"),
+                            rs.getShort("DEFERRABILITY")
+                    ));
+                }
+                return foreignKeys;
+            }
+        }
+    }
+
+    public List<IndexInfo> getIndexInfo(String catalog, String schema, String table,
+                                        boolean unique, boolean approximate) throws SQLException {
+        try (Connection connection = getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            try (ResultSet rs = databaseMetaData.getIndexInfo(catalog, schema, table, unique, approximate)) {
+                List<IndexInfo> indexes = new ArrayList<>();
+                while (rs.next()) {
+                    indexes.add(new IndexInfo(
+                            rs.getString("TABLE_CAT"),
+                            rs.getString("TABLE_SCHEM"),
+                            rs.getString("TABLE_NAME"),
+                            rs.getBoolean("NON_UNIQUE"),
+                            rs.getString("INDEX_QUALIFIER"),
+                            rs.getString("INDEX_NAME"),
+                            rs.getShort("TYPE"),
+                            rs.getShort("ORDINAL_POSITION"),
+                            rs.getString("COLUMN_NAME"),
+                            rs.getString("ASC_OR_DESC"),
+                            rs.getLong("CARDINALITY"),
+                            rs.getLong("PAGES"),
+                            rs.getString("FILTER_CONDITION")
+                    ));
+                }
+                return indexes;
+            }
+        }
+    }
+
+
 }
