@@ -8,8 +8,8 @@ import cn.wubo.sql.forge.entity.cache.CacheService;
 import cn.wubo.sql.forge.records.SqlScript;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.RouterFunctions;
@@ -18,11 +18,11 @@ import org.springframework.web.servlet.function.ServerResponse;
 import javax.sql.DataSource;
 
 import java.net.URI;
-import java.net.URL;
 
 import static org.springframework.web.servlet.function.RequestPredicates.accept;
 import static org.springframework.web.servlet.function.RouterFunctions.route;
 
+@EnableCaching
 @AutoConfiguration
 public class SqlForgeConfiguration {
 
@@ -52,7 +52,7 @@ public class SqlForgeConfiguration {
     }
 
     @Bean("sqlForgeApiRouter")
-    @ConditionalOnProperty(name = "sql.forge.api.enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(name = "sql.forge.api.json.enabled", havingValue = "true", matchIfMissing = true)
     public RouterFunction<ServerResponse> sqlForgeApiRouter(CrudService crudService) {
         RouterFunctions.Builder builder = route();
         builder.POST("/{method}/{tableName}", accept(MediaType.APPLICATION_JSON), request -> {

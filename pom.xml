@@ -25,10 +25,6 @@
     </developers>
 
     <modules>
-<!--        <module>entity-sql</module>-->
-<!--        <module>entity-sql-spring-boot-autoconfigure</module>-->
-<!--        <module>entity-sql-spring-boot-starter</module>-->
-<!--        <module>entity-sql-test</module>-->
         <module>sql-forge-core</module>
         <module>sql-forge-crud</module>
         <module>sql-forge-console</module>

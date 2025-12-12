@@ -5,7 +5,6 @@ public class Constant {
     private Constant() {
     }
 
-    public static final String QUOTATION = "'";
     public static final String PERCENT = "%";
     public static final String UPPER = "UPPER";
     public static final String OPERN_PAREN = "(";
