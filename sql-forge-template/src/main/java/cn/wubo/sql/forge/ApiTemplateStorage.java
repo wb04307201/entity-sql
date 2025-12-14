@@ -22,12 +22,13 @@ public class ApiTemplateStorage implements IApiTemplateStorage<ApiTemplate> {
     }
 
     public ApiTemplate get(String id) {
-        for (ApiTemplate apiTemplate : apiTemplateList) {
-            if (apiTemplate.getId().equals(id)) {
-                return apiTemplate;
-            }
-        }
-        return null;
+        Optional<ApiTemplate> existingMetaData = apiTemplateList.stream()
+                .filter(metaData -> metaData.getId().equals(id))
+                .findFirst();
+        if (existingMetaData.isPresent())
+            return existingMetaData.get();
+        else
+            throw new IllegalArgumentException("apiTemplate not found");
     }
 
     public void remove(String id) {

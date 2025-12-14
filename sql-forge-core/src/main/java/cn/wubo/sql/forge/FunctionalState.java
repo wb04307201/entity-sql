@@ -1,20 +1,30 @@
 package cn.wubo.sql.forge;
 
+import lombok.Data;
+
 public class FunctionalState {
 
-    private Boolean apiJson = Boolean.FALSE;
-    private Boolean apiTemplate = Boolean.FALSE;
-    private Boolean console = Boolean.FALSE;
-
+    private final FunctionalStateInfo functionalStateInfo = new FunctionalStateInfo();
     public void setApiJson(Boolean apiJson) {
-        this.apiJson = apiJson;
+        this.functionalStateInfo.setApiJson(apiJson);
     }
 
     public void setApiTemplate(Boolean apiTemplate) {
-        this.apiTemplate = apiTemplate;
+        this.functionalStateInfo.setApiTemplate(apiTemplate);
     }
 
-    public void setConsole(Boolean console) {
-        this.console = console;
+    public void setApiDatabase(Boolean apiDatabase) {
+        this.functionalStateInfo.setApiDatabase(apiDatabase);
+    }
+
+    public FunctionalStateInfo getFunctionalState(){
+        return this.functionalStateInfo;
+    }
+
+    @Data
+    public static class FunctionalStateInfo {
+        private Boolean apiJson = Boolean.FALSE;
+        private Boolean apiTemplate = Boolean.FALSE;
+        private Boolean apiDatabase = Boolean.FALSE;
     }
 }
