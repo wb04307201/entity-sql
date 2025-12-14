@@ -10,7 +10,7 @@
 
     <packaging>pom</packaging>
     <url>
-        https://gitee.com/wb04307201/entity-sql
+        https://gitee.com/wb04307201/sql-forge
     </url>
     <licenses>
         <license>
@@ -21,6 +21,8 @@
     <developers>
         <developer>
             <name>wubo</name>
+            <email>wubo_aaa@163.com</email>
+            <url>https://gitee.com/wb04307201</url>
         </developer>
     </developers>
 
@@ -30,6 +32,7 @@
         <module>sql-forge-console</module>
         <module>sql-forge-spring-boot-autoconfigure</module>
         <module>sql-forge-test</module>
+        <module>sql-forge-template</module>
     </modules>
 
     <properties>
@@ -40,10 +43,13 @@
         <lombok.version>1.18.42</lombok.version>
         <jakarta.version>3.2.0</jakarta.version>
         <jsqlparser.version>5.3</jsqlparser.version>
-<!--        <logback.version>1.5.18</logback.version>-->
-<!--        <fastjson2.version>2.0.58</fastjson2.version>-->
-<!--        <CHMCache.version>1.0.0</CHMCache.version>-->
-<!--        <calcite.version>1.41.0</calcite.version>-->
+        <enjoy.version>5.2.5</enjoy.version>
+        <freemarker.version>2.3.34</freemarker.version>
+        <mvel2.version>2.5.2.Final</mvel2.version>
+        <!--        <logback.version>1.5.18</logback.version>-->
+        <!--        <fastjson2.version>2.0.58</fastjson2.version>-->
+        <!--        <CHMCache.version>1.0.0</CHMCache.version>-->
+        <!--        <calcite.version>1.41.0</calcite.version>-->
     </properties>
 
     <dependencyManagement>
@@ -70,26 +76,41 @@
                 <artifactId>jsqlparser</artifactId>
                 <version>${jsqlparser.version}</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>org.apache.calcite</groupId>-->
-<!--                <artifactId>calcite-core</artifactId>-->
-<!--                <version>${calcite.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>ch.qos.logback</groupId>-->
-<!--                <artifactId>logback-classic</artifactId>-->
-<!--                <version>${logback.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>com.alibaba.fastjson2</groupId>-->
-<!--                <artifactId>fastjson2</artifactId>-->
-<!--                <version>${fastjson2.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>com.gitee.wb04307201</groupId>-->
-<!--                <artifactId>CHMCache</artifactId>-->
-<!--                <version>${CHMCache.version}</version>-->
-<!--            </dependency>-->
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jfinal</groupId>
+                <artifactId>enjoy</artifactId>
+                <version>${enjoy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <version>${mvel2.version}</version>
+            </dependency>
+            <!--            <dependency>-->
+            <!--                <groupId>org.apache.calcite</groupId>-->
+            <!--                <artifactId>calcite-core</artifactId>-->
+            <!--                <version>${calcite.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>ch.qos.logback</groupId>-->
+            <!--                <artifactId>logback-classic</artifactId>-->
+            <!--                <version>${logback.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.alibaba.fastjson2</groupId>-->
+            <!--                <artifactId>fastjson2</artifactId>-->
+            <!--                <version>${fastjson2.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.gitee.wb04307201</groupId>-->
+            <!--                <artifactId>CHMCache</artifactId>-->
+            <!--                <version>${CHMCache.version}</version>-->
+            <!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
 

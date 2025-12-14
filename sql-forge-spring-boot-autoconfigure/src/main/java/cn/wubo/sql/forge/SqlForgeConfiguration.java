@@ -6,10 +6,13 @@ import cn.wubo.sql.forge.crud.Select;
 import cn.wubo.sql.forge.crud.Update;
 import cn.wubo.sql.forge.entity.cache.CacheService;
 import cn.wubo.sql.forge.records.SqlScript;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.RouterFunctions;
@@ -18,6 +21,7 @@ import org.springframework.web.servlet.function.ServerResponse;
 import javax.sql.DataSource;
 
 import java.net.URI;
+import java.util.Map;
 
 import static org.springframework.web.servlet.function.RequestPredicates.accept;
 import static org.springframework.web.servlet.function.RouterFunctions.route;
@@ -51,11 +55,11 @@ public class SqlForgeConfiguration {
         return new EntityService(crudService, cacheService);
     }
 
-    @Bean("sqlForgeApiRouter")
+    @Bean("sqlForgeApiJsonRouter")
     @ConditionalOnProperty(name = "sql.forge.api.json.enabled", havingValue = "true", matchIfMissing = true)
     public RouterFunction<ServerResponse> sqlForgeApiRouter(CrudService crudService) {
         RouterFunctions.Builder builder = route();
-        builder.POST("/{method}/{tableName}", accept(MediaType.APPLICATION_JSON), request -> {
+        builder.POST("sql/forge/api/json/{method}/{tableName}", accept(MediaType.APPLICATION_JSON), request -> {
             String method = request.pathVariable("method");
             String tableName = request.pathVariable("tableName");
             Object obj = switch (method) {
@@ -70,7 +74,29 @@ public class SqlForgeConfiguration {
         return builder.build();
     }
 
-    @Bean("sqlForgeRouter")
+    @Bean
+    @ConditionalOnMissingBean
+    public IApiTemplateStorage apiTemplateStorage() {
+        return new ApiTemplateStorage();
+    }
+
+    @Bean("sqlForgeApiTemplateRouter")
+    @ConditionalOnProperty(name = "sql.forge.api.template.enabled", havingValue = "true", matchIfMissing = true)
+    public RouterFunction<ServerResponse> sqlForgeApiFactoryRouter(IApiTemplateStorage apiTemplateStorage) {
+        RouterFunctions.Builder builder = route();
+        builder.POST("sql/forge/api/template", accept(MediaType.APPLICATION_JSON), request -> {
+            ApiTemplate apiTemplate = request.body(ApiTemplate.class);
+            apiTemplateStorage.save(apiTemplate);
+            return ServerResponse.ok().body(true);
+        });
+        builder.GET("sql/forge/api/template", accept(MediaType.APPLICATION_JSON), request -> {
+            String id = request.param("id").orElse(null);
+            return ServerResponse.ok().body(apiTemplateStorage.get(id));
+        });
+        return builder.build();
+    }
+
+    @Bean("sqlForgeConsoleRouter")
     @ConditionalOnProperty(name = "sql.forge.console.enabled", havingValue = "true", matchIfMissing = true)
     public RouterFunction<ServerResponse> sqlForgeRouter(MetaData metaData, Executor executor) {
         RouterFunctions.Builder builder = RouterFunctions.route();
