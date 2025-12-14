@@ -9,6 +9,15 @@
     </parent>
     <artifactId>sql-forge-console</artifactId>
     <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.gitee.wb04307201</groupId>
+            <artifactId>sql-forge-calcite</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

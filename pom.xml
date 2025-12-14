@@ -29,10 +29,11 @@
     <modules>
         <module>sql-forge-core</module>
         <module>sql-forge-crud</module>
+        <module>sql-forge-template</module>
         <module>sql-forge-console</module>
         <module>sql-forge-spring-boot-autoconfigure</module>
         <module>sql-forge-test</module>
-        <module>sql-forge-template</module>
+        <module>sql-forge-calcite</module>
     </modules>
 
     <properties>
@@ -46,10 +47,7 @@
         <enjoy.version>5.2.5</enjoy.version>
         <freemarker.version>2.3.34</freemarker.version>
         <mvel2.version>2.5.2.Final</mvel2.version>
-        <!--        <logback.version>1.5.18</logback.version>-->
-        <!--        <fastjson2.version>2.0.58</fastjson2.version>-->
-        <!--        <CHMCache.version>1.0.0</CHMCache.version>-->
-        <!--        <calcite.version>1.41.0</calcite.version>-->
+        <calcite.version>1.41.0</calcite.version>
     </properties>
 
     <dependencyManagement>
@@ -77,40 +75,15 @@
                 <version>${jsqlparser.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.freemarker</groupId>
-                <artifactId>freemarker</artifactId>
-                <version>${freemarker.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jfinal</groupId>
-                <artifactId>enjoy</artifactId>
-                <version>${enjoy.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.mvel</groupId>
                 <artifactId>mvel2</artifactId>
                 <version>${mvel2.version}</version>
             </dependency>
-            <!--            <dependency>-->
-            <!--                <groupId>org.apache.calcite</groupId>-->
-            <!--                <artifactId>calcite-core</artifactId>-->
-            <!--                <version>${calcite.version}</version>-->
-            <!--            </dependency>-->
-            <!--            <dependency>-->
-            <!--                <groupId>ch.qos.logback</groupId>-->
-            <!--                <artifactId>logback-classic</artifactId>-->
-            <!--                <version>${logback.version}</version>-->
-            <!--            </dependency>-->
-            <!--            <dependency>-->
-            <!--                <groupId>com.alibaba.fastjson2</groupId>-->
-            <!--                <artifactId>fastjson2</artifactId>-->
-            <!--                <version>${fastjson2.version}</version>-->
-            <!--            </dependency>-->
-            <!--            <dependency>-->
-            <!--                <groupId>com.gitee.wb04307201</groupId>-->
-            <!--                <artifactId>CHMCache</artifactId>-->
-            <!--                <version>${CHMCache.version}</version>-->
-            <!--            </dependency>-->
+            <dependency>
+                <groupId>org.apache.calcite</groupId>
+                <artifactId>calcite-core</artifactId>
+                <version>${calcite.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
