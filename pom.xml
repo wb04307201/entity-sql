@@ -34,6 +34,7 @@
         <module>sql-forge-spring-boot-autoconfigure</module>
         <module>sql-forge-test</module>
         <module>sql-forge-calcite</module>
+        <module>sql-forge-spring-boot-starter</module>
     </modules>
 
     <properties>
