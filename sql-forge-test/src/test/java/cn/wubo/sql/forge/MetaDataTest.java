@@ -25,7 +25,7 @@ class MetaDataTest {
 
     @Test
     void testGetDatabase() throws SQLException {
-        DatabaseInfo databaseInfo = metaData.getDatabase();
+        DatabaseInfo databaseInfo = metaData.getCurrentDatabase();
         log.info("DatabaseInfo: {}", databaseInfo);
         assertNotNull(databaseInfo);
         assertNotNull(databaseInfo.productName());

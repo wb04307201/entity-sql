@@ -1,10 +1,10 @@
-import {Layout, Tabs, Tree} from 'antd';
+import {Button, Layout, Tabs, Tree} from 'antd';
 import {useEffect, useRef, useState} from "react"
-import TabItemContent from "./TabItemContent.tsx";
+import DatabaseTabItem from "./DatabaseTabItem.tsx";
+import {PlusOutlined} from '@ant-design/icons';
+import ApiJsonTabItem from "./ApiJsonTabItem..tsx";
 
 const {Content, Sider} = Layout;
-
-type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
 interface DataNode {
     title: string;
@@ -13,187 +13,192 @@ interface DataNode {
     children?: DataNode[];
 }
 
+interface TabItem {
+    label: string;
+    children: React.ReactNode;
+    key: string;
+}
+
 function App() {
 
-    const [items, setItems] = useState([
-        {
-            label: '标签页1',
-            children: <TabItemContent/>,
-            key: 'Tab1'
-        }
-    ]);
-    const [activeKey, setActiveKey] = useState(items[0].key);
-    const newTabIndex = useRef(2);
+    const [items, setItems] = useState<TabItem[]>([]);
+    const [activeKey, setActiveKey] = useState<string>();
+    const newTabIndex = useRef(1);
     const [treeData, setTreeData] = useState<DataNode[]>([]);
 
     useEffect(() => {
-        loadDataBase()
+        loadData()
     }, [])
 
-    const loadDataBase = () => {
-        fetch('/sql/forge/database')
-            .then(response => response.json())
-            .then(data => {
-                setTreeData(
-                    [
-                        {
-                            title: '数据库',
-                            key: JSON.stringify({catalog: data.catalog, schema: data.schema}),
-                            children:
-                                [
-                                    {
-                                        title: '表',
-                                        key: JSON.stringify({
-                                            catalog: data.catalog,
-                                            schema: data.schema,
-                                            tableType: 'TABLE'
-                                        })
-                                    },
-                                    {
-                                        title: '视图',
-                                        key: JSON.stringify({
-                                            catalog: data.catalog,
-                                            schema: data.schema,
-                                            tableType: 'VIEW'
-                                        })
-                                    },
-                                ]
-                        }
-                    ]
-                )
+    const loadData = async () => {
+        const functionalState: {
+            apiDatabase: boolean,
+            apiJson: boolean,
+            apiTemplate: boolean
+        } = await fetch('/sql/forge/console/functionalState').then(response => response.json());
+
+        const TreeData: DataNode[] = [];
+
+        if (functionalState.apiDatabase) {
+            const database: {
+                databaseInfo: any,
+                tableTypes: {
+                    tableType: string,
+                    tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
+                } []
+            } = await fetch('/sql/forge/api/database/current').then(response => response.json());
+
+            const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
+
+            if (database.tableTypes) {
+                database.tableTypes.forEach((tableType: {
+                    tableType: string,
+                    tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
+                }) => {
+                    const tableTypeNode: DataNode = {title: tableType.tableType, key: tableType.tableType, children: []}
+                    const tables = tableType.tables;
+                    if (tables) {
+                        tables.forEach((table) => {
+                            const tableNode: DataNode = {
+                                title: table.table.tableName,
+                                key: table.table.tableName,
+                                children: []
+                            }
+                            const columns = table.columns;
+                            if (columns) {
+                                tableNode.children = columns.map((column) => ({
+                                    title: column.columnName,
+                                    key: column.columnName,
+                                    isLeaf: true
+                                }))
+                            }
+                            tableTypeNode.children?.push(tableNode);
+                        })
+                    }
+                    databasNode.children?.push(tableTypeNode)
+                })
+            }
+            TreeData.push(databasNode)
+        }
+        if (functionalState.apiJson) {
+            TreeData.push({title: 'ApiJson', key: 'ApiJson', isLeaf: true})
+        }
+        if (functionalState.apiTemplate) {
+            const templates = await fetch('/sql/forge/api/template/list').then(response => response.json());
+            TreeData.push({
+                title: 'ApiTemplate',
+                key: 'ApiTemplate',
+                children: templates.map((item: { name: string }) => ({
+                    title: item.name,
+                    key: item.name
+                }))
             })
+        }
+
+        setTreeData(TreeData);
     };
-
-    const loadTables = async (catalog: string, schemaPattern: string, tableType: string) => {
-        const data = await fetch(`/sql/forge/tables?catalog=${catalog}&schemaPattern=${schemaPattern}&types=${tableType}`).then(response => response.json());
-
-        const tables: DataNode[] = data.map((item: { tableName: string }) => ({
-            title: item.tableName,
-            key: JSON.stringify({catalog: catalog, schema: schemaPattern, tableTypes: tableType, table: item.tableName})
-        }));
-
-        return tables;
-    };
-
-    const loadColumns = async (catalog: string, schemaPattern: string, tableType: string,tableNamePattern: string) => {
-        const data = await fetch(`/sql/forge/columns?catalog=${catalog}&schemaPattern=${schemaPattern}&tableNamePattern=${tableNamePattern}`).then(response => response.json());
-
-        const columns: DataNode[] = data.map((item: { columnName: string }) => ({
-            title: item.columnName,
-            key: JSON.stringify({catalog: catalog, schema: schemaPattern, tableTypes: tableType, table: tableNamePattern, column: item.columnName}),
-            isLeaf: true
-        }));
-
-        return columns;
-    }
 
 
     const onChange = (newActiveKey: string) => {
         setActiveKey(newActiveKey);
     };
 
-    const add = () => {
+    const add = (type: string) => {
         const index = `${newTabIndex.current++}`;
         const newActiveKey = `Tab${index}`;
         const newLabel = `标签页${index}`;
         const newPanes = [...items];
-        newPanes.push({
-            label: newLabel,
-            children: <TabItemContent/>,
-            key: newActiveKey,
-        });
+
+        if (type === 'Database') {
+            newPanes.push({
+                label: newLabel,
+                children: <DatabaseTabItem/>,
+                key: newActiveKey,
+            });
+        } else if (type === 'ApiJson') {
+            newPanes.push({
+                label: newLabel,
+                children: <ApiJsonTabItem/>,
+                key: newActiveKey,
+            })
+        }
+
         setItems(newPanes);
         setActiveKey(newActiveKey);
     };
 
-    const remove = (targetKey: TargetKey) => {
+    const remove = (targetKey: string) => {
         let newActiveKey = activeKey;
-        let lastIndex = -1;
-        items.forEach((item, i) => {
-            if (item.key === targetKey) {
+        let lastIndex = 0;
+        items.forEach((pane, i) => {
+            if (pane.key === targetKey) {
                 lastIndex = i - 1;
             }
         });
-        const newPanes = items.filter((item) => item.key !== targetKey);
+
+        const newPanes = items?.filter((item) => item.key !== targetKey) || [];
+
         if (newPanes.length && newActiveKey === targetKey) {
-            if (lastIndex >= 0) {
-                newActiveKey = newPanes[lastIndex].key;
-            } else {
-                newActiveKey = newPanes[0].key;
-            }
+            const {key} = newPanes[lastIndex] || newPanes[newPanes.length - 1];
+            newActiveKey = key;
+        } else {
+            newActiveKey = undefined
         }
+
         setItems(newPanes);
         setActiveKey(newActiveKey);
     };
+
 
     const onEdit = (
         targetKey: React.MouseEvent | React.KeyboardEvent | string,
         action: 'add' | 'remove',
     ) => {
-        if (action === 'add') {
-            add();
-        } else {
+        if (typeof targetKey === 'string' && action === 'add') {
+            add("");
+        } else if (typeof targetKey === 'string' && action === 'remove') {
             remove(targetKey);
         }
     };
-
-    const onLoadData = ({key, children}: { key: string; children?: DataNode[] }) =>
-        new Promise<void>(async (resolve) => {
-            if (children) {
-                resolve();
-                return;
-            }
-
-            const json = JSON.parse(key);
-
-            if (json.table){
-                const columns: DataNode[] = await loadColumns(json.catalog, json.schema, json.tableType,json.table)
-                setTreeData((origin) =>
-                    updateTreeData(origin, key, columns),
-                );
-                resolve();
-                return;
-            }
-
-            if (json.tableType) {
-                const tables: DataNode[] = await loadTables(json.catalog, json.schema, json.tableType)
-                setTreeData((origin) =>
-                    updateTreeData(origin, key, tables),
-                );
-                resolve();
-                return;
-            }
-        });
-
-    const updateTreeData = (list: DataNode[], key: React.Key, children: DataNode[]): DataNode[] =>
-        list.map((node) => {
-            if (node.key === key) {
-                return {
-                    ...node,
-                    children,
-                };
-            }
-            if (node.children) {
-                return {
-                    ...node,
-                    children: updateTreeData(node.children, key, children),
-                };
-            }
-            return node;
-        });
 
     return (
         <Layout style={{height: '100%'}}>
             <Sider theme={'light'} width={'300px'}>
                 <Tree
-                    loadData={onLoadData}
                     treeData={treeData}
                     defaultExpandAll={true}
+                    titleRender={(nodeData: DataNode) => {
+                        if (nodeData.key === 'Database') {
+                            return (<div>
+                                <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                <Button shape="circle" icon={<PlusOutlined/>} size="small"
+                                        style={{marginLeft: '8px', border: 'none'}}
+                                        onClick={() => {
+                                            add(nodeData.key);
+                                        }}
+                                />
+                            </div>)
+                        } else if (nodeData.key === 'ApiJson') {
+                            return <div>
+                                <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                <Button shape="circle" icon={<PlusOutlined/>} size="small"
+                                        style={{marginLeft: '8px', border: 'none'}}
+                                        onClick={() => {
+                                            add(nodeData.key);
+                                        }}
+                                />
+
+                            </div>
+                        } else {
+                            return nodeData.title
+                        }
+                    }}
                 />
             </Sider>
             <Content>
                 <Tabs
                     type="editable-card"
+                    hideAdd={true}
                     onChange={onChange}
                     activeKey={activeKey}
                     onEdit={onEdit}
@@ -202,6 +207,7 @@ function App() {
                     styles={{
                         content: {height: 'calc(100vh - 56px)', padding: '0 16px'}
                     }}
+
                 />
             </Content>
         </Layout>

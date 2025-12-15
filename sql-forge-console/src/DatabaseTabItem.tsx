@@ -1,5 +1,6 @@
 import {Button, Col, Input, Modal, Row, Table} from "antd";
 import {useState} from "react";
+import apiClient from "./apiClient.tsx";
 
 interface ColumnType {
     title: string;
@@ -11,7 +12,7 @@ interface DataType {
     [key: string]: any;
 }
 
-function TabItemContent() {
+function DatabaseTabItem() {
 
     const [sql, setSql] = useState('');
     const [dataSource, setDataSource] = useState<DataType[]>([]);
@@ -19,30 +20,16 @@ function TabItemContent() {
 
     const executeSql = () => {
         if (!sql) {
+            Modal.error({title: '错误', content: '请输入sql' });
             return;
         }
-        fetch('/sql/forge/execute',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    sql: sql
-                })
-            })
-            .then(async response => {
-                // 检查响应状态
-                if (!response.ok) {
-                    const errorData = await response.json(); // 先解析响应体
-                    throw new Error(errorData?.error);
-                }
-                return response.json();
-            })
+
+        apiClient.post('/sql/forge/api/database/current/execute', {json: {sql: sql}})
+            .json()
             .then(data => {
                 if (Array.isArray(data) && data.length > 0) {
-                    const row =data[0];
-                    const columns=[]
+                    const row = data[0];
+                    const columns = []
                     for (const key in row) {
                         columns.push({
                             title: key,
@@ -60,9 +47,6 @@ function TabItemContent() {
                     }])
                     setDataSource([{key: data}])
                 }
-            })
-            .catch(e => {
-                Modal.error({ title: '错误', content: e.message || '未知错误' });
             });
     }
 
@@ -102,4 +86,4 @@ function TabItemContent() {
     )
 }
 
-export default TabItemContent;
+export default DatabaseTabItem;

@@ -41,4 +41,9 @@ public class ApiTemplateStorage implements IApiTemplateStorage<ApiTemplate> {
             throw new IllegalArgumentException("apiTemplate not found");
         }
     }
+
+    @Override
+    public List<ApiTemplate> list() {
+        return apiTemplateList;
+    }
 }

@@ -99,6 +99,7 @@ public class SqlForgeConfiguration {
             String id = request.param("id").orElse(null);
             return ServerResponse.ok().body(apiTemplateStorage.get(id));
         });
+        builder.GET("sql/forge/api/template/list", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiTemplateStorage.list()));
         builder.POST("sql/forge/api/template/{id}", accept(MediaType.APPLICATION_JSON), request -> {
             String id = request.pathVariable("id");
             ApiTemplate apiTemplate = apiTemplateStorage.get(id);
