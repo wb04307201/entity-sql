@@ -12,11 +12,6 @@
     <dependencies>
         <dependency>
             <groupId>com.gitee.wb04307201</groupId>
-            <artifactId>sql-forge-crud</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gitee.wb04307201</groupId>
             <artifactId>sql-forge-console</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

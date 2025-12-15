@@ -6,6 +6,6 @@ export default defineConfig({
     plugins: [react()],
     base: './',
     build: {
-        outDir: './target/classes/META-INF/resources/sql/forge',
+        outDir: './target/classes/META-INF/resources/sql/forge/console',
     }
 })
