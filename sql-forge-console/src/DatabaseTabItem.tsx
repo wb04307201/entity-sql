@@ -8,9 +8,7 @@ interface ColumnType {
     key: string;
 }
 
-interface DataType {
-    [key: string]: any;
-}
+type DataType = Record<string, unknown>;
 
 function DatabaseTabItem() {
 

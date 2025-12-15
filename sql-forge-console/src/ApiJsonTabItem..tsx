@@ -8,9 +8,7 @@ interface ColumnType {
     key: string;
 }
 
-interface DataType {
-    [key: string]: any;
-}
+type DataType = Record<string, unknown>;
 
 function ApiJsonTabItem() {
 
@@ -25,49 +23,21 @@ function ApiJsonTabItem() {
             Modal.error({title: '错误', content: "请输入json"});
             return;
         }
-        if (!tableName){
+        if (!tableName) {
             Modal.error({title: '错误', content: "请输入表名"});
             return;
         }
+        let params;
         try {
-            JSON.parse(json);
+            params = JSON.parse(json);
         } catch (error) {
             const typedError = error as { message: string };
             Modal.error({title: '错误', content: typedError.message});
             return;
         }
 
-        apiClient.post(`sql/forge/api/json/${type}/${tableName}`, {json: {sql: json}}).json().then(data => {
-            if (Array.isArray(data) && data.length > 0) {
-                const row = data[0];
-                const columns = []
-                for (const key in row) {
-                    columns.push({
-                        title: key,
-                        dataIndex: key,
-                        key: key,
-                    });
-                }
-                setColumns(columns)
-            }
-        })
-
-        fetch('/sql/forge/api/database/current/execute',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: json
-            })
-            .then(async response => {
-                // 检查响应状态
-                if (!response.ok) {
-                    const errorData = await response.json(); // 先解析响应体
-                    throw new Error(errorData?.error);
-                }
-                return response.json();
-            })
+        apiClient.post(`/sql/forge/api/json/${type}/${tableName}`, {json: params})
+            .json()
             .then(data => {
                 if (Array.isArray(data) && data.length > 0) {
                     const row = data[0];
@@ -90,9 +60,6 @@ function ApiJsonTabItem() {
                     setDataSource([{key: data}])
                 }
             })
-            .catch(e => {
-                Modal.error({title: '错误', content: e.message || '未知错误'});
-            });
     }
 
     return (
@@ -111,7 +78,7 @@ function ApiJsonTabItem() {
             <Row>
                 <Col span={24}>
                     <Flex gap={"small"} style={{float: "right"}}>
-                        <Input placeholder="表名" value={tableName} onChange={(e)=> setTableName(e.target.value)}/>
+                        <Input placeholder="表名" value={tableName} onChange={(e) => setTableName(e.target.value)}/>
                         <Radio.Group
                             value={type}
                             options={[
@@ -123,9 +90,9 @@ function ApiJsonTabItem() {
                             onChange={(e) => setType(e.target.value)}
                         />
                         <Button
-                            onClick={() =>{
-                                if (type === "select"){
-                                    setTableName("users")
+                            onClick={() => {
+                                if (type === "select") {
+                                    setTableName("orders o")
                                     setJson(`{
     "@column": [
         "o.id AS order_id",
@@ -162,7 +129,7 @@ function ApiJsonTabItem() {
     "@group": null,
     "@distince": false
 }`)
-                            }
+                                }
                             }}
                         >示例</Button>
                         <Button

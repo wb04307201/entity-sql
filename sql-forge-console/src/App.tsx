@@ -3,6 +3,7 @@ import {useEffect, useRef, useState} from "react"
 import DatabaseTabItem from "./DatabaseTabItem.tsx";
 import {PlusOutlined} from '@ant-design/icons';
 import ApiJsonTabItem from "./ApiJsonTabItem..tsx";
+import apiClient from "./apiClient.tsx";
 
 const {Content, Sider} = Layout;
 
@@ -26,78 +27,81 @@ function App() {
     const newTabIndex = useRef(1);
     const [treeData, setTreeData] = useState<DataNode[]>([]);
 
+    const loadData = async () => {
+            const functionalState: {
+                apiDatabase: boolean,
+                apiJson: boolean,
+                apiTemplate: boolean
+            } = await apiClient.get('/sql/forge/console/functionalState').json()
+
+            const TreeData: DataNode[] = [];
+
+            if (functionalState.apiDatabase) {
+                const database: {
+                    databaseInfo: unknown,
+                    tableTypes: {
+                        tableType: string,
+                        tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
+                    } []
+                } = await apiClient.get('/sql/forge/api/database/current').json()
+
+                const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
+
+                if (database.tableTypes) {
+                    database.tableTypes.forEach((tableType: {
+                        tableType: string,
+                        tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
+                    }) => {
+                        const tableTypeNode: DataNode = {
+                            title: tableType.tableType,
+                            key: tableType.tableType,
+                            children: []
+                        }
+                        const tables = tableType.tables;
+                        if (tables) {
+                            tables.forEach((table) => {
+                                const tableNode: DataNode = {
+                                    title: table.table.tableName,
+                                    key: table.table.tableName,
+                                    children: []
+                                }
+                                const columns = table.columns;
+                                if (columns) {
+                                    tableNode.children = columns.map((column) => ({
+                                        title: column.columnName,
+                                        key: column.columnName,
+                                        isLeaf: true
+                                    }))
+                                }
+                                tableTypeNode.children?.push(tableNode);
+                            })
+                        }
+                        databasNode.children?.push(tableTypeNode)
+                    })
+                }
+                TreeData.push(databasNode)
+            }
+            if (functionalState.apiJson) {
+                TreeData.push({title: 'ApiJson', key: 'ApiJson', isLeaf: true})
+            }
+            if (functionalState.apiTemplate) {
+                const templates: { name: string }[] = await apiClient.get('/sql/forge/api/template/list').json()
+                TreeData.push({
+                    title: 'ApiTemplate',
+                    key: 'ApiTemplate',
+                    children: templates.map((item: { name: string }) => ({
+                        title: item.name,
+                        key: item.name
+                    }))
+                })
+            }
+
+            setTreeData(TreeData);
+    };
+
     useEffect(() => {
         loadData()
     }, [])
-
-    const loadData = async () => {
-        const functionalState: {
-            apiDatabase: boolean,
-            apiJson: boolean,
-            apiTemplate: boolean
-        } = await fetch('/sql/forge/console/functionalState').then(response => response.json());
-
-        const TreeData: DataNode[] = [];
-
-        if (functionalState.apiDatabase) {
-            const database: {
-                databaseInfo: any,
-                tableTypes: {
-                    tableType: string,
-                    tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
-                } []
-            } = await fetch('/sql/forge/api/database/current').then(response => response.json());
-
-            const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
-
-            if (database.tableTypes) {
-                database.tableTypes.forEach((tableType: {
-                    tableType: string,
-                    tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
-                }) => {
-                    const tableTypeNode: DataNode = {title: tableType.tableType, key: tableType.tableType, children: []}
-                    const tables = tableType.tables;
-                    if (tables) {
-                        tables.forEach((table) => {
-                            const tableNode: DataNode = {
-                                title: table.table.tableName,
-                                key: table.table.tableName,
-                                children: []
-                            }
-                            const columns = table.columns;
-                            if (columns) {
-                                tableNode.children = columns.map((column) => ({
-                                    title: column.columnName,
-                                    key: column.columnName,
-                                    isLeaf: true
-                                }))
-                            }
-                            tableTypeNode.children?.push(tableNode);
-                        })
-                    }
-                    databasNode.children?.push(tableTypeNode)
-                })
-            }
-            TreeData.push(databasNode)
-        }
-        if (functionalState.apiJson) {
-            TreeData.push({title: 'ApiJson', key: 'ApiJson', isLeaf: true})
-        }
-        if (functionalState.apiTemplate) {
-            const templates = await fetch('/sql/forge/api/template/list').then(response => response.json());
-            TreeData.push({
-                title: 'ApiTemplate',
-                key: 'ApiTemplate',
-                children: templates.map((item: { name: string }) => ({
-                    title: item.name,
-                    key: item.name
-                }))
-            })
-        }
-
-        setTreeData(TreeData);
-    };
-
 
     const onChange = (newActiveKey: string) => {
         setActiveKey(newActiveKey);
