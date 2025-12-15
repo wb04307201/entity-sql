@@ -17,7 +17,14 @@ public record MetaData(DataSource dataSource) {
         return DataSourceUtils.getConnection(dataSource);
     }
 
-    public DatabaseInfo getDatabase() throws SQLException {
+    /**
+     * 获取数据库连接信息
+     *
+     * @return DatabaseInfo对象，包含数据库的产品名称、版本、连接URL、用户名、驱动名称、
+     * 驱动版本、目录和模式等信息
+     * @throws SQLException 当获取数据库连接或读取元数据时发生SQL异常
+     */
+    public DatabaseInfo getCurrentDatabase() throws SQLException {
         try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
 
@@ -35,6 +42,12 @@ public record MetaData(DataSource dataSource) {
     }
 
 
+    /**
+     * 获取数据库的SQL关键字列表
+     *
+     * @return 包含数据库SQL关键字的字符串，关键字之间用逗号分隔
+     * @throws SQLException 当数据库连接或元数据获取过程中发生错误时抛出
+     */
     public String getSQLKeywords() throws SQLException {
         try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -42,6 +55,12 @@ public record MetaData(DataSource dataSource) {
         }
     }
 
+    /**
+     * 获取数据库中的所有目录信息
+     *
+     * @return 包含所有目录信息的列表
+     * @throws SQLException 当数据库访问发生错误时抛出
+     */
     public List<CatalogInfo> getCatalogs() throws SQLException {
         try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -57,6 +76,14 @@ public record MetaData(DataSource dataSource) {
         }
     }
 
+    /**
+     * 获取指定目录和模式下的数据库模式信息列表
+     *
+     * @param catalog       数据库目录名称，可为null表示不限制目录
+     * @param schemaPattern 模式名称的匹配模式，可为null表示不限制模式
+     * @return 包含SchemaInfo对象的列表，每个对象代表一个数据库模式
+     * @throws SQLException 当数据库访问发生错误时抛出
+     */
     public List<SchemaInfo> getSchemas(String catalog, String schemaPattern) throws SQLException {
         try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -73,6 +100,12 @@ public record MetaData(DataSource dataSource) {
         }
     }
 
+    /**
+     * 获取数据库中所有支持的表类型
+     *
+     * @return 包含所有表类型的字符串列表
+     * @throws SQLException 当数据库访问发生错误时抛出
+     */
     public List<String> getTableTypes() throws SQLException {
         try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -86,6 +119,16 @@ public record MetaData(DataSource dataSource) {
         }
     }
 
+    /**
+     * 获取数据库中的表信息列表
+     *
+     * @param catalog          表所在的目录名称，如果为null则表示所有目录
+     * @param schemaPattern    表模式名称的匹配模式，如果为null则表示所有模式
+     * @param tableNamePattern 表名称的匹配模式，如果为null则表示所有表
+     * @param types            要包含的表类型数组，如"TABLE"、"VIEW"等，如果为null则表示所有类型
+     * @return 包含表信息的TableInfo对象列表
+     * @throws SQLException 当数据库访问发生错误时抛出
+     */
     public List<TableInfo> getTables(String catalog, String schemaPattern,
                                      String tableNamePattern, String[] types) throws SQLException {
         try (Connection connection = getConnection()) {
@@ -109,7 +152,18 @@ public record MetaData(DataSource dataSource) {
         }
     }
 
+    /**
+     * 获取数据库表的列信息
+     *
+     * @param catalog           数据库目录名称，如果为null则表示所有目录
+     * @param schemaPattern     模式名称模式，如果为null则表示所有模式
+     * @param tableNamePattern  表名模式，如果为null则表示所有表
+     * @param columnNamePattern 列名模式，如果为null则表示所有列
+     * @return 包含列信息的列表
+     * @throws SQLException 当数据库访问发生错误时抛出
+     */
     public List<ColumnInfo> getColumns(String catalog, String schemaPattern,
+
                                        String tableNamePattern, String columnNamePattern) throws SQLException {
         try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -141,6 +195,15 @@ public record MetaData(DataSource dataSource) {
         }
     }
 
+    /**
+     * 获取指定表的主键信息列表
+     *
+     * @param catalog 数据库目录名称，可为null
+     * @param schema  数据库模式名称，可为null
+     * @param table   表名称，不能为空
+     * @return 主键信息列表，包含表的所有主键列信息
+     * @throws SQLException 当数据库访问发生错误时抛出
+     */
     public List<PrimaryKeyInfo> getPrimaryKeys(String catalog, String schema, String table) throws SQLException {
         try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -161,6 +224,15 @@ public record MetaData(DataSource dataSource) {
         }
     }
 
+    /**
+     * 获取指定表的外键信息列表
+     *
+     * @param catalog 数据库目录名称，可为null
+     * @param schema  数据库模式名称，可为null
+     * @param table   表名称，不能为null
+     * @return 外键信息列表
+     * @throws SQLException 数据库访问异常
+     */
     public List<ForeignKeyInfo> getImportedKeys(String catalog, String schema, String table) throws SQLException {
         try (Connection connection = getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -189,6 +261,17 @@ public record MetaData(DataSource dataSource) {
         }
     }
 
+    /**
+     * 获取指定表的索引信息
+     *
+     * @param catalog     数据库目录名称，如果为null则表示获取所有目录
+     * @param schema      数据库模式名称，如果为null则表示获取所有模式
+     * @param table       表名称，不能为空
+     * @param unique      是否只返回唯一索引，true表示只返回唯一索引，false表示返回所有索引
+     * @param approximate 是否允许返回近似值，true表示允许返回近似值，false表示要求精确值
+     * @return 包含索引信息的列表
+     * @throws SQLException 当数据库访问发生错误时抛出
+     */
     public List<IndexInfo> getIndexInfo(String catalog, String schema, String table,
                                         boolean unique, boolean approximate) throws SQLException {
         try (Connection connection = getConnection()) {

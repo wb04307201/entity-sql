@@ -112,12 +112,19 @@ public class SqlForgeConfiguration {
         return builder.build();
     }
 
+    @Bean
+    @ConditionalOnProperty(name = "sql.forge.api.database.enabled", havingValue = "true", matchIfMissing = true)
+    public CurrentMetaData currentMetaData(MetaData metaData) {
+        return new CurrentMetaData(metaData);
+    }
+
     @Bean("sqlForgeApiDatabaseRouter")
     @ConditionalOnProperty(name = "sql.forge.api.database.enabled", havingValue = "true", matchIfMissing = true)
-    public RouterFunction<ServerResponse> sqlForgeApiDatabaseRouter(FunctionalState functionalState, Executor executor) {
+    public RouterFunction<ServerResponse> sqlForgeApiDatabaseRouter(FunctionalState functionalState, Executor executor, CurrentMetaData currentMetaData) {
         functionalState.setApiDatabase(true);
         RouterFunctions.Builder builder = route();
-        builder.POST("/sql/forge/execute", request -> {
+        builder.GET("/sql/forge/api/database/current", request -> ServerResponse.ok().body(currentMetaData.getCurrentDatabase()));
+        builder.POST("/sql/forge/api/database/current/execute", request -> {
             SqlScript sqlScript = request.body(SqlScript.class);
             return ServerResponse.ok().body(executor.execute(sqlScript));
         });
