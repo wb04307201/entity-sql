@@ -103,9 +103,10 @@ public class SqlForgeConfiguration {
         builder.POST("sql/forge/api/template/{id}", accept(MediaType.APPLICATION_JSON), request -> {
             String id = request.pathVariable("id");
             ApiTemplate apiTemplate = apiTemplateStorage.get(id);
+            if (!apiTemplate.getIsApproved())
+                throw new IllegalArgumentException("api template not approved");
             Map<String, Object> params = request.body(new ParameterizedTypeReference<>() {
             });
-
             SqlTemplateEngine engine = new SqlTemplateEngine();
             SqlScript result = engine.process(apiTemplate.getContext(), params);
             return ServerResponse.ok().body(executor.execute(result));

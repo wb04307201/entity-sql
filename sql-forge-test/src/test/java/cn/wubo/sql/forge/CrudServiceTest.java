@@ -120,8 +120,6 @@ class CrudServiceTest {
         );
 
         rowMapList = (List<RowMap>) crudService.delete("users", delete);
-
         assertEquals(0, rowMapList.size());
-
     }
 }

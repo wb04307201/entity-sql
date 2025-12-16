@@ -6,4 +6,5 @@ import lombok.Data;
 public class ApiTemplate {
     private String id;
     private String context;
+    private Boolean isApproved;
 }

@@ -1,9 +1,10 @@
-import {Button, Layout, Tabs, Tree} from 'antd';
+import {Button, Layout, Spin, Tabs, Tree} from 'antd';
 import {useEffect, useRef, useState} from "react"
 import DatabaseTabItem from "./DatabaseTabItem.tsx";
-import {PlusOutlined} from '@ant-design/icons';
-import ApiJsonTabItem from "./ApiJsonTabItem..tsx";
+import {EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons';
+import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";
+import ApiTemplateTabItem from "./ApiTemplateTabItem.tsx";
 
 const {Content, Sider} = Layout;
 
@@ -26,77 +27,77 @@ function App() {
     const [activeKey, setActiveKey] = useState<string>();
     const newTabIndex = useRef(1);
     const [treeData, setTreeData] = useState<DataNode[]>([]);
+    const [treeSpinning, setTreeSpinning] = useState<boolean>(false);
 
     const loadData = async () => {
-            const functionalState: {
-                apiDatabase: boolean,
-                apiJson: boolean,
-                apiTemplate: boolean
-            } = await apiClient.get('/sql/forge/console/functionalState').json()
+        setTreeSpinning(true)
+        const functionalState: {
+            apiDatabase: boolean,
+            apiJson: boolean,
+            apiTemplate: boolean
+        } = await apiClient.get('/sql/forge/console/functionalState').json()
 
-            const TreeData: DataNode[] = [];
+        const TreeData: DataNode[] = [];
 
-            if (functionalState.apiDatabase) {
-                const database: {
-                    databaseInfo: unknown,
-                    tableTypes: {
-                        tableType: string,
-                        tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
-                    } []
-                } = await apiClient.get('/sql/forge/api/database/current').json()
+        if (functionalState.apiDatabase) {
+            const database: {
+                databaseInfo: unknown,
+                tableTypes: {
+                    tableType: string,
+                    tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
+                } []
+            } = await apiClient.get('/sql/forge/api/database/current').json()
 
-                const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
+            const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
 
-                if (database.tableTypes) {
-                    database.tableTypes.forEach((tableType: {
-                        tableType: string,
-                        tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
-                    }) => {
-                        const tableTypeNode: DataNode = {
-                            title: tableType.tableType,
-                            key: tableType.tableType,
-                            children: []
-                        }
-                        const tables = tableType.tables;
-                        if (tables) {
-                            tables.forEach((table) => {
-                                const tableNode: DataNode = {
-                                    title: table.table.tableName,
-                                    key: table.table.tableName,
-                                    children: []
-                                }
-                                const columns = table.columns;
-                                if (columns) {
-                                    tableNode.children = columns.map((column) => ({
-                                        title: column.columnName,
-                                        key: column.columnName,
-                                        isLeaf: true
-                                    }))
-                                }
-                                tableTypeNode.children?.push(tableNode);
-                            })
-                        }
-                        databasNode.children?.push(tableTypeNode)
-                    })
-                }
-                TreeData.push(databasNode)
-            }
-            if (functionalState.apiJson) {
-                TreeData.push({title: 'ApiJson', key: 'ApiJson', isLeaf: true})
-            }
-            if (functionalState.apiTemplate) {
-                const templates: { name: string }[] = await apiClient.get('/sql/forge/api/template/list').json()
-                TreeData.push({
-                    title: 'ApiTemplate',
-                    key: 'ApiTemplate',
-                    children: templates.map((item: { name: string }) => ({
-                        title: item.name,
-                        key: item.name
-                    }))
+            if (database.tableTypes) {
+                database.tableTypes.forEach(tableType => {
+                    const tableTypeNode: DataNode = {
+                        title: tableType.tableType,
+                        key: tableType.tableType,
+                        children: []
+                    }
+                    const tables = tableType.tables;
+                    if (tables) {
+                        tables.forEach(table => {
+                            const tableNode: DataNode = {
+                                title: table.table.tableName,
+                                key: table.table.tableName,
+                                children: []
+                            }
+                            const columns = table.columns;
+                            if (columns) {
+                                tableNode.children = columns.map((column) => ({
+                                    title: column.columnName,
+                                    key: column.columnName,
+                                    isLeaf: true
+                                }))
+                            }
+                            tableTypeNode.children?.push(tableNode);
+                        })
+                    }
+                    databasNode.children?.push(tableTypeNode)
                 })
             }
+            TreeData.push(databasNode)
+        }
+        if (functionalState.apiJson) {
+            TreeData.push({title: 'ApiJson', key: 'ApiJson', isLeaf: true})
+        }
+        if (functionalState.apiTemplate) {
+            const templates: { id: string }[] = await apiClient.get('/sql/forge/api/template/list').json()
+            TreeData.push({
+                title: 'ApiTemplate',
+                key: 'ApiTemplate',
+                children: templates.map(item => ({
+                    title: item.id,
+                    key: 'ApiTemplate-' + item.id
+                }))
+            })
+        }
 
-            setTreeData(TreeData);
+        setTreeData(TreeData);
+        setTreeSpinning(false)
     };
 
     useEffect(() => {
@@ -123,6 +124,18 @@ function App() {
             newPanes.push({
                 label: newLabel,
                 children: <ApiJsonTabItem/>,
+                key: newActiveKey,
+            })
+        } else if (type === 'ApiTemplate') {
+            newPanes.push({
+                label: newLabel,
+                children: <ApiTemplateTabItem isCreate={true} apiTemplateId={""}/>,
+                key: newActiveKey,
+            })
+        } else if (type.startsWith('ApiTemplate-')) {
+            newPanes.push({
+                label: newLabel,
+                children: <ApiTemplateTabItem isCreate={false} apiTemplateId={type.substring(12)}/>,
                 key: newActiveKey,
             })
         }
@@ -168,37 +181,60 @@ function App() {
     return (
         <Layout style={{height: '100%'}}>
             <Sider theme={'light'} width={'300px'}>
-                <Tree
-                    treeData={treeData}
-                    defaultExpandAll={true}
-                    titleRender={(nodeData: DataNode) => {
-                        if (nodeData.key === 'Database') {
-                            return (<div>
-                                <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
-                                <Button shape="circle" icon={<PlusOutlined/>} size="small"
-                                        style={{marginLeft: '8px', border: 'none'}}
-                                        onClick={() => {
-                                            add(nodeData.key);
-                                        }}
-                                />
-                            </div>)
-                        } else if (nodeData.key === 'ApiJson') {
-                            return <div>
-                                <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
-                                <Button shape="circle" icon={<PlusOutlined/>} size="small"
-                                        style={{marginLeft: '8px', border: 'none'}}
-                                        onClick={() => {
-                                            add(nodeData.key);
-                                        }}
-                                />
-
-                            </div>
-                        } else {
-                            return nodeData.title
-                        }
-                    }}
-                    blockNode={true}
-                />
+                <Spin spinning={treeSpinning}>
+                    <Tree
+                        treeData={treeData}
+                        defaultExpandAll={true}
+                        titleRender={(nodeData: DataNode) => {
+                            if (nodeData.key === 'Database') {
+                                return (<div>
+                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <ReloadOutlined/>
+                                    <Button shape="circle" icon={<PlusOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                add(nodeData.key);
+                                            }}
+                                    />
+                                </div>)
+                            } else if (nodeData.key === 'ApiJson') {
+                                return (<div>
+                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <Button shape="circle" icon={<PlusOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                add(nodeData.key);
+                                            }}
+                                    />
+                                </div>)
+                            } else if (nodeData.key === 'ApiTemplate') {
+                                return (<div>
+                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <ReloadOutlined/>
+                                    <Button shape="circle" icon={<PlusOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                add(nodeData.key);
+                                            }}
+                                    />
+                                </div>)
+                            } else if (nodeData.key.startsWith('ApiTemplate-')) {
+                                return (<div>
+                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <Button shape="circle" icon={<EditOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                add(nodeData.key);
+                                            }}
+                                    />
+                                </div>)
+                            } else {
+                                return nodeData.title
+                            }
+                        }}
+                        blockNode={true}
+                    />
+                </Spin>
             </Sider>
             <Content>
                 <Tabs

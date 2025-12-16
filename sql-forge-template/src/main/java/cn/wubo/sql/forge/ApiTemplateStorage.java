@@ -10,6 +10,7 @@ public class ApiTemplateStorage implements IApiTemplateStorage<ApiTemplate> {
     private static final List<ApiTemplate> apiTemplateList = new ArrayList<>();
 
     public void save(ApiTemplate apiTemplate) {
+        apiTemplate.setIsApproved(true);
         Optional<ApiTemplate> existingMetaData = apiTemplateList.stream()
                 .filter(metaData -> metaData.getId().equals(apiTemplate.getId()))
                 .findFirst();

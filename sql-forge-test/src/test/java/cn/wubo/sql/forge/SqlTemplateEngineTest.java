@@ -15,42 +15,27 @@ public class SqlTemplateEngineTest {
     @Test
     void test() {
 
-        String template = """
-                SELECT * FROM users
-                <if test="name != null && name != ''">WHERE name = #{name}</if>
-                <if test="name == null || name == ''">WHERE 0=1</if>
-                <if test="ids != null && !ids.isEmpty()"><foreach collection="ids" item="id" open="AND id IN (" separator="," close=")">#{id}</foreach></if> 
-                ORDER BY create_time DESC
-                """;
-
+        String template = "SELECT * FROM users WHERE 1=1" +
+                "<if test=\"name != null && name != ''\"> AND username = #{name}</if>" +
+                "<if test=\"ids != null && !ids.isEmpty()\"><foreach collection=\"ids\" item=\"id\" open=\" AND id IN (\" separator=\",\" close=\")\">#{id}</foreach></if>" +
+                "<if test=\"(name == null || name == '') && (ids == null || ids.isEmpty()) \"> AND 0=1</if>" +
+                " ORDER BY username DESC";
 
         Map<String, Object> input = new HashMap<>();
         input.put("name", "John");
-        input.put("ids", Arrays.asList(101, 102, 103));
+        input.put("ids", Arrays.asList(1, 2, 3));
 
         SqlTemplateEngine engine = new SqlTemplateEngine();
         SqlScript result = engine.process(template, input);
 
-        assertEquals("""
-                SELECT * FROM users
-                WHERE name = ?
-
-                AND id IN (?,?,?)
-                ORDER BY create_time DESC
-                """, result.sql());
-        assertEquals("{1=John, 2=101, 3=102, 4=103}",result.params().toString());
+        assertEquals("SELECT * FROM users WHERE 1=1 AND username = ? AND id IN (?,?,?) ORDER BY username DESC", result.sql());
+        assertEquals("{1=John, 2=1, 3=2, 4=3}",result.params().toString());
 
         input.clear();
         input.put("name", null);
         input.put("ids", null);
         SqlScript result2 = engine.process(template, input);
-        assertEquals("""
-                SELECT * FROM users
-
-                WHERE 0=1
-
-                ORDER BY create_time DESC
-                """, result2.sql());
+        assertEquals("SELECT * FROM users WHERE 1=1 AND 0=1 ORDER BY username DESC", result2.sql());
         assertEquals("{}", result2.params().toString());
 
 
@@ -58,13 +43,7 @@ public class SqlTemplateEngineTest {
         input.put("name", "");
         input.put("ids", Collections.emptyList());
         SqlScript result3 = engine.process(template, input);
-        assertEquals("""
-                SELECT * FROM users
-
-                WHERE 0=1
-
-                ORDER BY create_time DESC
-                """, result3.sql());
+        assertEquals("SELECT * FROM users WHERE 1=1 AND 0=1 ORDER BY username DESC", result3.sql());
         assertEquals("{}", result3.params().toString());
 
     }

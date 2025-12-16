@@ -18,7 +18,7 @@ function ApiJsonTabItem() {
     const [dataSource, setDataSource] = useState<DataType[]>([]);
     const [columns, setColumns] = useState<ColumnType[]>([]);
 
-    const executeSql = () => {
+    const executeJson = () => {
         if (!json) {
             Modal.error({title: '错误', content: "请输入json"});
             return;
@@ -225,7 +225,7 @@ function ApiJsonTabItem() {
                         >示例</Button>
                         <Button
                             type="primary"
-                            onClick={executeSql}
+                            onClick={executeJson}
                         >执行</Button>
                     </Flex>
                 </Col>
