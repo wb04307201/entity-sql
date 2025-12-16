@@ -197,6 +197,7 @@ function App() {
                             return nodeData.title
                         }
                     }}
+                    blockNode={true}
                 />
             </Sider>
             <Content>

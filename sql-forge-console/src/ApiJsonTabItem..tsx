@@ -129,6 +129,97 @@ function ApiJsonTabItem() {
     "@group": null,
     "@distince": false
 }`)
+                                } else if (type === "insert") {
+                                    setTableName("users")
+                                    setJson(`{
+    "@set": [
+        {
+            "column": "id",
+            "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
+        },
+        {
+            "column": "username",
+            "value": "wb04307201"
+        },
+        {
+            "column": "email",
+            "value": "wb04307201@gitee.com"
+        }
+    ],
+    "@with_select": {
+        "@column": null,
+        "@where": [
+            {
+                "column": "id",
+                "condition": "EQ",
+                "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
+            }
+        ],
+        "@page": null,
+        "@join": null,
+        "@order": null,
+        "@group": null,
+        "@distince": false
+    }
+}`)
+                                } else if (type === "update") {
+                                    setTableName("users")
+                                    setJson(`{
+    "@set": [
+        {
+            "column": "email",
+            "value": "wb04307201@github.com"
+        }
+    ],
+    "@where": [
+        {
+            "column": "id",
+            "condition": "EQ",
+            "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
+        }
+    ],
+    "@with_select": {
+        "@column": null,
+        "@where": [
+            {
+                "column": "id",
+                "condition": "EQ",
+                "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
+            }
+        ],
+        "@page": null,
+        "@join": null,
+        "@order": null,
+        "@group": null,
+        "@distince": false
+    }
+}`)
+                                } else if (type === "delete") {
+                                    setTableName("users")
+                                    setJson(`{
+    "@where": [
+        {
+            "column": "id",
+            "condition": "EQ",
+            "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
+        }
+    ],
+    "@with_select": {
+        "@column": null,
+        "@where": [
+            {
+                "column": "id",
+                "condition": "EQ",
+                "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
+            }
+        ],
+        "@page": null,
+        "@join": null,
+        "@order": null,
+        "@group": null,
+        "@distince": false
+    }
+}`)
                                 }
                             }}
                         >示例</Button>
