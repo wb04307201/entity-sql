@@ -1,7 +1,7 @@
 import {Button, Layout, Spin, Tabs, Tree} from 'antd';
 import {useEffect, useRef, useState} from "react"
 import DatabaseTabItem from "./DatabaseTabItem.tsx";
-import {EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons';
+import {EditOutlined, PlusOutlined} from '@ant-design/icons';
 import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";
 import ApiTemplateTabItem from "./ApiTemplateTabItem.tsx";
@@ -189,7 +189,6 @@ function App() {
                             if (nodeData.key === 'Database') {
                                 return (<div>
                                     <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
-                                    <ReloadOutlined/>
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
@@ -210,7 +209,6 @@ function App() {
                             } else if (nodeData.key === 'ApiTemplate') {
                                 return (<div>
                                     <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
-                                    <ReloadOutlined/>
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {

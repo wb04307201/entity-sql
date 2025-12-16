@@ -4,6 +4,7 @@ package cn.wubo.sql.forge;
 import cn.wubo.sql.forge.map.ParamMap;
 import cn.wubo.sql.forge.map.RowMap;
 import cn.wubo.sql.forge.records.SqlScript;
+import cn.wubo.sql.forge.utils.ResultSetUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -37,37 +38,6 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    private List<RowMap> resultSetToList(@NonNull ResultSet rs) throws SQLException {
-        List<RowMap> list = new ArrayList<>();
-        ResultSetMetaData metaData = rs.getMetaData();
-        int columnCount = metaData.getColumnCount();
-
-        try {
-            if (rs.getType() != ResultSet.TYPE_FORWARD_ONLY) {
-                rs.last();
-                int rowCount = rs.getRow();
-                if (rowCount > 0) {
-                    list = new ArrayList<>(rowCount);
-                }
-                rs.beforeFirst();
-            }
-        } catch (SQLException e) {
-            list = new ArrayList<>();
-        }
-
-        while (rs.next()) {
-            RowMap row = new RowMap(columnCount);
-            for (int i = 1; i <= columnCount; i++) {
-                String columnName = metaData.getColumnLabel(i);
-                Object value = rs.getObject(i);
-                row.put(columnName, value);
-            }
-            list.add(row);
-        }
-
-        return list;
-    }
-
     private Connection getConnection() {
         return DataSourceUtils.getConnection(dataSource);
     }
@@ -80,7 +50,7 @@ public record Executor(DataSource dataSource) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());
 
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    return resultSetToList(resultSet);
+                    return ResultSetUtils.resultSetToList(resultSet);
                 }
             }
         } finally {
@@ -184,7 +154,7 @@ public record Executor(DataSource dataSource) {
                 boolean isResultSet = preparedStatement.execute();
                 if (isResultSet) {
                     try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                        return resultSetToList(resultSet);
+                        return ResultSetUtils.resultSetToList(resultSet);
                     }
                 } else {
                     return preparedStatement.getUpdateCount();

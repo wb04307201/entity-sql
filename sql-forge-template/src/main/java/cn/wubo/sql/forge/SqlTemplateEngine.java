@@ -5,6 +5,8 @@ import org.mvel2.MVEL;
 import java.util.*;
 import java.util.regex.*;
 
+import static cn.wubo.sql.forge.constant.Constant.QUESTION_MARK;
+
 public class SqlTemplateEngine {
     private static final Pattern TAG_PATTERN = Pattern.compile("<(\\w+)\\s+([^>]*)>(.*?)</\\1>", Pattern.DOTALL);
     private static final Pattern PARAM_PATTERN = Pattern.compile("#\\{([^}]*)\\}");
@@ -61,7 +63,7 @@ public class SqlTemplateEngine {
                 throw new RuntimeException("Variable not found: " + varName);
             }
             context.addParam(value);
-            context.appendSql("?");
+            context.appendSql(QUESTION_MARK);
 
             lastIndex = matcher.end();
         }
@@ -119,7 +121,6 @@ public class SqlTemplateEngine {
     }
 
     // 辅助方法：对象转 Iterable
-    @SuppressWarnings("unchecked")
     private Iterable<?> toIterable(Object obj) {
         if (obj == null) return Collections.emptyList();
         if (obj instanceof Iterable) return (Iterable<?>) obj;

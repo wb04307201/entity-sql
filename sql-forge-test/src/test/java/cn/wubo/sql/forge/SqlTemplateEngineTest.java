@@ -23,13 +23,13 @@ public class SqlTemplateEngineTest {
 
         Map<String, Object> input = new HashMap<>();
         input.put("name", "John");
-        input.put("ids", Arrays.asList(1, 2, 3));
+        input.put("ids", Arrays.asList("550e8400-e29b-41d4-a716-446655440000", "550e8400-e29b-41d4-a716-446655440001", "550e8400-e29b-41d4-a716-446655440002"));
 
         SqlTemplateEngine engine = new SqlTemplateEngine();
         SqlScript result = engine.process(template, input);
 
         assertEquals("SELECT * FROM users WHERE 1=1 AND username = ? AND id IN (?,?,?) ORDER BY username DESC", result.sql());
-        assertEquals("{1=John, 2=1, 3=2, 4=3}",result.params().toString());
+        assertEquals("{1=John, 2=550e8400-e29b-41d4-a716-446655440000, 3=550e8400-e29b-41d4-a716-446655440001, 4=550e8400-e29b-41d4-a716-446655440002}", result.params().toString());
 
         input.clear();
         input.put("name", null);
