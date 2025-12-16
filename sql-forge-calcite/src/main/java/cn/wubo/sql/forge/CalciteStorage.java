@@ -1,13 +1,13 @@
 package cn.wubo.sql.forge;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ApiTemplateStorage implements IApiTemplateStorage<ApiTemplate> {
+public class CalciteStorage implements ICalciteStorage<ApiTemplate>{
 
     private static final List<ApiTemplate> apiTemplateList = new ArrayList<>();
+
 
     @Override
     public void save(ApiTemplate apiTemplate) {
@@ -49,5 +49,16 @@ public class ApiTemplateStorage implements IApiTemplateStorage<ApiTemplate> {
     @Override
     public List<ApiTemplate> list() {
         return apiTemplateList;
+    }
+
+
+    @Override
+    public String getComfig() {
+        return "";
+    }
+
+    @Override
+    public void saveConfig(String config) {
+
     }
 }
