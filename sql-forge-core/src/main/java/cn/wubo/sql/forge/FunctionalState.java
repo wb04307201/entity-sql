@@ -17,6 +17,10 @@ public class FunctionalState {
         this.functionalStateInfo.setApiDatabase(apiDatabase);
     }
 
+    public void setApiCalcite(Boolean apiCalcite) {
+        this.functionalStateInfo.setApiCalcite(apiCalcite);
+    }
+
     public FunctionalStateInfo getFunctionalState(){
         return this.functionalStateInfo;
     }
@@ -26,5 +30,6 @@ public class FunctionalState {
         private Boolean apiJson = Boolean.FALSE;
         private Boolean apiTemplate = Boolean.FALSE;
         private Boolean apiDatabase = Boolean.FALSE;
+        private Boolean apiCalcite = Boolean.FALSE;
     }
 }

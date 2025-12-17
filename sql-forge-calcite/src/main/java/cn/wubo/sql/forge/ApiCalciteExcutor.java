@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public record Calcite(
-        ICalciteStorage calciteStorage
+public record ApiCalciteExcutor(
+        IApiCalciteStorage calciteStorage
 ) {
 
     public List<RowMap> execute(String id, Map<String, Object> params) throws SQLException {

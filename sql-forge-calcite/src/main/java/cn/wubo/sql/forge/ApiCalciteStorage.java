@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class CalciteStorage implements ICalciteStorage<ApiTemplate> {
+public class ApiCalciteStorage implements IApiCalciteStorage<ApiTemplate> {
 
     private static final List<ApiTemplate> apiTemplateList = new ArrayList<>();
     private String config;

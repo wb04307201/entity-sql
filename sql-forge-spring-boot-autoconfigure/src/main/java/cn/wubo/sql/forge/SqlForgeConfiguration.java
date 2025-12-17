@@ -81,11 +81,13 @@ public class SqlForgeConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = "sql.forge.api.template.enabled", havingValue = "true", matchIfMissing = true)
     public IApiTemplateStorage apiTemplateStorage() {
         return new ApiTemplateStorage();
     }
 
     @Bean
+    @ConditionalOnProperty(name = "sql.forge.api.template.enabled", havingValue = "true", matchIfMissing = true)
     public ApiTemplateExcutor apiTemplateExcutor(IApiTemplateStorage apiTemplateStorage, Executor executor) {
         return new ApiTemplateExcutor(apiTemplateStorage,executor);
     }
@@ -115,6 +117,48 @@ public class SqlForgeConfiguration {
             Map<String, Object> params = request.body(new ParameterizedTypeReference<>() {
             });
             return ServerResponse.ok().body(apiTemplateExcutor.execute(id,params));
+        });
+        return builder.build();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = "sql.forge.api.calcite.enabled", havingValue = "true", matchIfMissing = true)
+    public IApiCalciteStorage apiCalciteStorage() {
+        return new ApiCalciteStorage();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "sql.forge.api.template.enabled", havingValue = "true", matchIfMissing = true)
+    public ApiCalciteExcutor apiCalciteExcutor(IApiCalciteStorage apiCalciteStorage) {
+        return new ApiCalciteExcutor(apiCalciteStorage);
+    }
+
+    @Bean("sqlForgeApiCalciteRouter")
+    @ConditionalOnProperty(name = "sql.forge.api.calcite.enabled", havingValue = "true", matchIfMissing = true)
+    public RouterFunction<ServerResponse> sqlForgeApiCalciteRouter(FunctionalState functionalState, IApiCalciteStorage apiCalciteStorage, ApiCalciteExcutor apiCalciteExcutor) {
+        functionalState.setApiTemplate(true);
+        RouterFunctions.Builder builder = route();
+        builder.POST("sql/forge/api/template", accept(MediaType.APPLICATION_JSON), request -> {
+            ApiTemplate apiTemplate = request.body(ApiTemplate.class);
+            apiCalciteStorage.save(apiTemplate);
+            return ServerResponse.ok().body(true);
+        });
+        builder.DELETE("sql/forge/api/template/{id}", accept(MediaType.APPLICATION_JSON), request -> {
+            String id = request.pathVariable("id");
+            apiCalciteStorage.remove(id);
+            return ServerResponse.ok().body(true);
+        });
+        builder.GET("sql/forge/api/template/{id}", accept(MediaType.APPLICATION_JSON), request -> {
+            String id = request.pathVariable("id");
+            return ServerResponse.ok().body(apiCalciteStorage.get(id));
+        });
+        builder.GET("sql/forge/api/template/list", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiCalciteStorage.list()));
+        builder.POST("sql/forge/api/template/{id}", accept(MediaType.APPLICATION_JSON), request -> {
+            String id = request.pathVariable("id");
+            Map<String, Object> params = request.body(new ParameterizedTypeReference<>() {
+            });
+            return ServerResponse.ok().body(apiCalciteExcutor.execute(id,params));
         });
         return builder.build();
     }
