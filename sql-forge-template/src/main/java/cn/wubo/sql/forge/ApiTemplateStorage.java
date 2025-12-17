@@ -11,7 +11,6 @@ public class ApiTemplateStorage implements IApiTemplateStorage<ApiTemplate> {
 
     @Override
     public void save(ApiTemplate apiTemplate) {
-        apiTemplate.setIsApproved(true);
         Optional<ApiTemplate> existingMetaData = apiTemplateList.stream()
                 .filter(metaData -> metaData.getId().equals(apiTemplate.getId()))
                 .findFirst();

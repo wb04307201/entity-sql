@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class CalciteStorage implements ICalciteStorage<ApiTemplate>{
+public class CalciteStorage implements ICalciteStorage<ApiTemplate> {
 
     private static final List<ApiTemplate> apiTemplateList = new ArrayList<>();
-
+    private String config;
 
     @Override
     public void save(ApiTemplate apiTemplate) {
-        apiTemplate.setIsApproved(true);
         Optional<ApiTemplate> existingMetaData = apiTemplateList.stream()
                 .filter(metaData -> metaData.getId().equals(apiTemplate.getId()))
                 .findFirst();
@@ -54,11 +53,11 @@ public class CalciteStorage implements ICalciteStorage<ApiTemplate>{
 
     @Override
     public String getComfig() {
-        return "";
+        return config;
     }
 
     @Override
     public void saveConfig(String config) {
-
+        this.config = config;
     }
 }

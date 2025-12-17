@@ -12,8 +12,6 @@ public record ApiTemplateExcutor(
 
     public Object execute(String id, Map<String, Object> params) throws SQLException {
         ApiTemplate apiTemplate = apiTemplateStorage.get(id);
-        if (Boolean.FALSE.equals(apiTemplate.getIsApproved()))
-            throw new IllegalArgumentException("api template not approved");
         SqlTemplateEngine engine = new SqlTemplateEngine();
         SqlScript result = engine.process(apiTemplate.getContext(), params);
         return executor.execute(result);
