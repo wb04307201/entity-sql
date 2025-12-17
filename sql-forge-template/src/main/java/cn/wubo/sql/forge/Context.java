@@ -1,16 +1,20 @@
 package cn.wubo.sql.forge;
 
 import cn.wubo.sql.forge.map.ParamMap;
+import lombok.Getter;
 
 import java.util.*;
 
 public class Context {
+    @Getter
+    private final SqlGenerationMode mode;
     private final Map<String, Object> variables; // 原始变量
     private final ParamMap params = new ParamMap(); // 按顺序收集的参数
     private final StringBuilder sqlBuilder = new StringBuilder(); // SQL 构建器
     private final Stack<Map<String, Object>> scopeStack = new Stack<>(); // 作用域栈（支持变量覆盖）
 
-    public Context(Map<String, Object> variables) {
+    public Context(Map<String, Object> variables, SqlGenerationMode mode) {
+        this.mode = mode;
         this.variables = variables;
         this.scopeStack.push(new HashMap<>(variables)); // 初始作用域
     }

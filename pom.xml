@@ -46,7 +46,6 @@
         <jakarta.version>3.2.0</jakarta.version>
         <jsqlparser.version>5.3</jsqlparser.version>
         <enjoy.version>5.2.5</enjoy.version>
-        <freemarker.version>2.3.34</freemarker.version>
         <mvel2.version>2.5.2.Final</mvel2.version>
         <calcite.version>1.41.0</calcite.version>
     </properties>
@@ -87,12 +86,5 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
 
 </project>

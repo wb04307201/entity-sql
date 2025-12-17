@@ -85,9 +85,14 @@ public class SqlForgeConfiguration {
         return new ApiTemplateStorage();
     }
 
+    @Bean
+    public ApiTemplateExcutor apiTemplateExcutor(IApiTemplateStorage apiTemplateStorage, Executor executor) {
+        return new ApiTemplateExcutor(apiTemplateStorage,executor);
+    }
+
     @Bean("sqlForgeApiTemplateRouter")
     @ConditionalOnProperty(name = "sql.forge.api.template.enabled", havingValue = "true", matchIfMissing = true)
-    public RouterFunction<ServerResponse> sqlForgeApiTemplateRouter(FunctionalState functionalState, IApiTemplateStorage apiTemplateStorage, Executor executor) {
+    public RouterFunction<ServerResponse> sqlForgeApiTemplateRouter(FunctionalState functionalState, IApiTemplateStorage apiTemplateStorage, ApiTemplateExcutor apiTemplateExcutor) {
         functionalState.setApiTemplate(true);
         RouterFunctions.Builder builder = route();
         builder.POST("sql/forge/api/template", accept(MediaType.APPLICATION_JSON), request -> {
@@ -95,21 +100,21 @@ public class SqlForgeConfiguration {
             apiTemplateStorage.save(apiTemplate);
             return ServerResponse.ok().body(true);
         });
-        builder.GET("sql/forge/api/template", accept(MediaType.APPLICATION_JSON), request -> {
-            String id = request.param("id").orElse(null);
+        builder.DELETE("sql/forge/api/template/{id}", accept(MediaType.APPLICATION_JSON), request -> {
+            String id = request.pathVariable("id");
+            apiTemplateStorage.remove(id);
+            return ServerResponse.ok().body(true);
+        });
+        builder.GET("sql/forge/api/template/{id}", accept(MediaType.APPLICATION_JSON), request -> {
+            String id = request.pathVariable("id");
             return ServerResponse.ok().body(apiTemplateStorage.get(id));
         });
         builder.GET("sql/forge/api/template/list", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiTemplateStorage.list()));
         builder.POST("sql/forge/api/template/{id}", accept(MediaType.APPLICATION_JSON), request -> {
             String id = request.pathVariable("id");
-            ApiTemplate apiTemplate = apiTemplateStorage.get(id);
-            if (!apiTemplate.getIsApproved())
-                throw new IllegalArgumentException("api template not approved");
             Map<String, Object> params = request.body(new ParameterizedTypeReference<>() {
             });
-            SqlTemplateEngine engine = new SqlTemplateEngine();
-            SqlScript result = engine.process(apiTemplate.getContext(), params);
-            return ServerResponse.ok().body(executor.execute(result));
+            return ServerResponse.ok().body(apiTemplateExcutor.execute(id,params));
         });
         return builder.build();
     }

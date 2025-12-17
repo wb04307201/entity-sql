@@ -6,13 +6,18 @@ import java.util.*;
 import java.util.regex.*;
 
 import static cn.wubo.sql.forge.constant.Constant.QUESTION_MARK;
+import static org.springframework.core.log.LogFormatUtils.formatValue;
 
 public class SqlTemplateEngine {
     private static final Pattern TAG_PATTERN = Pattern.compile("<(\\w+)\\s+([^>]*)>(.*?)</\\1>", Pattern.DOTALL);
     private static final Pattern PARAM_PATTERN = Pattern.compile("#\\{([^}]*)\\}");
 
     public SqlScript process(String template, Map<String, Object> input) {
-        Context context = new Context(input);
+        return process(template, input, SqlGenerationMode.WITH_PLACEHOLDERS);
+    }
+
+    public SqlScript process(String template, Map<String, Object> input,SqlGenerationMode  mode) {
+        Context context = new Context(input,mode);
         processTemplate(template, context);
         return new SqlScript(context.getSql(), context.getParamMap());
     }
@@ -60,19 +65,37 @@ public class SqlTemplateEngine {
             String varName = matcher.group(1).trim();
             Object value = context.getVariable(varName);
             if (value == null) {
-                throw new RuntimeException("Variable not found: " + varName);
+                throw new IllegalArgumentException("Variable not found: " + varName);
             }
-            context.addParam(value);
-            context.appendSql(QUESTION_MARK);
+
+            // 根据模式选择处理方式
+            if (context.getMode() == SqlGenerationMode.WITH_PLACEHOLDERS) {
+                context.addParam(value);
+                context.appendSql(QUESTION_MARK);
+            } else {
+                // 直接拼接值（需注意SQL注入风险）
+                context.appendSql(formatValue(value));
+            }
 
             lastIndex = matcher.end();
         }
         context.appendSql(text.substring(lastIndex)); // 追加剩余文本
     }
 
+    private String formatValue(Object value) {
+        if (value instanceof Number) {
+            return value.toString();
+        } else if (value instanceof Boolean) {
+            return value.toString();
+        } else {
+            // 字符串需要加上引号并转义
+            return "'" + value.toString().replace("'", "''") + "'";
+        }
+    }
+
     private void processIf(String attrs, String body, Context context) {
         String testExpr = extractAttribute(attrs, "test");
-        if (testExpr == null) throw new RuntimeException("Missing 'test' attribute in <if>");
+        if (testExpr == null) throw new IllegalArgumentException("Missing 'test' attribute in <if>");
 
         // 评估表达式
         boolean condition = (Boolean) MVEL.eval(testExpr, context.getCurrentScope());
@@ -89,7 +112,7 @@ public class SqlTemplateEngine {
         String separator = extractAttribute(attrs, "separator");
 
         if (collectionExpr == null || itemVar == null)
-            throw new RuntimeException("Missing 'collection' or 'item' in <foreach>");
+            throw new IllegalArgumentException("Missing 'collection' or 'item' in <foreach>");
 
         // 获取集合并转为 Iterable
         Object collectionObj = MVEL.eval(collectionExpr, context.getCurrentScope());
@@ -125,6 +148,6 @@ public class SqlTemplateEngine {
         if (obj == null) return Collections.emptyList();
         if (obj instanceof Iterable) return (Iterable<?>) obj;
         if (obj.getClass().isArray()) return Arrays.asList((Object[]) obj);
-        throw new RuntimeException("Unsupported collection type: " + obj.getClass());
+        throw new IllegalArgumentException("Unsupported collection type: " + obj.getClass());
     }
 }
