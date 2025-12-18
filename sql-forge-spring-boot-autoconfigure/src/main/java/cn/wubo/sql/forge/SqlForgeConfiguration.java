@@ -149,8 +149,8 @@ public class SqlForgeConfiguration {
             apiCalciteStorage.remove(id);
             return ServerResponse.ok().body(true);
         });
-        builder.GET("sql/forge/api/calcite", accept(MediaType.APPLICATION_JSON), request -> {
-            String id = request.param("id").orElseThrow(() -> new IllegalArgumentException("id not found"));
+        builder.GET("sql/forge/api/calcite/{id}", accept(MediaType.APPLICATION_JSON), request -> {
+            String id = request.pathVariable("id");
             return ServerResponse.ok().body(apiCalciteStorage.get(id));
         });
         builder.GET("sql/forge/api/calcite/list", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiCalciteStorage.list()));

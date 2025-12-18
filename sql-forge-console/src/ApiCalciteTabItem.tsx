@@ -10,9 +10,14 @@ interface ColumnType {
 
 type DataType = Record<string, unknown>;
 
-function ApiCalciteTabItem(props: { isCreate: boolean,apiTemplateId: string }) {
+function ApiCalciteTabItem(props: {
+    isCreate: boolean,
+    apiTemplateId: string,
+    reload: () => void,
+    remove?: () => void
+}) {
 
-    const [isCreate, setIsCreate] = useState(props.isCreate);
+    const [isCreate] = useState(props.isCreate);
     const [apiTemplateId, setApiTemplateId] = useState(props.apiTemplateId);
     const [context, setContext] = useState("");
     const [json, setJson] = useState("");
@@ -20,11 +25,11 @@ function ApiCalciteTabItem(props: { isCreate: boolean,apiTemplateId: string }) {
     const [columns, setColumns] = useState<ColumnType[]>([]);
 
     useEffect(() => {
-        if (!isCreate && apiTemplateId){
-            apiClient.get(`/sql/forge/api/calcite?id=${apiTemplateId}`)
+        if (!isCreate && apiTemplateId) {
+            apiClient.get(`/sql/forge/api/calcite/${apiTemplateId}`)
                 .json()
-                .then((data:unknown) => {
-                    const apiTemplate = data as {context: string}
+                .then((data: unknown) => {
+                    const apiTemplate = data as { context: string }
                     setContext(apiTemplate.context)
                 })
         }
@@ -41,7 +46,8 @@ function ApiCalciteTabItem(props: { isCreate: boolean,apiTemplateId: string }) {
         apiClient.post('/sql/forge/api/calcite', {json: {id: apiTemplateId, context: context}})
             .json()
             .then((_data) => {
-                setIsCreate(false)
+                props.reload && props.reload()
+                props.remove && props.remove()
             })
     }
 
@@ -59,7 +65,7 @@ function ApiCalciteTabItem(props: { isCreate: boolean,apiTemplateId: string }) {
             return;
         }
 
-        apiClient.post(`/sql/forge/api/calcite/${apiTemplateId}`, {json: params})
+        apiClient.post(`/sql/forge/api/calcite/execute/${apiTemplateId}`, {json: params})
             .json()
             .then((data) => {
                 if (Array.isArray(data) && data.length > 0) {
