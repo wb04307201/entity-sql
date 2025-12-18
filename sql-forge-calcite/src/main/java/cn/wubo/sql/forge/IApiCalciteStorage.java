@@ -1,7 +1,13 @@
 package cn.wubo.sql.forge;
 
-public interface IApiCalciteStorage<T extends ApiTemplate> extends IApiTemplateStorage<T> {
+import java.util.List;
 
+public interface IApiCalciteStorage<T extends ApiTemplate> {
+
+    void save(T apiTemplate);
+    T get(String id);
+    void remove(String id);
+    List<T> list();
     String getComfig();
     void saveConfig(String config);
 }

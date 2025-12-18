@@ -1,7 +1,7 @@
 import {Button, Layout, Spin, Tabs, Tree} from 'antd';
 import {useEffect, useRef, useState} from "react"
 import DatabaseTabItem from "./DatabaseTabItem.tsx";
-import {EditOutlined, PlusOutlined} from '@ant-design/icons';
+import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons';
 import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";
 import ApiTemplateTabItem from "./ApiTemplateTabItem.tsx";
@@ -34,65 +34,28 @@ function App() {
         const functionalState: {
             apiDatabase: boolean,
             apiJson: boolean,
-            apiTemplate: boolean
+            apiTemplate: boolean,
+            apiCalcite: boolean
         } = await apiClient.get('/sql/forge/console/functionalState').json()
 
-        const TreeData: DataNode[] = [];
+        let TreeData: DataNode[] = [...treeData];
 
         if (functionalState.apiDatabase) {
-            const database: {
-                databaseInfo: unknown,
-                tableTypes: {
-                    tableType: string,
-                    tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
-                } []
-            } = await apiClient.get('/sql/forge/api/database/current').json()
-
-            const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
-
-            if (database.tableTypes) {
-                database.tableTypes.forEach(tableType => {
-                    const tableTypeNode: DataNode = {
-                        title: tableType.tableType,
-                        key: tableType.tableType,
-                        children: []
-                    }
-                    const tables = tableType.tables;
-                    if (tables) {
-                        tables.forEach(table => {
-                            const tableNode: DataNode = {
-                                title: table.table.tableName,
-                                key: table.table.tableName,
-                                children: []
-                            }
-                            const columns = table.columns;
-                            if (columns) {
-                                tableNode.children = columns.map((column) => ({
-                                    title: column.columnName,
-                                    key: column.columnName,
-                                    isLeaf: true
-                                }))
-                            }
-                            tableTypeNode.children?.push(tableNode);
-                        })
-                    }
-                    databasNode.children?.push(tableTypeNode)
-                })
-            }
-            TreeData.push(databasNode)
+            TreeData = await loadApiDatabase(TreeData)
         }
         if (functionalState.apiJson) {
             TreeData.push({title: 'ApiJson', key: 'ApiJson', isLeaf: true})
         }
         if (functionalState.apiTemplate) {
-            const templates: { id: string }[] = await apiClient.get('/sql/forge/api/template/list').json()
-            TreeData.push({
-                title: 'ApiTemplate',
-                key: 'ApiTemplate',
-                children: templates.map(item => ({
+            TreeData = await loadApiTemplate(TreeData);
+        }
+        if (functionalState.apiCalcite) {
+            const templates: { id: string }[] = await apiClient.get('/sql/forge/api/calcite/list').json()
+            templates.forEach(item => {
+                TreeData.push({
                     title: item.id,
-                    key: 'ApiTemplate-' + item.id
-                }))
+                    key: 'apiCalcite-' + item.id
+                })
             })
         }
 
@@ -100,9 +63,85 @@ function App() {
         setTreeSpinning(false)
     };
 
+    const loadApiDatabase = async (TreeData: DataNode[]) => {
+        const database: {
+            databaseInfo: unknown,
+            tableTypes: {
+                tableType: string,
+                tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
+            } []
+        } = await apiClient.get('/sql/forge/api/database/current').json()
+
+        const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
+
+        if (database.tableTypes) {
+            database.tableTypes.forEach(tableType => {
+                const tableTypeNode: DataNode = {
+                    title: tableType.tableType,
+                    key: tableType.tableType,
+                    children: []
+                }
+                const tables = tableType.tables;
+                if (tables) {
+                    tables.forEach(table => {
+                        const tableNode: DataNode = {
+                            title: table.table.tableName,
+                            key: table.table.tableName,
+                            children: []
+                        }
+                        const columns = table.columns;
+                        if (columns) {
+                            tableNode.children = columns.map((column) => ({
+                                title: column.columnName,
+                                key: column.columnName,
+                                isLeaf: true
+                            }))
+                        }
+                        tableTypeNode.children?.push(tableNode);
+                    })
+                }
+                databasNode.children?.push(tableTypeNode)
+            })
+        }
+        const orgTreeNode = TreeData.find(item => item.title === 'Database')
+        if (orgTreeNode) {
+            TreeData.splice(TreeData.indexOf(orgTreeNode), 1, databasNode)
+        } else {
+            TreeData.push(databasNode)
+        }
+
+        return TreeData
+    }
+
+    const loadApiTemplate = async (TreeData: DataNode[]) => {
+        const templates: { id: string }[] = await apiClient.get('/sql/forge/api/template').json()
+        const apiTemplateNode: DataNode = {
+            title: 'ApiTemplate', key: 'ApiTemplate', children: templates.map(item => ({
+                title: item.id,
+                key: 'ApiTemplate-' + item.id
+            }))
+        }
+        const orgTreeNode = TreeData.find(item => item.title === 'ApiTemplate')
+        if (orgTreeNode) {
+            TreeData.splice(TreeData.indexOf(orgTreeNode), 1, apiTemplateNode)
+        } else {
+            TreeData.push(apiTemplateNode)
+        }
+        return TreeData
+    }
+
     useEffect(() => {
         loadData()
     }, [])
+
+
+    const reloadApiTemplate = async () => {
+        setTreeSpinning(true)
+        let TreeData: DataNode[] = [...treeData];
+        TreeData = await loadApiTemplate(TreeData)
+        setTreeData(TreeData)
+        setTreeSpinning(false)
+    }
 
     const onChange = (newActiveKey: string) => {
         setActiveKey(newActiveKey);
@@ -110,7 +149,7 @@ function App() {
 
     const add = (type: string) => {
         const index = `${newTabIndex.current++}`;
-        const newActiveKey = `Tab${index}`;
+        const newActiveKey = `Tab-${type}-${index}`;
         const newLabel = `标签页${index}`;
         const newPanes = [...items];
 
@@ -129,13 +168,15 @@ function App() {
         } else if (type === 'ApiTemplate') {
             newPanes.push({
                 label: newLabel,
-                children: <ApiTemplateTabItem isCreate={true} apiTemplateId={""}/>,
+                children: <ApiTemplateTabItem isCreate={true} apiTemplateId={""} reload={reloadApiTemplate}
+                                              remove={() => remove(newActiveKey)}/>,
                 key: newActiveKey,
             })
         } else if (type.startsWith('ApiTemplate-')) {
             newPanes.push({
                 label: newLabel,
-                children: <ApiTemplateTabItem isCreate={false} apiTemplateId={type.substring(12)}/>,
+                children: <ApiTemplateTabItem isCreate={false} apiTemplateId={type.substring(12)}
+                                              reload={reloadApiTemplate}/>,
                 key: newActiveKey,
             })
         }
@@ -166,6 +207,12 @@ function App() {
         setActiveKey(newActiveKey);
     };
 
+    const removes = (targetKey: string) => {
+        const newPanes = items?.filter((item) => !item.key.startsWith(`Tab-${targetKey}-`)) || [];
+        setItems(newPanes);
+        setActiveKey(undefined);
+    };
+
 
     const onEdit = (
         targetKey: React.MouseEvent | React.KeyboardEvent | string,
@@ -189,6 +236,10 @@ function App() {
                             if (nodeData.key === 'Database') {
                                 return (<div>
                                     <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <Button shape="circle" icon={<ReloadOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => reloadApiTemplate()}
+                                    />
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
@@ -209,6 +260,16 @@ function App() {
                             } else if (nodeData.key === 'ApiTemplate') {
                                 return (<div>
                                     <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <Button shape="circle" icon={<ReloadOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={async () => {
+                                                setTreeSpinning(true)
+                                                let TreeData: DataNode[] = [...treeData];
+                                                TreeData = await loadApiTemplate(TreeData)
+                                                setTreeData(TreeData)
+                                                setTreeSpinning(false)
+                                            }}
+                                    />
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
@@ -219,6 +280,20 @@ function App() {
                             } else if (nodeData.key.startsWith('ApiTemplate-')) {
                                 return (<div>
                                     <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <Button shape="circle" icon={<DeleteOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                setTreeSpinning(true)
+                                                apiClient.delete(`/sql/forge/api/template/${nodeData.key.substring(12)}`)
+                                                    .json()
+                                                    .then(_data => {
+                                                        removes(nodeData.key);
+                                                        reloadApiTemplate();
+                                                    }).catch(_error => {
+                                                    setTreeSpinning(false)
+                                                })
+                                            }}
+                                    />
                                     <Button shape="circle" icon={<EditOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {

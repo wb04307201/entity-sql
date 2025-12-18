@@ -10,14 +10,9 @@ interface ColumnType {
 
 type DataType = Record<string, unknown>;
 
-function ApiTemplateTabItem(props: {
-    isCreate: boolean,
-    apiTemplateId: string,
-    reload: () => void,
-    remove?: () => void
-}) {
+function ApiCalciteTabItem(props: { isCreate: boolean,apiTemplateId: string }) {
 
-    const [isCreate] = useState(props.isCreate);
+    const [isCreate, setIsCreate] = useState(props.isCreate);
     const [apiTemplateId, setApiTemplateId] = useState(props.apiTemplateId);
     const [context, setContext] = useState("");
     const [json, setJson] = useState("");
@@ -25,11 +20,11 @@ function ApiTemplateTabItem(props: {
     const [columns, setColumns] = useState<ColumnType[]>([]);
 
     useEffect(() => {
-        if (!isCreate && apiTemplateId) {
-            apiClient.get(`/sql/forge/api/template/${apiTemplateId}`)
+        if (!isCreate && apiTemplateId){
+            apiClient.get(`/sql/forge/api/calcite?id=${apiTemplateId}`)
                 .json()
-                .then((data: unknown) => {
-                    const apiTemplate = data as { context: string }
+                .then((data:unknown) => {
+                    const apiTemplate = data as {context: string}
                     setContext(apiTemplate.context)
                 })
         }
@@ -43,11 +38,10 @@ function ApiTemplateTabItem(props: {
             Modal.error({title: '错误', content: "请输入模板内容"});
         }
 
-        apiClient.post('/sql/forge/api/template', {json: {id: apiTemplateId, context: context}})
+        apiClient.post('/sql/forge/api/calcite', {json: {id: apiTemplateId, context: context}})
             .json()
             .then((_data) => {
-                props.reload && props.reload()
-                props.remove && props.remove()
+                setIsCreate(false)
             })
     }
 
@@ -65,7 +59,7 @@ function ApiTemplateTabItem(props: {
             return;
         }
 
-        apiClient.post(`/sql/forge/api/template/execute/${apiTemplateId}`, {json: params})
+        apiClient.post(`/sql/forge/api/calcite/${apiTemplateId}`, {json: params})
             .json()
             .then((data) => {
                 if (Array.isArray(data) && data.length > 0) {
@@ -163,4 +157,4 @@ function ApiTemplateTabItem(props: {
     )
 }
 
-export default ApiTemplateTabItem;
+export default ApiCalciteTabItem;

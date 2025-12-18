@@ -58,6 +58,7 @@ function DatabaseTabItem() {
                         autoSize={false}
                         styles={{textarea: {height: '100%'}}}
                         style={{resize: "none"}}
+                        placeholder="请输入sql"
                     />
                 </Col>
             </Row>

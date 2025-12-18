@@ -82,7 +82,7 @@ public class SqlForgeConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(name = "sql.forge.api.template.enabled", havingValue = "true", matchIfMissing = true)
-    public IApiTemplateStorage apiTemplateStorage() {
+    public ApiTemplateStorage apiTemplateStorage() {
         return new ApiTemplateStorage();
     }
 
@@ -111,8 +111,8 @@ public class SqlForgeConfiguration {
             String id = request.pathVariable("id");
             return ServerResponse.ok().body(apiTemplateStorage.get(id));
         });
-        builder.GET("sql/forge/api/template/list", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiTemplateStorage.list()));
-        builder.POST("sql/forge/api/template/{id}", accept(MediaType.APPLICATION_JSON), request -> {
+        builder.GET("sql/forge/api/template", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiTemplateStorage.list()));
+        builder.POST("sql/forge/api/template/execute/{id}", accept(MediaType.APPLICATION_JSON), request -> {
             String id = request.pathVariable("id");
             Map<String, Object> params = request.body(new ParameterizedTypeReference<>() {
             });
@@ -124,7 +124,7 @@ public class SqlForgeConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(name = "sql.forge.api.calcite.enabled", havingValue = "true", matchIfMissing = true)
-    public IApiCalciteStorage apiCalciteStorage() {
+    public ApiCalciteStorage apiCalciteStorage() {
         return new ApiCalciteStorage();
     }
 
@@ -137,7 +137,7 @@ public class SqlForgeConfiguration {
     @Bean("sqlForgeApiCalciteRouter")
     @ConditionalOnProperty(name = "sql.forge.api.calcite.enabled", havingValue = "true", matchIfMissing = true)
     public RouterFunction<ServerResponse> sqlForgeApiCalciteRouter(FunctionalState functionalState, IApiCalciteStorage apiCalciteStorage, ApiCalciteExcutor apiCalciteExcutor) {
-        functionalState.setApiTemplate(true);
+        functionalState.setApiCalcite(true);
         RouterFunctions.Builder builder = route();
         builder.POST("sql/forge/api/calcite", accept(MediaType.APPLICATION_JSON), request -> {
             ApiTemplate apiTemplate = request.body(ApiTemplate.class);
@@ -149,8 +149,8 @@ public class SqlForgeConfiguration {
             apiCalciteStorage.remove(id);
             return ServerResponse.ok().body(true);
         });
-        builder.GET("sql/forge/api/calcite/{id}", accept(MediaType.APPLICATION_JSON), request -> {
-            String id = request.pathVariable("id");
+        builder.GET("sql/forge/api/calcite", accept(MediaType.APPLICATION_JSON), request -> {
+            String id = request.param("id").orElseThrow(() -> new IllegalArgumentException("id not found"));
             return ServerResponse.ok().body(apiCalciteStorage.get(id));
         });
         builder.GET("sql/forge/api/calcite/list", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiCalciteStorage.list()));
