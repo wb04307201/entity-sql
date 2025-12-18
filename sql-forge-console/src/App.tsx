@@ -347,6 +347,12 @@ function App() {
                                                 setTreeSpinning(false)
                                             }}
                                     />
+                                    <Button shape="circle" icon={<EditOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                console.log('ApiCalcite')
+                                            }}
+                                    />
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
