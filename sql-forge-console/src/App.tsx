@@ -1,7 +1,7 @@
 import {Button, Layout, Spin, Tabs, Tree} from 'antd';
 import {useEffect, useRef, useState} from "react"
 import DatabaseTabItem from "./DatabaseTabItem.tsx";
-import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons';
+import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, SettingOutlined} from '@ant-design/icons';
 import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";
 import ApiTemplateTabItem from "./ApiTemplateTabItem.tsx";
@@ -347,7 +347,7 @@ function App() {
                                                 setTreeSpinning(false)
                                             }}
                                     />
-                                    <Button shape="circle" icon={<EditOutlined/>} size="small"
+                                    <Button shape="circle" icon={<SettingOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 console.log('ApiCalcite')
