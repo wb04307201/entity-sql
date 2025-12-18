@@ -139,6 +139,15 @@ public class SqlForgeConfiguration {
     public RouterFunction<ServerResponse> sqlForgeApiCalciteRouter(FunctionalState functionalState, IApiCalciteStorage apiCalciteStorage, ApiCalciteExcutor apiCalciteExcutor) {
         functionalState.setApiCalcite(true);
         RouterFunctions.Builder builder = route();
+        builder.GET("sql/forge/api/calcite/config", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiCalciteStorage.getComfig()));
+        builder.POST("sql/forge/api/calcite/config", accept(MediaType.APPLICATION_JSON), request -> {
+            Map<String, String> map = request.body(new ParameterizedTypeReference<>() {
+            });
+            if (map.isEmpty() || !map.containsKey("config"))
+                throw new IllegalArgumentException("config not found");
+            apiCalciteStorage.saveConfig(map.get("config"));
+            return ServerResponse.ok().body(true);
+        });
         builder.POST("sql/forge/api/calcite", accept(MediaType.APPLICATION_JSON), request -> {
             ApiTemplate apiTemplate = request.body(ApiTemplate.class);
             apiCalciteStorage.save(apiTemplate);
