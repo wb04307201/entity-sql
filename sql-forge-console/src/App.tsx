@@ -5,6 +5,7 @@ import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-d
 import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";
 import ApiTemplateTabItem from "./ApiTemplateTabItem.tsx";
+import ApiCalciteTabItem from "./ApiCalciteTabItem.tsx";
 
 const {Content, Sider} = Layout;
 
@@ -50,13 +51,7 @@ function App() {
             TreeData = await loadApiTemplate(TreeData);
         }
         if (functionalState.apiCalcite) {
-            const templates: { id: string }[] = await apiClient.get('/sql/forge/api/calcite/list').json()
-            templates.forEach(item => {
-                TreeData.push({
-                    title: item.id,
-                    key: 'apiCalcite-' + item.id
-                })
-            })
+            TreeData = await loadApiCalcite(TreeData)
         }
 
         setTreeData(TreeData);
@@ -130,15 +125,39 @@ function App() {
         return TreeData
     }
 
+    const loadApiCalcite = async (TreeData: DataNode[]) => {
+        const templates: { id: string }[] = await apiClient.get('/sql/forge/api/calcite').json()
+        const apiTemplateNode: DataNode = {
+            title: 'ApiCalcite', key: 'ApiCalcite', children: templates.map(item => ({
+                title: item.id,
+                key: 'ApiCalcite-' + item.id
+            }))
+        }
+        const orgTreeNode = TreeData.find(item => item.title === 'ApiCalcite')
+        if (orgTreeNode) {
+            TreeData.splice(TreeData.indexOf(orgTreeNode), 1, apiTemplateNode)
+        } else {
+            TreeData.push(apiTemplateNode)
+        }
+        return TreeData
+    }
+
     useEffect(() => {
         loadData()
     }, [])
-
 
     const reloadApiTemplate = async () => {
         setTreeSpinning(true)
         let TreeData: DataNode[] = [...treeData];
         TreeData = await loadApiTemplate(TreeData)
+        setTreeData(TreeData)
+        setTreeSpinning(false)
+    }
+
+    const reloadApiCalcite = async () => {
+        setTreeSpinning(true)
+        let TreeData: DataNode[] = [...treeData];
+        TreeData = await loadApiCalcite(TreeData)
         setTreeData(TreeData)
         setTreeSpinning(false)
     }
@@ -176,6 +195,20 @@ function App() {
             newPanes.push({
                 label: newLabel,
                 children: <ApiTemplateTabItem isCreate={false} apiTemplateId={type.substring(12)}
+                                              reload={reloadApiTemplate}/>,
+                key: newActiveKey,
+            })
+        } else if (type === 'ApiCalcite') {
+            newPanes.push({
+                label: newLabel,
+                children: <ApiCalciteTabItem isCreate={true} apiTemplateId={""} reload={reloadApiTemplate}
+                                              remove={() => remove(newActiveKey)}/>,
+                key: newActiveKey,
+            })
+        } else if (type.startsWith('ApiCalcite-')) {
+            newPanes.push({
+                label: newLabel,
+                children: <ApiCalciteTabItem isCreate={false} apiTemplateId={type.substring(12)}
                                               reload={reloadApiTemplate}/>,
                 key: newActiveKey,
             })
@@ -301,7 +334,51 @@ function App() {
                                             }}
                                     />
                                 </div>)
-                            } else {
+                            } else if (nodeData.key === 'ApiCalcite') {
+                                return (<div>
+                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <Button shape="circle" icon={<ReloadOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={async () => {
+                                                setTreeSpinning(true)
+                                                let TreeData: DataNode[] = [...treeData];
+                                                TreeData = await loadApiTemplate(TreeData)
+                                                setTreeData(TreeData)
+                                                setTreeSpinning(false)
+                                            }}
+                                    />
+                                    <Button shape="circle" icon={<PlusOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                add(nodeData.key);
+                                            }}
+                                    />
+                                </div>)
+                            } else if (nodeData.key.startsWith('ApiCalcite-')) {
+                                return (<div>
+                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <Button shape="circle" icon={<DeleteOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                setTreeSpinning(true)
+                                                apiClient.delete(`/sql/forge/api/calcite/${nodeData.key.substring(12)}`)
+                                                    .json()
+                                                    .then(_data => {
+                                                        removes(nodeData.key);
+                                                        reloadApiCalcite();
+                                                    }).catch(_error => {
+                                                    setTreeSpinning(false)
+                                                })
+                                            }}
+                                    />
+                                    <Button shape="circle" icon={<EditOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                add(nodeData.key);
+                                            }}
+                                    />
+                                </div>)
+                            }  else {
                                 return nodeData.title
                             }
                         }}

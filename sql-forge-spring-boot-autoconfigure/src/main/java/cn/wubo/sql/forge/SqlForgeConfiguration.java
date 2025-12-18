@@ -153,7 +153,7 @@ public class SqlForgeConfiguration {
             String id = request.pathVariable("id");
             return ServerResponse.ok().body(apiCalciteStorage.get(id));
         });
-        builder.GET("sql/forge/api/calcite/list", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiCalciteStorage.list()));
+        builder.GET("sql/forge/api/calcite", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiCalciteStorage.list()));
         builder.POST("sql/forge/api/calcite/{id}", accept(MediaType.APPLICATION_JSON), request -> {
             String id = request.pathVariable("id");
             Map<String, Object> params = request.body(new ParameterizedTypeReference<>() {
