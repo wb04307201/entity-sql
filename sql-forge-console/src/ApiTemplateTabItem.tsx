@@ -45,7 +45,7 @@ function ApiTemplateTabItem(props: {
 
         apiClient.post('/sql/forge/api/template', {json: {id: apiTemplateId, context: context}})
             .json()
-            .then((_data) => {
+            .then((_) => {
                 props.reload && props.reload()
                 props.remove && props.remove()
             })

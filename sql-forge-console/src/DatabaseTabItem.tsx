@@ -1,4 +1,4 @@
-import {Button, Col, Input, Modal, Row, Table} from "antd";
+import {Button, Col, Flex, Input, Modal, Row, Table} from "antd";
 import {useState} from "react";
 import apiClient from "./apiClient.tsx";
 
@@ -18,7 +18,7 @@ function DatabaseTabItem() {
 
     const executeSql = () => {
         if (!sql) {
-            Modal.error({title: '错误', content: '请输入sql' });
+            Modal.error({title: '错误', content: '请输入sql'});
             return;
         }
 
@@ -64,11 +64,12 @@ function DatabaseTabItem() {
             </Row>
             <Row>
                 <Col span={24}>
-                    <Button
-                        type="primary"
-                        style={{float: "right"}}
-                        onClick={executeSql}
-                    >执行</Button>
+                    <Flex gap={"small"} style={{float: "right"}}>
+                        <Button
+                            type="primary"
+                            onClick={executeSql}
+                        >执行</Button>
+                    </Flex>
                 </Col>
             </Row>
 

@@ -6,6 +6,7 @@ import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";
 import ApiTemplateTabItem from "./ApiTemplateTabItem.tsx";
 import ApiCalciteTabItem from "./ApiCalciteTabItem.tsx";
+import ApiCalciteConfigTabItem from "./ApiCalciteConfigTabItem.tsx";
 
 const {Content, Sider} = Layout;
 
@@ -198,6 +199,13 @@ function App() {
                                               reload={reloadApiTemplate}/>,
                 key: newActiveKey,
             })
+        }else if (type === 'ApiCalcite-config') {
+            newPanes.push({
+                label: newLabel,
+                children: <ApiCalciteConfigTabItem remove={()=> remove(newActiveKey)}/>,
+                key: newActiveKey,
+            })
+
         } else if (type === 'ApiCalcite') {
             newPanes.push({
                 label: newLabel,
@@ -208,7 +216,7 @@ function App() {
         } else if (type.startsWith('ApiCalcite-')) {
             newPanes.push({
                 label: newLabel,
-                children: <ApiCalciteTabItem isCreate={false} apiTemplateId={type.substring(12)}
+                children: <ApiCalciteTabItem isCreate={false} apiTemplateId={type.substring(11)}
                                               reload={reloadApiTemplate}/>,
                 key: newActiveKey,
             })
@@ -319,10 +327,10 @@ function App() {
                                                 setTreeSpinning(true)
                                                 apiClient.delete(`/sql/forge/api/template/${nodeData.key.substring(12)}`)
                                                     .json()
-                                                    .then(_data => {
+                                                    .then((_) => {
                                                         removes(nodeData.key);
                                                         reloadApiTemplate();
-                                                    }).catch(_error => {
+                                                    }).catch((_) => {
                                                     setTreeSpinning(false)
                                                 })
                                             }}
@@ -330,7 +338,7 @@ function App() {
                                     <Button shape="circle" icon={<EditOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
-                                                add(nodeData.key);
+                                                add(`${nodeData.key}-config`);
                                             }}
                                     />
                                 </div>)
@@ -367,7 +375,7 @@ function App() {
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 setTreeSpinning(true)
-                                                apiClient.delete(`/sql/forge/api/calcite/${nodeData.key.substring(12)}`)
+                                                apiClient.delete(`/sql/forge/api/calcite/${nodeData.key.substring(11)}`)
                                                     .json()
                                                     .then(_data => {
                                                         removes(nodeData.key);
