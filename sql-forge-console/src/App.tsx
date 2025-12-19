@@ -75,7 +75,7 @@ function App() {
 
     const loadApiDatabase = async (TreeData: DataNode[]) => {
         const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
-        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/database/current').json()
+        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/databaseMetaData').json()
         const schemaTableTypeTables = database.schemaTableTypeTables
         if (schemaTableTypeTables) {
             schemaTableTypeTables.forEach(schemaTableTypeTable => {
@@ -146,7 +146,7 @@ function App() {
 
     const loadApiCalcite = async (TreeData: DataNode[]) => {
         const apiCalciteNode: DataNode = {title: 'ApiCalcite', key: 'ApiCalcite', children: []}
-        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/calcite/current').json()
+        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/calciteMetaData').json()
         const schemaTableTypeTables = database.schemaTableTypeTables
         if (schemaTableTypeTables) {
             schemaTableTypeTables.forEach(schemaTableTypeTable => {

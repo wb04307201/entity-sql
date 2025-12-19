@@ -24,7 +24,6 @@ import javax.sql.DataSource;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -62,13 +61,8 @@ public class SqlForgeConfiguration {
 
     @Bean("sqlForgeApiDatabaseRouter")
     @ConditionalOnProperty(name = "sql.forge.api.database.enabled", havingValue = "true", matchIfMissing = true)
-    public RouterFunction<ServerResponse> sqlForgeApiDatabaseRouter(FunctionalState functionalState, Executor executor, DataSource dataSource) {
-        functionalState.setApiDatabase(true);
+    public RouterFunction<ServerResponse> sqlForgeApiDatabaseRouter(Executor executor) {
         RouterFunctions.Builder builder = route();
-        builder.GET("/sql/forge/api/database/current", request -> {
-            Connection connection = DataSourceUtils.getConnection(dataSource);
-            return ServerResponse.ok().body(MetaDataUtils.getDataSourceMetaDataTree(connection));
-        });
         builder.POST("/sql/forge/api/database/current/execute", request -> {
             SqlScript sqlScript = request.body(SqlScript.class);
             return ServerResponse.ok().body(executor.execute(sqlScript));
@@ -153,24 +147,8 @@ public class SqlForgeConfiguration {
 
     @Bean("sqlForgeApiCalciteRouter")
     @ConditionalOnProperty(name = "sql.forge.api.calcite.enabled", havingValue = "true", matchIfMissing = true)
-    public RouterFunction<ServerResponse> sqlForgeApiCalciteRouter(FunctionalState functionalState, IApiCalciteStorage apiCalciteStorage, ApiCalciteExcutor apiCalciteExcutor) {
-        functionalState.setApiCalcite(true);
+    public RouterFunction<ServerResponse> sqlForgeApiCalciteRouter(IApiCalciteStorage apiCalciteStorage, ApiCalciteExcutor apiCalciteExcutor) {
         RouterFunctions.Builder builder = route();
-        builder.GET("/sql/forge/api/calcite/current", request -> {
-            String config = apiCalciteStorage.getConfig().getContext();
-
-            if (config == null || config.trim().isEmpty()) {
-                return ServerResponse.ok().body(new DataSourceMetaDataTree());
-            }
-
-            Properties info = new Properties();
-            info.setProperty("model", "inline:" + config);
-            info.setProperty("lex", "JAVA");
-
-            try (Connection conn = DriverManager.getConnection("jdbc:calcite:", info)) {
-                return ServerResponse.ok().body(MetaDataUtils.getDataSourceMetaDataTree(conn));
-            }
-        });
         builder.GET("sql/forge/api/calciteConfig", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiCalciteStorage.getConfig()));
         builder.POST("sql/forge/api/calciteConfig", accept(MediaType.APPLICATION_JSON), request -> {
             ApiCalciteConfig apiCalciteConfig = request.body(ApiCalciteConfig.class);
@@ -200,6 +178,44 @@ public class SqlForgeConfiguration {
         });
         return builder.build();
     }
+
+    @Bean("sqlForgeApiDatabaseConsoleRouter")
+    @ConditionalOnProperty(name = "sql.forge.api.calcite.enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(name = "sql.forge.console.enabled", havingValue = "true", matchIfMissing = true)
+    public RouterFunction<ServerResponse> sqlForgeApiDatabaseConsoleRouter(FunctionalState functionalState, DataSource dataSource) {
+        functionalState.setApiDatabase(true);
+        RouterFunctions.Builder builder = route();
+        builder.GET("/sql/forge/api/databaseMetaData", request -> {
+            Connection connection = DataSourceUtils.getConnection(dataSource);
+            return ServerResponse.ok().body(MetaDataUtils.getDataSourceMetaDataTree(connection));
+        });
+        return builder.build();
+    }
+
+    @Bean("sqlForgeApiCalciteConsoleRouter")
+    @ConditionalOnProperty(name = "sql.forge.api.database.enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(name = "sql.forge.console.enabled", havingValue = "true", matchIfMissing = true)
+    public RouterFunction<ServerResponse> sqlForgeApiCalciteConsoleRouter(FunctionalState functionalState, IApiCalciteStorage apiCalciteStorage) {
+        functionalState.setApiCalcite(true);
+        RouterFunctions.Builder builder = route();
+        builder.GET("/sql/forge/api/calciteMetaData", request -> {
+            String config = apiCalciteStorage.getConfig().getContext();
+
+            if (config == null || config.trim().isEmpty()) {
+                return ServerResponse.ok().body(new DataSourceMetaDataTree());
+            }
+
+            Properties info = new Properties();
+            info.setProperty("model", "inline:" + config);
+            info.setProperty("lex", "JAVA");
+
+            try (Connection conn = DriverManager.getConnection("jdbc:calcite:", info)) {
+                return ServerResponse.ok().body(MetaDataUtils.getDataSourceMetaDataTree(conn));
+            }
+        });
+        return builder.build();
+    }
+
 
     @Bean("sqlForgeConsoleRouter")
     @ConditionalOnProperty(name = "sql.forge.console.enabled", havingValue = "true", matchIfMissing = true)
