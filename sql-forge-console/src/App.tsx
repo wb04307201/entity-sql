@@ -263,7 +263,7 @@ function App() {
         } else if (type === 'ApiCalcite-config') {
             newPanes.push({
                 label: newLabel,
-                children: <ApiCalciteConfigTabItem remove={() => remove(newActiveKey)}/>,
+                children: <ApiCalciteConfigTabItem remove={() => remove(newActiveKey)} reload={reloadApiCalcite}/>,
                 key: newActiveKey,
             })
 

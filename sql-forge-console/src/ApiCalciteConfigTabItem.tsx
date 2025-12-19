@@ -3,7 +3,8 @@ import {useEffect, useState} from "react";
 import apiClient from "./apiClient.tsx";
 
 function ApiCalciteConfigTabItem(props: {
-    remove: () => void
+    remove: () => void,
+    reload: () => void
 }) {
     const [config, setConfig] = useState("");
 
@@ -32,6 +33,7 @@ function ApiCalciteConfigTabItem(props: {
         apiClient.post('/sql/forge/api/calciteConfig', {json: {context: config}})
             .json()
             .then((_) => {
+                props.reload()
                 props.remove()
             })
     }
