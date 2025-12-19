@@ -64,7 +64,7 @@ function ApiJsonTabItem() {
 
     return (
         <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(50% - 32px)'}}>
+            <Row style={{height: 'calc(50% - 34px)'}}>
                 <Col span={24}>
                     <Input.TextArea
                         value={json}

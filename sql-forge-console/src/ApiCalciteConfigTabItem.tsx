@@ -5,15 +5,14 @@ import apiClient from "./apiClient.tsx";
 function ApiCalciteConfigTabItem(props: {
     remove: () => void
 }) {
-
     const [config, setConfig] = useState("");
 
     useEffect(() => {
-            apiClient.get(`/sql/forge/api/calcite/config`)
+            apiClient.get(`/sql/forge/api/calciteConfig`)
                 .json()
                 .then((data: unknown) => {
-                    const config = data as string;
-                    setConfig(config)
+                    const config = data as {context: string};
+                    setConfig(config.context)
                 })
     }, []);
 
@@ -30,7 +29,7 @@ function ApiCalciteConfigTabItem(props: {
             return;
         }
 
-        apiClient.post('/sql/forge/api/calcite/config', {json: {config: config}})
+        apiClient.post('/sql/forge/api/calciteConfig', {json: {context: config}})
             .json()
             .then((_) => {
                 props.remove()
@@ -40,7 +39,7 @@ function ApiCalciteConfigTabItem(props: {
 
     return (
         <div style={{height: '100%'}}>
-            <Row style={{height: '100%'}} gutter={8}>
+            <Row style={{height: 'calc(100% - 34px)'}} gutter={8}>
                 <Col span={24}>
                     <Input.TextArea
                         wrap="soft"

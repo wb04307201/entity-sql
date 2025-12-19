@@ -10,8 +10,6 @@ public record DatabaseInfo(
         String url,
         String userName,
         String driverName,
-        String driverVersion,
-        String catalog,
-        String schema
+        String driverVersion
 ) {
 }

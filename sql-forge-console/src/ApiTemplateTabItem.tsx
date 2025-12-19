@@ -93,7 +93,7 @@ function ApiTemplateTabItem(props: {
 
     return (
         <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(50% - 32px)'}} gutter={8}>
+            <Row style={{height: 'calc(50% - 34px)'}} gutter={8}>
                 <Col span={isCreate ? 24 : 16}>
                     <Input.TextArea
                         wrap="soft"

@@ -27,9 +27,9 @@ public class FunctionalState {
 
     @Data
     public static class FunctionalStateInfo {
+        private Boolean apiDatabase = Boolean.FALSE;
         private Boolean apiJson = Boolean.FALSE;
         private Boolean apiTemplate = Boolean.FALSE;
-        private Boolean apiDatabase = Boolean.FALSE;
         private Boolean apiCalcite = Boolean.FALSE;
     }
 }

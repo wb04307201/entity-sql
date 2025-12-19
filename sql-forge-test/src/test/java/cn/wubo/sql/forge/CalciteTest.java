@@ -1,6 +1,8 @@
 package cn.wubo.sql.forge;
 
 import cn.wubo.sql.forge.map.RowMap;
+import cn.wubo.sql.forge.records.TableInfo;
+import cn.wubo.sql.forge.utils.MetaDataUtils;
 import cn.wubo.sql.forge.utils.ResultSetUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -92,6 +94,18 @@ group by student.name
                 List<RowMap> list = ResultSetUtils.resultSetToList(resultSet);
                 log.info("{}",list);
             }
+        }
+    }
+
+    @Test
+    void testMetaData() throws SQLException {
+        Properties info = new Properties();
+        info.setProperty("model", "./sql/model.json");
+        info.setProperty("lex", "JAVA");
+
+        try (Connection conn = DriverManager.getConnection("jdbc:calcite:",info)) {
+            DataSourceMetaDataTree dataSourceMetaDataTree = MetaDataUtils.getDataSourceMetaDataTree(conn);
+            log.info("{}",dataSourceMetaDataTree);
         }
     }
 }

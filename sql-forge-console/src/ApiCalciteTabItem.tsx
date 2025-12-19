@@ -93,7 +93,7 @@ function ApiCalciteTabItem(props: {
 
     return (
         <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(50% - 32px)'}} gutter={8}>
+            <Row style={{height: 'calc(50% - 34px)'}} gutter={8}>
                 <Col span={isCreate ? 24 : 16}>
                     <Input.TextArea
                         wrap="soft"
@@ -131,7 +131,7 @@ function ApiCalciteTabItem(props: {
                             isCreate && (
                                 <Button
                                     onClick={() => {
-                                        setContext(`SELECT * FROM users WHERE 1=1<if test="name != null && name != ''"> AND username = #{name}</if><if test="ids != null && !ids.isEmpty()"><foreach collection="ids" item="id" open=" AND id IN (" separator="," close=")">#{id}</foreach></if><if test="(name == null || name == '') && (ids == null || ids.isEmpty()) "> AND 0=1</if> ORDER BY username DESC`)
+                                        setContext(`select student.name, sum(score.grade) as grade from MYSQL.student as student join POSTGRES.score as score on student.id=score.student_id where 1=1<if test="ids == null || ids.isEmpty()"> AND 0=1</if><if test="ids != null && !ids.isEmpty()"><foreach collection="ids" item="id" open=" AND student.id IN (" separator="," close=")">#{id}</foreach></if> group by student.name`)
                                     }}
                                 >示例</Button>
                             )

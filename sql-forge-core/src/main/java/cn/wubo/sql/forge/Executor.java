@@ -3,7 +3,11 @@ package cn.wubo.sql.forge;
 
 import cn.wubo.sql.forge.map.ParamMap;
 import cn.wubo.sql.forge.map.RowMap;
+import cn.wubo.sql.forge.records.ColumnInfo;
+import cn.wubo.sql.forge.records.DatabaseInfo;
 import cn.wubo.sql.forge.records.SqlScript;
+import cn.wubo.sql.forge.records.TableInfo;
+import cn.wubo.sql.forge.utils.MetaDataUtils;
 import cn.wubo.sql.forge.utils.ResultSetUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -38,13 +42,9 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    private Connection getConnection() {
-        return DataSourceUtils.getConnection(dataSource);
-    }
-
     public List<RowMap> executeQuery(@Valid SqlScript sqlScript) throws
             SQLException {
-        Connection connection = getConnection();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());
@@ -59,7 +59,7 @@ public record Executor(DataSource dataSource) {
     }
 
     public Object executeInsert(@Valid SqlScript sqlScript) throws SQLException {
-        Connection connection = getConnection();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql(), Statement.RETURN_GENERATED_KEYS)) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());
@@ -79,7 +79,7 @@ public record Executor(DataSource dataSource) {
     }
 
     public int executeUpdate(@Valid SqlScript sqlScript) throws SQLException {
-        Connection connection = getConnection();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());
@@ -91,7 +91,7 @@ public record Executor(DataSource dataSource) {
     }
 
     public long executeLargeUpdate(@Valid SqlScript sqlScript) throws SQLException {
-        Connection connection = getConnection();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());
@@ -106,7 +106,7 @@ public record Executor(DataSource dataSource) {
     }
 
     public Object[] executeBatchInsert(@NotBlank String sql, List<ParamMap> paramsList) throws SQLException {
-        Connection connection = getConnection();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 for (ParamMap params : paramsList) {
@@ -131,7 +131,7 @@ public record Executor(DataSource dataSource) {
     }
 
     public int[] executeBatch(@NotBlank String sql, List<ParamMap> paramsList) throws SQLException {
-        Connection connection = getConnection();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 for (ParamMap params : paramsList) {
@@ -147,7 +147,7 @@ public record Executor(DataSource dataSource) {
     }
 
     public Object execute(@Valid SqlScript sqlScript) throws SQLException {
-        Connection connection = getConnection();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql())) {
                 buildPrepareStatement(preparedStatement, sqlScript.params());

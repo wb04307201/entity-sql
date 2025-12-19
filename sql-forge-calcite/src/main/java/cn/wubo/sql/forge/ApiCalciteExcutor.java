@@ -14,7 +14,7 @@ public record ApiCalciteExcutor(
 ) {
 
     public List<RowMap> execute(String id, Map<String, Object> params) throws SQLException {
-        String config = calciteStorage.getComfig();
+        String config = calciteStorage.getConfig().getContext();
         if (config == null || config.trim().isEmpty()) {
             throw new SQLException("config is null");
         }

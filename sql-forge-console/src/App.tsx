@@ -23,6 +23,20 @@ interface TabItem {
     key: string;
 }
 
+interface DatabaseInfo {
+    databaseInfo: unknown,
+    schemaTableTypeTables: {
+        schema: { tableSchema: string },
+        tableTypeTables: {
+            tableType: string,
+            tables: {
+                table: { tableName: string },
+                columns: { columnName: string }[]
+            }[]
+        } []
+    }[]
+}
+
 function App() {
 
     const [items, setItems] = useState<TabItem[]>([]);
@@ -60,43 +74,49 @@ function App() {
     };
 
     const loadApiDatabase = async (TreeData: DataNode[]) => {
-        const database: {
-            databaseInfo: unknown,
-            tableTypes: {
-                tableType: string,
-                tables: { table: { tableName: string }, columns: { columnName: string }[] }[]
-            } []
-        } = await apiClient.get('/sql/forge/api/database/current').json()
+        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/database/current').json()
 
         const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
 
-        if (database.tableTypes) {
-            database.tableTypes.forEach(tableType => {
-                const tableTypeNode: DataNode = {
-                    title: tableType.tableType,
-                    key: tableType.tableType,
+        const schemaTableTypeTables = database.schemaTableTypeTables
+        if (schemaTableTypeTables) {
+            schemaTableTypeTables.forEach(schemaTableTypeTable => {
+                const schemaNode: DataNode = {
+                    title: schemaTableTypeTable.schema.tableSchema,
+                    key: schemaTableTypeTable.schema.tableSchema,
                     children: []
                 }
-                const tables = tableType.tables;
-                if (tables) {
-                    tables.forEach(table => {
-                        const tableNode: DataNode = {
-                            title: table.table.tableName,
-                            key: table.table.tableName,
+                const tableTypeTables = schemaTableTypeTable.tableTypeTables
+                if (tableTypeTables) {
+                    tableTypeTables.forEach(tableType => {
+                        const tableTypeNode: DataNode = {
+                            title: tableType.tableType,
+                            key: `${schemaNode.key}-${tableType.tableType}`,
                             children: []
                         }
-                        const columns = table.columns;
-                        if (columns) {
-                            tableNode.children = columns.map((column) => ({
-                                title: column.columnName,
-                                key: column.columnName,
-                                isLeaf: true
-                            }))
+                        const tables = tableType.tables;
+                        if (tables) {
+                            tables.forEach(table => {
+                                const tableNode: DataNode = {
+                                    title: table.table.tableName,
+                                    key: table.table.tableName,
+                                    children: []
+                                }
+                                const columns = table.columns;
+                                if (columns) {
+                                    tableNode.children = columns.map((column) => ({
+                                        title: column.columnName,
+                                        key: column.columnName,
+                                        isLeaf: true
+                                    }))
+                                }
+                                tableTypeNode.children?.push(tableNode);
+                            })
                         }
-                        tableTypeNode.children?.push(tableNode);
+                        schemaNode.children?.push(tableTypeNode)
                     })
                 }
-                databasNode.children?.push(tableTypeNode)
+                databasNode.children?.push(schemaNode)
             })
         }
         const orgTreeNode = TreeData.find(item => item.title === 'Database')
@@ -199,25 +219,25 @@ function App() {
                                               reload={reloadApiTemplate}/>,
                 key: newActiveKey,
             })
-        }else if (type === 'ApiCalcite-config') {
+        } else if (type === 'ApiCalcite-config') {
             newPanes.push({
                 label: newLabel,
-                children: <ApiCalciteConfigTabItem remove={()=> remove(newActiveKey)}/>,
+                children: <ApiCalciteConfigTabItem remove={() => remove(newActiveKey)}/>,
                 key: newActiveKey,
             })
 
         } else if (type === 'ApiCalcite') {
             newPanes.push({
                 label: newLabel,
-                children: <ApiCalciteTabItem isCreate={true} apiTemplateId={""} reload={reloadApiTemplate}
-                                              remove={() => remove(newActiveKey)}/>,
+                children: <ApiCalciteTabItem isCreate={true} apiTemplateId={""} reload={reloadApiCalcite}
+                                             remove={() => remove(newActiveKey)}/>,
                 key: newActiveKey,
             })
         } else if (type.startsWith('ApiCalcite-')) {
             newPanes.push({
                 label: newLabel,
                 children: <ApiCalciteTabItem isCreate={false} apiTemplateId={type.substring(11)}
-                                              reload={reloadApiTemplate}/>,
+                                             reload={reloadApiTemplate}/>,
                 key: newActiveKey,
             })
         }
@@ -358,7 +378,7 @@ function App() {
                                     <Button shape="circle" icon={<SettingOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
-                                                console.log('ApiCalcite')
+                                                add(`${nodeData.key}-config`)
                                             }}
                                     />
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
@@ -392,7 +412,7 @@ function App() {
                                             }}
                                     />
                                 </div>)
-                            }  else {
+                            } else {
                                 return nodeData.title
                             }
                         }}

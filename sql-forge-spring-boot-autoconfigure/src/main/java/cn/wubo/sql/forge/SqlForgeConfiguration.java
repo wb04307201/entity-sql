@@ -6,6 +6,7 @@ import cn.wubo.sql.forge.crud.Select;
 import cn.wubo.sql.forge.crud.Update;
 import cn.wubo.sql.forge.entity.cache.CacheService;
 import cn.wubo.sql.forge.records.SqlScript;
+import cn.wubo.sql.forge.utils.MetaDataUtils;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,6 +14,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.RouterFunctions;
 import org.springframework.web.servlet.function.ServerResponse;
@@ -20,7 +22,11 @@ import org.springframework.web.servlet.function.ServerResponse;
 import javax.sql.DataSource;
 
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.springframework.web.servlet.function.RequestPredicates.accept;
 import static org.springframework.web.servlet.function.RouterFunctions.route;
@@ -40,11 +46,6 @@ public class SqlForgeConfiguration {
     }
 
     @Bean
-    public MetaData metaData(DataSource dataSource) {
-        return new MetaData(dataSource);
-    }
-
-    @Bean
     public CrudService crudService(Executor executor) {
         return new CrudService(executor);
     }
@@ -57,6 +58,22 @@ public class SqlForgeConfiguration {
     @Bean
     public EntityService entityService(CrudService crudService, CacheService cacheService) {
         return new EntityService(crudService, cacheService);
+    }
+
+    @Bean("sqlForgeApiDatabaseRouter")
+    @ConditionalOnProperty(name = "sql.forge.api.database.enabled", havingValue = "true", matchIfMissing = true)
+    public RouterFunction<ServerResponse> sqlForgeApiDatabaseRouter(FunctionalState functionalState, Executor executor, DataSource dataSource) {
+        functionalState.setApiDatabase(true);
+        RouterFunctions.Builder builder = route();
+        builder.GET("/sql/forge/api/database/current", request -> {
+            Connection connection = DataSourceUtils.getConnection(dataSource);
+            return ServerResponse.ok().body(MetaDataUtils.getDataSourceMetaDataTree(connection));
+        });
+        builder.POST("/sql/forge/api/database/current/execute", request -> {
+            SqlScript sqlScript = request.body(SqlScript.class);
+            return ServerResponse.ok().body(executor.execute(sqlScript));
+        });
+        return builder.build();
     }
 
     @Bean("sqlForgeApiJsonRouter")
@@ -89,7 +106,7 @@ public class SqlForgeConfiguration {
     @Bean
     @ConditionalOnProperty(name = "sql.forge.api.template.enabled", havingValue = "true", matchIfMissing = true)
     public ApiTemplateExcutor apiTemplateExcutor(IApiTemplateStorage apiTemplateStorage, Executor executor) {
-        return new ApiTemplateExcutor(apiTemplateStorage,executor);
+        return new ApiTemplateExcutor(apiTemplateStorage, executor);
     }
 
     @Bean("sqlForgeApiTemplateRouter")
@@ -116,7 +133,7 @@ public class SqlForgeConfiguration {
             String id = request.pathVariable("id");
             Map<String, Object> params = request.body(new ParameterizedTypeReference<>() {
             });
-            return ServerResponse.ok().body(apiTemplateExcutor.execute(id,params));
+            return ServerResponse.ok().body(apiTemplateExcutor.execute(id, params));
         });
         return builder.build();
     }
@@ -139,13 +156,25 @@ public class SqlForgeConfiguration {
     public RouterFunction<ServerResponse> sqlForgeApiCalciteRouter(FunctionalState functionalState, IApiCalciteStorage apiCalciteStorage, ApiCalciteExcutor apiCalciteExcutor) {
         functionalState.setApiCalcite(true);
         RouterFunctions.Builder builder = route();
-        builder.GET("sql/forge/api/calcite/config", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiCalciteStorage.getComfig()));
-        builder.POST("sql/forge/api/calcite/config", accept(MediaType.APPLICATION_JSON), request -> {
-            Map<String, String> map = request.body(new ParameterizedTypeReference<>() {
-            });
-            if (map.isEmpty() || !map.containsKey("config"))
-                throw new IllegalArgumentException("config not found");
-            apiCalciteStorage.saveConfig(map.get("config"));
+        builder.GET("/sql/forge/api/calcite/current", request -> {
+            String config = apiCalciteStorage.getConfig().getContext();
+
+            if (config == null || config.trim().isEmpty()) {
+                return ServerResponse.ok().body(null);
+            }
+
+            Properties info = new Properties();
+            info.setProperty("model", "inline:" + config);
+            info.setProperty("lex", "JAVA");
+
+            try (Connection conn = DriverManager.getConnection("jdbc:calcite:", info)) {
+                return ServerResponse.ok().body(MetaDataUtils.getDataSourceMetaDataTree(conn));
+            }
+        });
+        builder.GET("sql/forge/api/calciteConfig", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiCalciteStorage.getConfig()));
+        builder.POST("sql/forge/api/calciteConfig", accept(MediaType.APPLICATION_JSON), request -> {
+            ApiCalciteConfig apiCalciteConfig = request.body(ApiCalciteConfig.class);
+            apiCalciteStorage.saveConfig(apiCalciteConfig);
             return ServerResponse.ok().body(true);
         });
         builder.POST("sql/forge/api/calcite", accept(MediaType.APPLICATION_JSON), request -> {
@@ -163,30 +192,11 @@ public class SqlForgeConfiguration {
             return ServerResponse.ok().body(apiCalciteStorage.get(id));
         });
         builder.GET("sql/forge/api/calcite", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(apiCalciteStorage.list()));
-        builder.POST("sql/forge/api/calcite/{id}", accept(MediaType.APPLICATION_JSON), request -> {
+        builder.POST("sql/forge/api/calcite/execute/{id}", accept(MediaType.APPLICATION_JSON), request -> {
             String id = request.pathVariable("id");
             Map<String, Object> params = request.body(new ParameterizedTypeReference<>() {
             });
-            return ServerResponse.ok().body(apiCalciteExcutor.execute(id,params));
-        });
-        return builder.build();
-    }
-
-    @Bean
-    @ConditionalOnProperty(name = "sql.forge.api.database.enabled", havingValue = "true", matchIfMissing = true)
-    public CurrentMetaData currentMetaData(MetaData metaData) {
-        return new CurrentMetaData(metaData);
-    }
-
-    @Bean("sqlForgeApiDatabaseRouter")
-    @ConditionalOnProperty(name = "sql.forge.api.database.enabled", havingValue = "true", matchIfMissing = true)
-    public RouterFunction<ServerResponse> sqlForgeApiDatabaseRouter(FunctionalState functionalState, Executor executor, CurrentMetaData currentMetaData) {
-        functionalState.setApiDatabase(true);
-        RouterFunctions.Builder builder = route();
-        builder.GET("/sql/forge/api/database/current", request -> ServerResponse.ok().body(currentMetaData.getCurrentDatabase()));
-        builder.POST("/sql/forge/api/database/current/execute", request -> {
-            SqlScript sqlScript = request.body(SqlScript.class);
-            return ServerResponse.ok().body(executor.execute(sqlScript));
+            return ServerResponse.ok().body(apiCalciteExcutor.execute(id, params));
         });
         return builder.build();
     }
