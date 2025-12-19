@@ -81,7 +81,7 @@ function App() {
             schemaTableTypeTables.forEach(schemaTableTypeTable => {
                 const schemaNode: DataNode = {
                     title: schemaTableTypeTable.schema.tableSchema,
-                    key: schemaTableTypeTable.schema.tableSchema,
+                    key: `${databasNode.key}-${schemaTableTypeTable.schema.tableSchema}`,
                     children: []
                 }
                 const tableTypeTables = schemaTableTypeTable.tableTypeTables
@@ -97,14 +97,14 @@ function App() {
                             tables.forEach(table => {
                                 const tableNode: DataNode = {
                                     title: table.table.tableName,
-                                    key: table.table.tableName,
+                                    key: `${tableTypeNode.key}-${table.table.tableName}`,
                                     children: []
                                 }
                                 const columns = table.columns;
                                 if (columns) {
                                     tableNode.children = columns.map((column) => ({
                                         title: column.columnName,
-                                        key: column.columnName,
+                                        key: `${tableNode.key}-${column.columnName}`,
                                         isLeaf: true
                                     }))
                                 }
@@ -152,7 +152,7 @@ function App() {
             schemaTableTypeTables.forEach(schemaTableTypeTable => {
                 const schemaNode: DataNode = {
                     title: schemaTableTypeTable.schema.tableSchema,
-                    key: schemaTableTypeTable.schema.tableSchema,
+                    key: `${apiCalciteNode.key}-${schemaTableTypeTable.schema.tableSchema}`,
                     children: []
                 }
                 const tableTypeTables = schemaTableTypeTable.tableTypeTables
@@ -168,14 +168,14 @@ function App() {
                             tables.forEach(table => {
                                 const tableNode: DataNode = {
                                     title: table.table.tableName,
-                                    key: table.table.tableName,
+                                    key: `${tableTypeNode.key}-${table.table.tableName}`,
                                     children: []
                                 }
                                 const columns = table.columns;
                                 if (columns) {
                                     tableNode.children = columns.map((column) => ({
                                         title: column.columnName,
-                                        key: column.columnName,
+                                        key: `${tableNode.key}-${column.columnName}`,
                                         isLeaf: true
                                     }))
                                 }
