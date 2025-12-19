@@ -50,7 +50,7 @@ function DatabaseTabItem() {
 
     return (
         <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(50% - 34px)'}}>
+            <Row style={{height: 'calc(50% - 33px)'}}>
                 <Col span={24}>
                     <Input.TextArea
                         value={sql}

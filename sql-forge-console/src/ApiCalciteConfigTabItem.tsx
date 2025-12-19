@@ -39,7 +39,7 @@ function ApiCalciteConfigTabItem(props: {
 
     return (
         <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(100% - 34px)'}} gutter={8}>
+            <Row style={{height: 'calc(100% - 33px)'}}>
                 <Col span={24}>
                     <Input.TextArea
                         wrap="soft"

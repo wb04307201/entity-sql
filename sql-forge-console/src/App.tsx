@@ -74,10 +74,8 @@ function App() {
     };
 
     const loadApiDatabase = async (TreeData: DataNode[]) => {
-        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/database/current').json()
-
         const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
-
+        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/database/current').json()
         const schemaTableTypeTables = database.schemaTableTypeTables
         if (schemaTableTypeTables) {
             schemaTableTypeTables.forEach(schemaTableTypeTable => {
@@ -147,18 +145,61 @@ function App() {
     }
 
     const loadApiCalcite = async (TreeData: DataNode[]) => {
+        const apiCalciteNode: DataNode = {title: 'ApiCalcite', key: 'ApiCalcite', children: []}
+        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/calcite/current').json()
+        const schemaTableTypeTables = database.schemaTableTypeTables
+        if (schemaTableTypeTables) {
+            schemaTableTypeTables.forEach(schemaTableTypeTable => {
+                const schemaNode: DataNode = {
+                    title: schemaTableTypeTable.schema.tableSchema,
+                    key: schemaTableTypeTable.schema.tableSchema,
+                    children: []
+                }
+                const tableTypeTables = schemaTableTypeTable.tableTypeTables
+                if (tableTypeTables) {
+                    tableTypeTables.forEach(tableType => {
+                        const tableTypeNode: DataNode = {
+                            title: tableType.tableType,
+                            key: `${schemaNode.key}-${tableType.tableType}`,
+                            children: []
+                        }
+                        const tables = tableType.tables;
+                        if (tables) {
+                            tables.forEach(table => {
+                                const tableNode: DataNode = {
+                                    title: table.table.tableName,
+                                    key: table.table.tableName,
+                                    children: []
+                                }
+                                const columns = table.columns;
+                                if (columns) {
+                                    tableNode.children = columns.map((column) => ({
+                                        title: column.columnName,
+                                        key: column.columnName,
+                                        isLeaf: true
+                                    }))
+                                }
+                                tableTypeNode.children?.push(tableNode);
+                            })
+                        }
+                        schemaNode.children?.push(tableTypeNode)
+                    })
+                }
+                apiCalciteNode.children?.push(schemaNode)
+            })
+        }
         const templates: { id: string }[] = await apiClient.get('/sql/forge/api/calcite').json()
-        const apiTemplateNode: DataNode = {
-            title: 'ApiCalcite', key: 'ApiCalcite', children: templates.map(item => ({
+        templates.forEach(item => {
+            apiCalciteNode.children?.push({
                 title: item.id,
                 key: 'ApiCalcite-' + item.id
-            }))
-        }
+            })
+        })
         const orgTreeNode = TreeData.find(item => item.title === 'ApiCalcite')
         if (orgTreeNode) {
-            TreeData.splice(TreeData.indexOf(orgTreeNode), 1, apiTemplateNode)
+            TreeData.splice(TreeData.indexOf(orgTreeNode), 1, apiCalciteNode)
         } else {
-            TreeData.push(apiTemplateNode)
+            TreeData.push(apiCalciteNode)
         }
         return TreeData
     }
@@ -340,7 +381,7 @@ function App() {
                                 </div>)
                             } else if (nodeData.key.startsWith('ApiTemplate-')) {
                                 return (<div>
-                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <span>{nodeData.title}</span>
                                     <Button shape="circle" icon={<DeleteOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
@@ -358,7 +399,7 @@ function App() {
                                     <Button shape="circle" icon={<EditOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
-                                                add(`${nodeData.key}-config`);
+                                                add(nodeData.key);
                                             }}
                                     />
                                 </div>)
@@ -390,7 +431,7 @@ function App() {
                                 </div>)
                             } else if (nodeData.key.startsWith('ApiCalcite-')) {
                                 return (<div>
-                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <span>{nodeData.title}</span>
                                     <Button shape="circle" icon={<DeleteOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {

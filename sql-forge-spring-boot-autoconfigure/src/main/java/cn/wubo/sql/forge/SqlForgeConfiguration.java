@@ -160,7 +160,7 @@ public class SqlForgeConfiguration {
             String config = apiCalciteStorage.getConfig().getContext();
 
             if (config == null || config.trim().isEmpty()) {
-                return ServerResponse.ok().body(null);
+                return ServerResponse.ok().body(new DataSourceMetaDataTree());
             }
 
             Properties info = new Properties();

@@ -38,9 +38,11 @@ function ApiCalciteTabItem(props: {
     const executeSave = () => {
         if (!apiTemplateId) {
             Modal.error({title: '错误', content: "请输入模板标识"});
+            return;
         }
         if (!context) {
             Modal.error({title: '错误', content: "请输入模板内容"});
+            return;
         }
 
         apiClient.post('/sql/forge/api/calcite', {json: {id: apiTemplateId, context: context}})
@@ -93,7 +95,7 @@ function ApiCalciteTabItem(props: {
 
     return (
         <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(50% - 34px)'}} gutter={8}>
+            <Row style={{height: 'calc(50% - 33px)'}} gutter={8}>
                 <Col span={isCreate ? 24 : 16}>
                     <Input.TextArea
                         wrap="soft"
