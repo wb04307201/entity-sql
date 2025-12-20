@@ -1,7 +1,13 @@
 import {Button, Layout, Spin, Tabs, Tree} from 'antd';
 import {useEffect, useRef, useState} from "react"
 import DatabaseTabItem from "./DatabaseTabItem.tsx";
-import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, SettingOutlined} from '@ant-design/icons';
+import {
+    DeleteOutlined,
+    EditOutlined,
+    PlusOutlined,
+    ReloadOutlined,
+    SettingOutlined
+} from '@ant-design/icons';
 import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";
 import ApiTemplateTabItem from "./ApiTemplateTabItem.tsx";
@@ -152,7 +158,7 @@ function App() {
             schemaTableTypeTables.forEach(schemaTableTypeTable => {
                 const schemaNode: DataNode = {
                     title: schemaTableTypeTable.schema.tableSchema,
-                    key: `${apiCalciteNode.key}-${schemaTableTypeTable.schema.tableSchema}`,
+                    key: `ApiCalciteDatabase-${schemaTableTypeTable.schema.tableSchema}`,
                     children: []
                 }
                 const tableTypeTables = schemaTableTypeTable.tableTypeTables
@@ -337,7 +343,7 @@ function App() {
                         titleRender={(nodeData: DataNode) => {
                             if (nodeData.key === 'Database') {
                                 return (<div>
-                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <span style={{fontWeight: 'bold'}}>🗃️{nodeData.title}</span>
                                     <Button shape="circle" icon={<ReloadOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => reloadApiTemplate()}
@@ -351,7 +357,7 @@ function App() {
                                 </div>)
                             } else if (nodeData.key === 'ApiJson') {
                                 return (<div>
-                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <span style={{fontWeight: 'bold'}}>🚄{nodeData.title}</span>
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
@@ -361,7 +367,7 @@ function App() {
                                 </div>)
                             } else if (nodeData.key === 'ApiTemplate') {
                                 return (<div>
-                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <span style={{fontWeight: 'bold'}}>📄{nodeData.title}</span>
                                     <Button shape="circle" icon={<ReloadOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={async () => {
@@ -381,7 +387,7 @@ function App() {
                                 </div>)
                             } else if (nodeData.key.startsWith('ApiTemplate-')) {
                                 return (<div>
-                                    <span>{nodeData.title}</span>
+                                    <span>🔌{nodeData.title}</span>
                                     <Button shape="circle" icon={<DeleteOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
@@ -405,7 +411,7 @@ function App() {
                                 </div>)
                             } else if (nodeData.key === 'ApiCalcite') {
                                 return (<div>
-                                    <span style={{fontWeight: 'bold'}}>{nodeData.title}</span>
+                                    <span style={{fontWeight: 'bold'}}>🗃️📄{nodeData.title}</span>
                                     <Button shape="circle" icon={<ReloadOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={async () => {
@@ -431,7 +437,7 @@ function App() {
                                 </div>)
                             } else if (nodeData.key.startsWith('ApiCalcite-')) {
                                 return (<div>
-                                    <span>{nodeData.title}</span>
+                                    <span>🔌{nodeData.title}</span>
                                     <Button shape="circle" icon={<DeleteOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
