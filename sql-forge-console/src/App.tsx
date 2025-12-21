@@ -87,7 +87,7 @@ function App() {
             schemaTableTypeTables.forEach(schemaTableTypeTable => {
                 const schemaNode: DataNode = {
                     title: schemaTableTypeTable.schema.tableSchema,
-                    key: `${databasNode.key}-${schemaTableTypeTable.schema.tableSchema}`,
+                    key: `DatabaseSchema-${schemaTableTypeTable.schema.tableSchema}`,
                     children: []
                 }
                 const tableTypeTables = schemaTableTypeTable.tableTypeTables
@@ -95,7 +95,7 @@ function App() {
                     tableTypeTables.forEach(tableType => {
                         const tableTypeNode: DataNode = {
                             title: tableType.tableType,
-                            key: `${schemaNode.key}-${tableType.tableType}`,
+                            key: `DatabaseSchemaTableType-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}`,
                             children: []
                         }
                         const tables = tableType.tables;
@@ -103,14 +103,14 @@ function App() {
                             tables.forEach(table => {
                                 const tableNode: DataNode = {
                                     title: table.table.tableName,
-                                    key: `${tableTypeNode.key}-${table.table.tableName}`,
+                                    key: `DatabaseSchemaTableTypeTable-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}`,
                                     children: []
                                 }
                                 const columns = table.columns;
                                 if (columns) {
                                     tableNode.children = columns.map((column) => ({
                                         title: column.columnName,
-                                        key: `${tableNode.key}-${column.columnName}`,
+                                        key: `DatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
                                         isLeaf: true
                                     }))
                                 }
@@ -158,7 +158,7 @@ function App() {
             schemaTableTypeTables.forEach(schemaTableTypeTable => {
                 const schemaNode: DataNode = {
                     title: schemaTableTypeTable.schema.tableSchema,
-                    key: `ApiCalciteDatabase-${schemaTableTypeTable.schema.tableSchema}`,
+                    key: `ApiCalciteDatabaseSchema-${schemaTableTypeTable.schema.tableSchema}`,
                     children: []
                 }
                 const tableTypeTables = schemaTableTypeTable.tableTypeTables
@@ -166,7 +166,7 @@ function App() {
                     tableTypeTables.forEach(tableType => {
                         const tableTypeNode: DataNode = {
                             title: tableType.tableType,
-                            key: `${schemaNode.key}-${tableType.tableType}`,
+                            key: `ApiCalciteDatabaseSchemaTableType-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}`,
                             children: []
                         }
                         const tables = tableType.tables;
@@ -174,14 +174,14 @@ function App() {
                             tables.forEach(table => {
                                 const tableNode: DataNode = {
                                     title: table.table.tableName,
-                                    key: `${tableTypeNode.key}-${table.table.tableName}`,
+                                    key: `ApiCalciteDatabaseSchemaTableTypeTable-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}`,
                                     children: []
                                 }
                                 const columns = table.columns;
                                 if (columns) {
                                     tableNode.children = columns.map((column) => ({
                                         title: column.columnName,
-                                        key: `${tableNode.key}-${column.columnName}`,
+                                        key: `ApiCalciteDatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
                                         isLeaf: true
                                     }))
                                 }
@@ -355,6 +355,22 @@ function App() {
                                             }}
                                     />
                                 </div>)
+                            } else if (nodeData.key.startsWith('DatabaseSchema-')) {
+                                return (<div>
+                                    <span>📐{nodeData.title}</span>
+                                </div>)
+                            } else if (nodeData.key.startsWith('DatabaseSchemaTableType-')) {
+                                return (<div>
+                                    <span>🔖{nodeData.title}</span>
+                                </div>)
+                            } else if (nodeData.key.startsWith('DatabaseSchemaTableTypeTable-')) {
+                                return (<div>
+                                    <span>🧾{nodeData.title}</span>
+                                </div>)
+                            } else if (nodeData.key.startsWith('DatabaseSchemaTableTypeTableColumn-')) {
+                                return (<div>
+                                    <span>🏷️{nodeData.title}</span>
+                                </div>)
                             } else if (nodeData.key === 'ApiJson') {
                                 return (<div>
                                     <span style={{fontWeight: 'bold'}}>🚄{nodeData.title}</span>
@@ -435,6 +451,22 @@ function App() {
                                             }}
                                     />
                                 </div>)
+                            } else if (nodeData.key.startsWith('ApiCalciteDatabaseSchema-')) {
+                                return (<div>
+                                    <span>📐{nodeData.title}</span>
+                                </div>)
+                            } else if (nodeData.key.startsWith('ApiCalciteDatabaseSchemaTableType-')) {
+                                return (<div>
+                                    <span>🔖{nodeData.title}</span>
+                                </div>)
+                            } else if (nodeData.key.startsWith('ApiCalciteDatabaseSchemaTableTypeTable-')) {
+                                return (<div>
+                                    <span>🧾{nodeData.title}</span>
+                                </div>)
+                            } else if (nodeData.key.startsWith('ApiCalciteDatabaseSchemaTableTypeTableColumn-')) {
+                                return (<div>
+                                    <span>🏷️{nodeData.title}</span>
+                                </div>)
                             } else if (nodeData.key.startsWith('ApiCalcite-')) {
                                 return (<div>
                                     <span>🔌{nodeData.title}</span>
@@ -444,10 +476,10 @@ function App() {
                                                 setTreeSpinning(true)
                                                 apiClient.delete(`/sql/forge/api/calcite/${nodeData.key.substring(11)}`)
                                                     .json()
-                                                    .then(_data => {
+                                                    .then((_) => {
                                                         removes(nodeData.key);
                                                         reloadApiCalcite();
-                                                    }).catch(_error => {
+                                                    }).catch((_) => {
                                                     setTreeSpinning(false)
                                                 })
                                             }}
