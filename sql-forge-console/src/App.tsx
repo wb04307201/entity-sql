@@ -6,7 +6,7 @@ import {
     EditOutlined,
     PlusOutlined,
     ReloadOutlined,
-    SettingOutlined
+    SettingOutlined, TableOutlined
 } from '@ant-design/icons';
 import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";
@@ -363,7 +363,14 @@ function App() {
                                 return (<div>
                                     <span>🔖{nodeData.title}</span>
                                 </div>)
-                            } else if (nodeData.key.startsWith('DatabaseSchemaTableTypeTable-')) {
+                            }
+                            // else if (nodeData.key.startsWith('DatabaseSchemaTableTypeTable-') && (nodeData.key.indexOf('-BASE TABLE-') > 0 || nodeData.key.indexOf('-TABLE-') > 0)) {
+                            //     return (<div>
+                            //         <span>🧾{nodeData.title}</span>
+                            //         <TableOutlined/>
+                            //     </div>)
+                            // }
+                            else if (nodeData.key.startsWith('DatabaseSchemaTableTypeTable-')) {
                                 return (<div>
                                     <span>🧾{nodeData.title}</span>
                                 </div>)
