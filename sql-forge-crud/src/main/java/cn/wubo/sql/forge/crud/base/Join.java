@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 public record Join(
         JoinType type,
         @NotBlank
+        String joinTable,
+        @NotBlank
         String on
 ) {
 }

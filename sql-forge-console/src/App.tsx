@@ -6,7 +6,7 @@ import {
     EditOutlined,
     PlusOutlined,
     ReloadOutlined,
-    SettingOutlined, TableOutlined
+    SettingOutlined
 } from '@ant-design/icons';
 import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";

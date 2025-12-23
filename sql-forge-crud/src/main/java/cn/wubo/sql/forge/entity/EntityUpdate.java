@@ -2,7 +2,6 @@ package cn.wubo.sql.forge.entity;
 
 import cn.wubo.sql.forge.CrudService;
 import cn.wubo.sql.forge.crud.Update;
-import cn.wubo.sql.forge.crud.base.Set;
 import cn.wubo.sql.forge.crud.base.Where;
 import cn.wubo.sql.forge.entity.base.AbstractUpdate;
 import cn.wubo.sql.forge.entity.base.EntityCondition;
@@ -12,7 +11,9 @@ import cn.wubo.sql.forge.entity.cache.ColumnInfo;
 import cn.wubo.sql.forge.entity.cache.TableStructureInfo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EntityUpdate<T> extends AbstractUpdate<T, Integer, EntityUpdate<T>> {
 
@@ -24,12 +25,12 @@ public class EntityUpdate<T> extends AbstractUpdate<T, Integer, EntityUpdate<T>>
     public Integer run(CacheService cacheService, CrudService crudService) throws Exception {
         TableStructureInfo tableStructureInfo = cacheService.getTableInfo(entityClass);
 
-        List<Set> sqlSets = new ArrayList<>();
+        Map<String, Object> sqlSets = new HashMap<>();
         if (sets != null && !sets.isEmpty()){
             for (EntitySet<T> entitySet : sets) {
                 ColumnInfo columnInfo = tableStructureInfo.getColumnInfo(entitySet.column());
                 if (columnInfo != null) {
-                    sqlSets.add(new Set(columnInfo.getColumnName(), entitySet.value()));
+                    sqlSets.put(columnInfo.getColumnName(), entitySet.value());
                 }
             }
         }

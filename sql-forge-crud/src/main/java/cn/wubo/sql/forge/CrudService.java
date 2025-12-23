@@ -7,17 +7,19 @@ import cn.wubo.sql.forge.map.ParamMap;
 import cn.wubo.sql.forge.map.RowMap;
 import cn.wubo.sql.forge.records.SqlScript;
 import cn.wubo.sql.forge.crud.base.Join;
-import cn.wubo.sql.forge.crud.base.Set;
 import cn.wubo.sql.forge.crud.base.Where;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import static cn.wubo.sql.forge.constant.Constant.QUESTION_MARK;
 
 public record CrudService(Executor executor) {
+
+    public static final String ON_TEMPLATE = "%s ON %s";
 
     public Object delete(@NotBlank String tableName, @Valid Delete delete) throws SQLException {
         ParamMap params = new ParamMap();
@@ -37,9 +39,9 @@ public record CrudService(Executor executor) {
         ParamMap params = new ParamMap();
         SQL sql = new SQL().INSERT_INTO(tableName);
 
-        for (Set set : insert.sets()) {
-            params.put(set.value());
-            sql.VALUES(set.column(), QUESTION_MARK);
+        for (Map.Entry<String,Object> set : insert.sets().entrySet()) {
+            params.put(set.getValue());
+            sql.VALUES(set.getKey(), QUESTION_MARK);
         }
 
         Object key = executor.executeInsert(new SqlScript(sql.toString(), params));
@@ -62,10 +64,10 @@ public record CrudService(Executor executor) {
         if (select.joins() != null && !select.joins().isEmpty()) {
             for (Join join : select.joins()) {
                 switch (join.type()) {
-                    case INNER_JOIN -> sql.INNER_JOIN(join.on());
-                    case LEFT_OUTER_JOIN -> sql.LEFT_OUTER_JOIN(join.on());
-                    case RIGHT_OUTER_JOIN -> sql.RIGHT_OUTER_JOIN(join.on());
-                    case OUTER_JOIN -> sql.OUTER_JOIN(join.on());
+                    case INNER_JOIN -> sql.INNER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case LEFT_OUTER_JOIN -> sql.LEFT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case RIGHT_OUTER_JOIN -> sql.RIGHT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case OUTER_JOIN -> sql.OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
                     default -> sql.JOIN(join.on());
                 }
             }
@@ -95,9 +97,9 @@ public record CrudService(Executor executor) {
         ParamMap params = new ParamMap();
         SQL sql = new SQL().UPDATE(tableName);
 
-        for (Set set : update.sets()) {
-            params.put(set.value());
-            sql.SET(set.column() + ConditionType.EQ.getValue() + QUESTION_MARK);
+        for (Map.Entry<String,Object> set : update.sets().entrySet()) {
+            params.put(set.getValue());
+            sql.SET(set.getKey() + ConditionType.EQ.getValue() + QUESTION_MARK);
         }
 
         applyWheres(sql, update.wheres(), params);

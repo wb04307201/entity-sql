@@ -5,7 +5,6 @@ import cn.wubo.sql.forge.crud.Insert;
 import cn.wubo.sql.forge.crud.Select;
 import cn.wubo.sql.forge.crud.Update;
 import cn.wubo.sql.forge.crud.base.Join;
-import cn.wubo.sql.forge.crud.base.Set;
 import cn.wubo.sql.forge.crud.base.Where;
 import cn.wubo.sql.forge.enums.ConditionType;
 import cn.wubo.sql.forge.enums.JoinType;
@@ -18,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,18 +36,18 @@ class CrudServiceTest {
     void testSelect() throws SQLException {
         Select select = new Select(
                 new String[]{
-                        "o.id AS order_id",
-                        "u.username",
-                        "p.name AS product_name",
-                        "p.price",
-                        "o.quantity",
-                        "(p.price * o.quantity) AS total"
+                        "orders.id AS order_id",
+                        "users.username",
+                        "products.name AS product_name",
+                        "products.price",
+                        "orders.quantity",
+                        "(products.price * orders.quantity) AS total"
                 },
                 null,
                 null,
                 new ArrayList<>() {{
-                    add(new Join(JoinType.INNER_JOIN, "users u ON o.user_id = u.id"));
-                    add(new Join(JoinType.INNER_JOIN, "products p ON o.product_id = p.id"));
+                    add(new Join(JoinType.INNER_JOIN, "users","orders.user_id = users.id"));
+                    add(new Join(JoinType.INNER_JOIN, "products","orders.product_id = products.id"));
                 }},
                 null,
                 null,
@@ -55,9 +55,9 @@ class CrudServiceTest {
         );
 
 
-        List<RowMap> rowMapList = crudService.select("orders o", select);
+        List<RowMap> rowMapList = crudService.select("orders", select);
         log.info("rowMapList: {}", rowMapList);
-        assertEquals(rowMapList.size(), 4);
+        assertEquals(4, rowMapList.size());
     }
 
     @Test
@@ -67,10 +67,10 @@ class CrudServiceTest {
             add(new Where("id", ConditionType.EQ, id));
         }};
         Insert insert = new Insert(
-                new ArrayList<>() {{
-                    add(new Set("id", id));
-                    add(new Set("username", "wb04307201"));
-                    add(new Set("email", "wb04307201@gitee.com"));
+                new HashMap<>() {{
+                    put("id", id);
+                    put("username", "wb04307201");
+                    put("email", "wb04307201@gitee.com");
                 }},
                 new Select(
                         null,
@@ -87,8 +87,8 @@ class CrudServiceTest {
         assertEquals(1, rowMapList.size());
 
         Update update = new Update(
-                new ArrayList<>() {{
-                    add(new Set("email", "wb04307201@github.com"));
+                new HashMap<>() {{
+                    put("email", "wb04307201@github.com");
                 }},
                 wheres,
                 new Select(

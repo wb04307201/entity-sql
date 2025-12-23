@@ -93,19 +93,19 @@ function ApiJsonTabItem() {
                         <Button
                             onClick={() => {
                                 if (type === "select") {
-                                    setTableName("orders o")
+                                    setTableName("orders")
                                     setJson(`{
     "@column": [
-        "o.id AS order_id",
-        "u.username",
-        "p.name AS product_name",
-        "p.price",
-        "o.quantity",
-        "(p.price * o.quantity) AS total"
+        "orders.id AS order_id",
+        "users.username",
+        "products.name AS product_name",
+        "products.price",
+        "orders.quantity",
+        "(products.price * orders.quantity) AS total"
     ],
     "@where": [
         {
-            "column": "u.username",
+            "column": "users.username",
             "condition": "EQ",
             "value": "alice"
         }
@@ -117,15 +117,17 @@ function ApiJsonTabItem() {
     "@join": [
         {
             "type": "INNER_JOIN",
-            "on": "users u ON o.user_id = u.id"
+            "joinTable":"users",
+            "on": "orders.user_id = users.id"
         },
         {
             "type": "INNER_JOIN",
-            "on": "products p ON o.product_id = p.id"
+            "joinTable":"products",
+            "on": "orders.product_id = products.id"
         }
     ],
     "@order": [
-        "o.order_date"
+        "orders.order_date"
     ],
     "@group": null,
     "@distince": false

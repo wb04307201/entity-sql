@@ -11,4 +11,6 @@ public class Constant {
     public static final String CLOSE_PAREN = ")";
     public static final String QUESTION_MARK = "?";
     public static final String UPPER_QUESTION_MARK = "UPPER(?)";
+    public static final String AND = ") \nAND (";
+    public static final String OR = ") \nOR (";
 }

@@ -3,7 +3,6 @@ package cn.wubo.sql.forge.entity;
 import cn.wubo.sql.forge.CrudService;
 import cn.wubo.sql.forge.crud.Insert;
 import cn.wubo.sql.forge.crud.Update;
-import cn.wubo.sql.forge.crud.base.Set;
 import cn.wubo.sql.forge.crud.base.Where;
 import cn.wubo.sql.forge.entity.base.*;
 import cn.wubo.sql.forge.entity.cache.CacheService;
@@ -12,10 +11,7 @@ import cn.wubo.sql.forge.entity.cache.TableStructureInfo;
 import cn.wubo.sql.forge.enums.ConditionType;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class EntitySave<T> extends AbstractEntity<T, T, EntitySave<T>> {
 
@@ -32,14 +28,13 @@ public class EntitySave<T> extends AbstractEntity<T, T, EntitySave<T>> {
         if (primaryKeyColumnInfoOptional.isEmpty())
             throw new IllegalArgumentException("Entity class has no primary key");
 
-
-        List<Set> sqlSets = new ArrayList<>();
+        Map<String, Object> sqlSets = new HashMap<>();
         for (ColumnInfo columnInfo : tableStructureInfo.getColumnInfos().stream().filter(columnInfo -> !columnInfo.isPrimaryKey()).toList()) {
             Field field = columnInfo.getField();
             field.setAccessible(true);
             Object value = field.get(entity);
             if (value != null)
-                sqlSets.add(new Set(columnInfo.getColumnName(), value));
+                sqlSets.put(columnInfo.getColumnName(), value);
         }
 
         ColumnInfo primaryKeyColumnInfo = primaryKeyColumnInfoOptional.get();
@@ -49,7 +44,7 @@ public class EntitySave<T> extends AbstractEntity<T, T, EntitySave<T>> {
         if (primaryKeyValue == null && primaryKeyColumnInfo.getJavaType() == String.class) {
             // insert
             String key = UUID.randomUUID().toString();
-            sqlSets.add(new Set(primaryKeyColumnInfo.getColumnName(), key));
+            sqlSets.put(primaryKeyColumnInfo.getColumnName(), key);
             Insert insert = new Insert(sqlSets, null);
             crudService.insert(tableStructureInfo.getTableName(), insert);
             primaryKeyField.set(entity, key);
