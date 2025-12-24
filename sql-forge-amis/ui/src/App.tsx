@@ -1,54 +1,74 @@
+import ky from 'ky';
+import copy from 'copy-to-clipboard';
+import {toast} from "amis-ui";
+import {AlertComponent, render, ToastComponent} from "amis";
+import type {FetcherConfig} from "amis-core/lib/factory";
+
 import 'amis/lib/themes/cxd.css';
 import 'amis/lib/helper.css';
 import 'amis/sdk/iconfont.css';
 // 或 import 'amis/lib/themes/antd.css';
 
-import ky from 'ky';
-
-// 定义fetcher配置的类型
-interface FetcherConfig {
-    url: string; // 接口地址
-    method: string; // 请求方法 get、post、put、delete
-    data?: Record<string, unknown> | unknown; // 请求数据
-    responseType?: string;
-    config?: Record<string, unknown>; // 其他配置
-    headers?: Record<string, string>; // 请求头
-}
-
 // amis 环境配置
 const env = {
     // 下面三个接口必须实现
     fetcher: (config: FetcherConfig) => {
-        console.log(config)
-
-        if (config.method === 'get'){
-          return ky.get(config.url, {
-            searchParams: config.data,
-            headers: config.headers,
-          }).json
-        }else if (config.method === 'post'){
-          return ky.post(config.url, {
-            json: config.data,
-            headers: config.headers,
-          })
-        }else if (config.method === 'put'){
-          return ky.put(config.url, {
-            json: config.data,
-            headers: config.headers,
-          })
-        }else if (config.method === 'delete'){
-          return ky.delete(config.url, {
-            json: config.data,
-          })
-        }
+        return ky[config.method](config.url, {}).json()
     },
+    isCancel: (error: {name: string}) => error.name === 'AbortError',
+    copy: (content: string) => {
+        copy(content);
+        toast.success('内容已复制到粘贴板');
+    }
+}
+
+function AMISComponent(){
+
+    return render(
+        // 这里是 amis 的 Json 配置。
+        {
+            type: 'page',
+            body: {
+                type: 'form',
+                api: '/api/form',
+                body: [
+                    {
+                        type: 'input-text',
+                        name: 'name',
+                        label: '姓名'
+                    },
+                    {
+                        name: 'email',
+                        type: 'input-email',
+                        label: '邮箱'
+                    },
+                    {
+                        name: 'color',
+                        type: 'input-color',
+                        label: 'color'
+                    },
+                    {
+                        type: 'editor',
+                        name: 'editor',
+                        label: '编辑器'
+                    }
+                ]
+            }
+        },
+        {
+            // props...
+        },
+        env
+    )
 }
 
 function App() {
 
   return (
     <>
-        <div>Hello</div>
+        <ToastComponent key="toast" position={'top-right'} />
+        <AlertComponent key="alert" />
+        <AMISComponent />
     </>
   )
 }
