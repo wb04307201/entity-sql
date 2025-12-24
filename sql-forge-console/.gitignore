@@ -1,4 +1,4 @@
 /ui/node/
 /target/maven-archiver/
 /target/classes/cn/wubo/sql/forge/
-/target/sql-forge-amis-1.0-SNAPSHOT.jar
+/target/sql-forge-console-1.0-SNAPSHOT.jar
