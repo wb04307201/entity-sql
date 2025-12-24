@@ -31,7 +31,7 @@
         <module>sql-forge-crud</module>
         <module>sql-forge-template</module>
         <module>sql-forge-calcite</module>
-        <module>sql-forge-function</module>
+        <module>sql-forge-amis</module>
         <module>sql-forge-console</module>
         <module>sql-forge-spring-boot-autoconfigure</module>
         <module>sql-forge-spring-boot-starter</module>
