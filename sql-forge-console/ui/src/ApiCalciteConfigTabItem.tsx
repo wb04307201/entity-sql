@@ -10,7 +10,6 @@ function ApiCalciteConfigTabItem(props: {
 
     useEffect(() => {
             apiClient.get(`/sql/forge/api/calciteConfig`)
-                .json()
                 .then((data: unknown) => {
                     const config = data as {context: string};
                     setConfig(config.context)
@@ -30,8 +29,7 @@ function ApiCalciteConfigTabItem(props: {
             return;
         }
 
-        apiClient.post('/sql/forge/api/calciteConfig', {json: {context: config}})
-            .json()
+        apiClient.post('/sql/forge/api/calciteConfig', {data: {context: config}})
             .then((_) => {
                 props.reload()
                 props.remove()

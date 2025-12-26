@@ -27,7 +27,6 @@ function ApiTemplateTabItem(props: {
     useEffect(() => {
         if (!isCreate && apiTemplateId) {
             apiClient.get(`/sql/forge/api/template/${apiTemplateId}`)
-                .json()
                 .then((data: unknown) => {
                     const apiTemplate = data as { context: string }
                     setContext(apiTemplate.context)
@@ -45,8 +44,7 @@ function ApiTemplateTabItem(props: {
             return;
         }
 
-        apiClient.post('/sql/forge/api/template', {json: {id: apiTemplateId, context: context}})
-            .json()
+        apiClient.post('/sql/forge/api/template', {data: {id: apiTemplateId, context: context}})
             .then((_) => {
                 props.reload && props.reload()
                 props.remove && props.remove()
@@ -67,8 +65,7 @@ function ApiTemplateTabItem(props: {
             return;
         }
 
-        apiClient.post(`/sql/forge/api/template/execute/${apiTemplateId}`, {json: params})
-            .json()
+        apiClient.post(`/sql/forge/api/template/execute/${apiTemplateId}`, {data: params})
             .then((data) => {
                 if (Array.isArray(data) && data.length > 0) {
                     const row = data[0];

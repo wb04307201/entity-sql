@@ -12,7 +12,7 @@
   "dependencies": {
     "@ant-design/icons": "6.x",
     "antd": "^6.0.1",
-    "ky": "^1.14.1",
+    "axios": "^1.13.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

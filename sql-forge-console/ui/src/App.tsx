@@ -58,7 +58,7 @@ function App() {
             apiJson: boolean,
             apiTemplate: boolean,
             apiCalcite: boolean
-        } = await apiClient.get('/sql/forge/console/functionalState').json()
+        } = await apiClient.get('/sql/forge/console/functionalState')
 
         let TreeData: DataNode[] = [...treeData];
 
@@ -81,7 +81,7 @@ function App() {
 
     const loadApiDatabase = async (TreeData: DataNode[]) => {
         const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
-        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/databaseMetaData').json()
+        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/databaseMetaData')
         const schemaTableTypeTables = database.schemaTableTypeTables
         if (schemaTableTypeTables) {
             schemaTableTypeTables.forEach(schemaTableTypeTable => {
@@ -134,7 +134,7 @@ function App() {
     }
 
     const loadApiTemplate = async (TreeData: DataNode[]) => {
-        const templates: { id: string }[] = await apiClient.get('/sql/forge/api/template').json()
+        const templates: { id: string }[] = await apiClient.get('/sql/forge/api/template')
         const apiTemplateNode: DataNode = {
             title: 'ApiTemplate', key: 'ApiTemplate', children: templates.map(item => ({
                 title: item.id,
@@ -152,7 +152,7 @@ function App() {
 
     const loadApiCalcite = async (TreeData: DataNode[]) => {
         const apiCalciteNode: DataNode = {title: 'ApiCalcite', key: 'ApiCalcite', children: []}
-        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/calciteMetaData').json()
+        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/calciteMetaData')
         const schemaTableTypeTables = database.schemaTableTypeTables
         if (schemaTableTypeTables) {
             schemaTableTypeTables.forEach(schemaTableTypeTable => {
@@ -194,7 +194,7 @@ function App() {
                 apiCalciteNode.children?.push(schemaNode)
             })
         }
-        const templates: { id: string }[] = await apiClient.get('/sql/forge/api/calcite').json()
+        const templates: { id: string }[] = await apiClient.get('/sql/forge/api/calcite')
         templates.forEach(item => {
             apiCalciteNode.children?.push({
                 title: item.id,
@@ -416,7 +416,6 @@ function App() {
                                             onClick={() => {
                                                 setTreeSpinning(true)
                                                 apiClient.delete(`/sql/forge/api/template/${nodeData.key.substring(12)}`)
-                                                    .json()
                                                     .then((_) => {
                                                         removes(nodeData.key);
                                                         reloadApiTemplate();
@@ -482,7 +481,7 @@ function App() {
                                             onClick={() => {
                                                 setTreeSpinning(true)
                                                 apiClient.delete(`/sql/forge/api/calcite/${nodeData.key.substring(11)}`)
-                                                    .json()
+
                                                     .then((_) => {
                                                         removes(nodeData.key);
                                                         reloadApiCalcite();

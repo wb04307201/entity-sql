@@ -36,8 +36,7 @@ function ApiJsonTabItem() {
             return;
         }
 
-        apiClient.post(`/sql/forge/api/json/${type}/${tableName}`, {json: params})
-            .json()
+        apiClient.post(`/sql/forge/api/json/${type}/${tableName}`, {data: params})
             .then(data => {
                 if (Array.isArray(data) && data.length > 0) {
                     const row = data[0];
