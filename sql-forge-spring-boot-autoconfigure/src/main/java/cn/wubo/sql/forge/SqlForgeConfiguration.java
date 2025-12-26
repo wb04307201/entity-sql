@@ -216,6 +216,15 @@ public class SqlForgeConfiguration {
         return builder.build();
     }
 
+    @Bean("sqlForgeAmisRouter")
+    @ConditionalOnProperty(name = "sql.forge.amis.enabled", havingValue = "true", matchIfMissing = true)
+    public RouterFunction<ServerResponse> sqlForgeAmisRouter (FunctionalState functionalState) {
+        RouterFunctions.Builder builder = RouterFunctions.route();
+        builder.GET("/sql/forge/amis", request -> ServerResponse.temporaryRedirect(URI.create("/sql/forge/amis/index.html")).build());
+        builder.GET("/sql/forge/amis/", request -> ServerResponse.temporaryRedirect(URI.create("/sql/forge/amis/index.html")).build());
+        return builder.build();
+    }
+
 
     @Bean("sqlForgeConsoleRouter")
     @ConditionalOnProperty(name = "sql.forge.console.enabled", havingValue = "true", matchIfMissing = true)

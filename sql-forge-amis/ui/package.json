@@ -1,5 +1,5 @@
 {
-  "name": "ui",
+  "name": "sql-forge-amis",
   "private": true,
   "version": "0.0.0",
   "dependencies": {
