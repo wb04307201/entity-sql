@@ -216,12 +216,36 @@ public class SqlForgeConfiguration {
         return builder.build();
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = "sql.forge.amis.enabled", havingValue = "true", matchIfMissing = true)
+    public AmisStorage amisStorage() {
+        return new AmisStorage();
+    }
+
+
     @Bean("sqlForgeAmisRouter")
     @ConditionalOnProperty(name = "sql.forge.amis.enabled", havingValue = "true", matchIfMissing = true)
-    public RouterFunction<ServerResponse> sqlForgeAmisRouter (FunctionalState functionalState) {
+    public RouterFunction<ServerResponse> sqlForgeAmisRouter(FunctionalState functionalState, IAmisStorage amisStorage) {
+        functionalState.setAmis(true);
         RouterFunctions.Builder builder = RouterFunctions.route();
         builder.GET("/sql/forge/amis", request -> ServerResponse.temporaryRedirect(URI.create("/sql/forge/amis/index.html")).build());
         builder.GET("/sql/forge/amis/", request -> ServerResponse.temporaryRedirect(URI.create("/sql/forge/amis/index.html")).build());
+        builder.POST("sql/forge/api/calcite", accept(MediaType.APPLICATION_JSON), request -> {
+            ApiTemplate apiTemplate = request.body(ApiTemplate.class);
+            amisStorage.save(apiTemplate);
+            return ServerResponse.ok().body(true);
+        });
+        builder.DELETE("sql/forge/api/calcite/{id}", accept(MediaType.APPLICATION_JSON), request -> {
+            String id = request.pathVariable("id");
+            amisStorage.remove(id);
+            return ServerResponse.ok().body(true);
+        });
+        builder.GET("sql/forge/api/calcite/{id}", accept(MediaType.APPLICATION_JSON), request -> {
+            String id = request.pathVariable("id");
+            return ServerResponse.ok().body(amisStorage.get(id));
+        });
+        builder.GET("sql/forge/api/calcite", accept(MediaType.APPLICATION_JSON), request -> ServerResponse.ok().body(amisStorage.list()));
         return builder.build();
     }
 

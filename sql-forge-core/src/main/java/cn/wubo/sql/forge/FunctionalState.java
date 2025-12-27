@@ -21,6 +21,10 @@ public class FunctionalState {
         this.functionalStateInfo.setApiCalcite(apiCalcite);
     }
 
+    public void setAmis(Boolean amis) {
+        this.functionalStateInfo.setAmis(amis);
+    }
+
     public FunctionalStateInfo getFunctionalState(){
         return this.functionalStateInfo;
     }
@@ -31,5 +35,6 @@ public class FunctionalState {
         private Boolean apiJson = Boolean.FALSE;
         private Boolean apiTemplate = Boolean.FALSE;
         private Boolean apiCalcite = Boolean.FALSE;
+        private Boolean amis = Boolean.FALSE;
     }
 }
