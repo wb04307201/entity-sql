@@ -1,24 +1,21 @@
-import {render} from 'amis';
+import {render, RenderOptions} from 'amis';
 import axios from "axios";
 import copy from "copy-to-clipboard";
 import {toast} from "amis-ui";
-import {fetchOptions, fetcherResult} from "amis-core/lib/types";
+import {fetchOptions, Schema} from "amis-core/lib/types";
+import {RootRenderProps} from "amis-core/lib/Root";
 
 interface AMISComponentProps {
-    page: any;
-    props: any;
-    env: {
-        fetcher: (config: fetchOptions) => Promise<fetcherResult>,
-        isCancel: (value: any) => boolean,
-        copy: (content: string) => void
-    };
+    page: Schema;
+    props?: RootRenderProps;
+    options?: RenderOptions;
 }
 
 function AMISComponent(props: AMISComponentProps) {
     return render(
         props.page,
         props.props,
-        props.env
+        props.options
     );
 }
 
@@ -26,7 +23,7 @@ AMISComponent.defaultProps = {
     page: {},
     props: {},
     // amis 环境配置
-    env: {
+    options: {
         // 下面三个接口必须实现
         fetcher: (config: fetchOptions) => {
             let {url, method, data, responseType, config: userConfig, headers} = config;
@@ -70,7 +67,8 @@ AMISComponent.defaultProps = {
         copy: (content: string) => {
             copy(content);
             toast.success('内容已复制到粘贴板');
-        }
+        },
+        theme: 'cxd' // cxd 或 antd
     }
 };
 

@@ -6,6 +6,7 @@ import '@fortawesome/fontawesome-free/css/v4-shims.css';
 import 'amis/lib/themes/cxd.css';
 import 'amis/lib/helper.css';
 import 'amis/sdk/iconfont.css';
+// 或 import 'amis/lib/themes/antd.css';
 
 import {ToastComponent, AlertComponent} from 'amis';
 import AMISComponent from "./AMISComponent";
