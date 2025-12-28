@@ -44,7 +44,7 @@ function ApiCalciteTabItem(props: {
             return;
         }
 
-        apiClient.post('/sql/forge/api/calcite', {data: {id: apiTemplateId, context: context}})
+        apiClient.post('/sql/forge/api/calcite', {id: apiTemplateId, context: context})
             .then((_) => {
                 props.reload && props.reload()
                 props.remove && props.remove()
@@ -65,7 +65,7 @@ function ApiCalciteTabItem(props: {
             return;
         }
 
-        apiClient.post(`/sql/forge/api/calcite/execute/${apiTemplateId}`, {data: params})
+        apiClient.post(`/sql/forge/api/calcite/execute/${apiTemplateId}`, params)
             .then((data) => {
                 if (Array.isArray(data) && data.length > 0) {
                     const row = data[0];

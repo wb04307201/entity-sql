@@ -29,7 +29,7 @@ function ApiCalciteConfigTabItem(props: {
             return;
         }
 
-        apiClient.post('/sql/forge/api/calciteConfig', {data: {context: config}})
+        apiClient.post('/sql/forge/api/calciteConfig', {context: config})
             .then((_) => {
                 props.reload()
                 props.remove()

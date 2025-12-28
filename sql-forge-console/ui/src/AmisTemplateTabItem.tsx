@@ -1,16 +1,7 @@
-import {Button, Col, Flex, Input, Modal, Row, Table} from "antd";
+import {Button, Col, Flex, Input, Modal, Row} from "antd";
 import {useEffect, useState} from "react";
 import apiClient from "./apiClient.tsx";
-
-interface ColumnType {
-    title: string;
-    dataIndex: string;
-    key: string;
-}
-
-type DataType = Record<string, unknown>;
-
-function ApiTemplateTabItem(props: {
+function AmisTemplateTabItem(props: {
     isCreate: boolean,
     apiTemplateId: string,
     reload: () => void,
@@ -20,13 +11,10 @@ function ApiTemplateTabItem(props: {
     const [isCreate] = useState(props.isCreate);
     const [apiTemplateId, setApiTemplateId] = useState(props.apiTemplateId);
     const [context, setContext] = useState("");
-    const [json, setJson] = useState("");
-    const [dataSource, setDataSource] = useState<DataType[]>([]);
-    const [columns, setColumns] = useState<ColumnType[]>([]);
 
     useEffect(() => {
         if (!isCreate && apiTemplateId) {
-            apiClient.get(`/sql/forge/api/template/${apiTemplateId}`)
+            apiClient.get(`/sql/forge/amis/template/${apiTemplateId}`)
                 .then((data: unknown) => {
                     const apiTemplate = data as { context: string }
                     setContext(apiTemplate.context)
@@ -44,56 +32,21 @@ function ApiTemplateTabItem(props: {
             return;
         }
 
-        apiClient.post('/sql/forge/api/template', {id: apiTemplateId, context: context})
+        apiClient.post('/sql/forge/amis/template', {id: apiTemplateId, context: context})
             .then((_) => {
                 props.reload && props.reload()
                 props.remove && props.remove()
             })
     }
 
-    const executeTest = () => {
-        if (!json) {
-            Modal.error({title: '错误', content: "请输入json"});
-            return;
-        }
-        let params;
-        try {
-            params = JSON.parse(json);
-        } catch (error) {
-            const typedError = error as { message: string };
-            Modal.error({title: '错误', content: typedError.message});
-            return;
-        }
-
-        apiClient.post(`/sql/forge/api/template/execute/${apiTemplateId}`, params)
-            .then((data) => {
-                if (Array.isArray(data) && data.length > 0) {
-                    const row = data[0];
-                    const columns = []
-                    for (const key in row) {
-                        columns.push({
-                            title: key,
-                            dataIndex: key,
-                            key: key,
-                        });
-                    }
-                    setColumns(columns)
-                    setDataSource(data)
-                } else {
-                    setColumns([{
-                        title: '',
-                        dataIndex: 'key',
-                        key: 'key',
-                    }])
-                    setDataSource([{key: data}])
-                }
-            })
+    const executeView = () => {
+        console.log("executeView")
     }
 
     return (
         <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(50% - 33px)'}} gutter={8}>
-                <Col span={isCreate ? 24 : 16}>
+            <Row style={{height: 'calc(100% - 33px)'}} gutter={8}>
+                <Col span={24}>
                     <Input.TextArea
                         wrap="soft"
                         value={context}
@@ -104,20 +57,6 @@ function ApiTemplateTabItem(props: {
                         placeholder="请输入模板内容"
                     />
                 </Col>
-                {
-                    !isCreate && (
-                        <Col span={8}>
-                            <Input.TextArea
-                                value={json}
-                                onChange={(e) => setJson(e.target.value)}
-                                autoSize={false}
-                                styles={{textarea: {height: '100%'}}}
-                                style={{resize: "none"}}
-                                placeholder="请输入json"
-                            />
-                        </Col>
-                    )
-                }
             </Row>
             <Row>
                 <Col span={24}>
@@ -138,8 +77,8 @@ function ApiTemplateTabItem(props: {
                         {
                             !isCreate && (
                                 <Button
-                                    onClick={executeTest}
-                                >测试</Button>
+                                    onClick={executeView}
+                                >查看</Button>
                             )
                         }
                         <Button
@@ -149,17 +88,8 @@ function ApiTemplateTabItem(props: {
                     </Flex>
                 </Col>
             </Row>
-            <Row style={{height: '50%'}}>
-                <Col span={24}>
-                    <Table
-                        dataSource={dataSource}
-                        columns={columns}
-                        pagination={false}
-                    />
-                </Col>
-            </Row>
         </div>
     )
 }
 
-export default ApiTemplateTabItem;
+export default AmisTemplateTabItem;

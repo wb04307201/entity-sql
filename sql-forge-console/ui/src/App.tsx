@@ -13,6 +13,7 @@ import apiClient from "./apiClient.tsx";
 import ApiTemplateTabItem from "./ApiTemplateTabItem.tsx";
 import ApiCalciteTabItem from "./ApiCalciteTabItem.tsx";
 import ApiCalciteConfigTabItem from "./ApiCalciteConfigTabItem.tsx";
+import AmisTemplateTabItem from "./AmisTemplateTabItem.tsx";
 
 const {Content, Sider} = Layout;
 
@@ -251,6 +252,14 @@ function App() {
         setTreeSpinning(false)
     }
 
+    const reloadAmisTemplate = async () => {
+        setTreeSpinning(true)
+        let TreeData: DataNode[] = [...treeData];
+        TreeData = await loadAmisTemplate(TreeData)
+        setTreeData(TreeData)
+        setTreeSpinning(false)
+    }
+
     const onChange = (newActiveKey: string) => {
         setActiveKey(newActiveKey);
     };
@@ -306,6 +315,20 @@ function App() {
                 label: newLabel,
                 children: <ApiCalciteTabItem isCreate={false} apiTemplateId={type.substring(11)}
                                              reload={reloadApiTemplate}/>,
+                key: newActiveKey,
+            })
+        } else if (type === 'AmisTemplate') {
+            newPanes.push({
+                label: newLabel,
+                children: <AmisTemplateTabItem isCreate={true} apiTemplateId={""} reload={reloadAmisTemplate}
+                                              remove={() => remove(newActiveKey)}/>,
+                key: newActiveKey,
+            })
+        } else if (type.startsWith('AmisTemplate-')) {
+            newPanes.push({
+                label: newLabel,
+                children: <AmisTemplateTabItem isCreate={false} apiTemplateId={type.substring(13)}
+                                              reload={reloadApiTemplate}/>,
                 key: newActiveKey,
             })
         }
@@ -532,6 +555,29 @@ function App() {
                                             }}
                                     />
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                add(nodeData.key);
+                                            }}
+                                    />
+                                </div>)
+                            } else if (nodeData.key.startsWith('AmisTemplate-')) {
+                                return (<div>
+                                    <span>🔌{nodeData.title}</span>
+                                    <Button shape="circle" icon={<DeleteOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                setTreeSpinning(true)
+                                                apiClient.delete(`/sql/forge/amis/template/${nodeData.key.substring(13)}`)
+                                                    .then((_) => {
+                                                        removes(nodeData.key);
+                                                        reloadAmisTemplate();
+                                                    }).catch((_) => {
+                                                    setTreeSpinning(false)
+                                                })
+                                            }}
+                                    />
+                                    <Button shape="circle" icon={<EditOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 add(nodeData.key);

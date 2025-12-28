@@ -22,7 +22,7 @@ function DatabaseTabItem() {
             return;
         }
 
-        apiClient.post('/sql/forge/api/database/current/execute', {data: {sql: sql}})
+        apiClient.post('/sql/forge/api/database/current/execute', {sql: sql})
             .then(data => {
                 if (Array.isArray(data) && data.length > 0) {
                     const row = data[0];
