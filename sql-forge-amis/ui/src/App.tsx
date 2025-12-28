@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 import '@fortawesome/fontawesome-free/css/v4-shims.css';
@@ -12,6 +12,12 @@ import {ToastComponent, AlertComponent} from 'amis';
 import AMISComponent from "./AMISComponent";
 
 function APP() {
+
+    useEffect( () => {
+        let params = new URL(document.location.href).searchParams;
+        console.log('params',params)
+    })
+
     return (
         <>
             <ToastComponent key="toast" position={'top-right'}/>

@@ -57,7 +57,8 @@ function App() {
             apiDatabase: boolean,
             apiJson: boolean,
             apiTemplate: boolean,
-            apiCalcite: boolean
+            apiCalcite: boolean,
+            amis: boolean
         } = await apiClient.get('/sql/forge/console/functionalState')
 
         let TreeData: DataNode[] = [...treeData];
@@ -73,6 +74,9 @@ function App() {
         }
         if (functionalState.apiCalcite) {
             TreeData = await loadApiCalcite(TreeData)
+        }
+        if (functionalState.amis){
+            TreeData = await loadAmisTemplate(TreeData)
         }
 
         setTreeData(TreeData);
@@ -206,6 +210,23 @@ function App() {
             TreeData.splice(TreeData.indexOf(orgTreeNode), 1, apiCalciteNode)
         } else {
             TreeData.push(apiCalciteNode)
+        }
+        return TreeData
+    }
+
+    const loadAmisTemplate = async (TreeData: DataNode[]) => {
+        const templates: { id: string }[] = await apiClient.get('/sql/forge/amis/template')
+        const apiTemplateNode: DataNode = {
+            title: 'AmisTemplate', key: 'AmisTemplate', children: templates.map(item => ({
+                title: item.id,
+                key: 'AmisTemplate-' + item.id
+            }))
+        }
+        const orgTreeNode = TreeData.find(item => item.title === 'AmisTemplate')
+        if (orgTreeNode) {
+            TreeData.splice(TreeData.indexOf(orgTreeNode), 1, apiTemplateNode)
+        } else {
+            TreeData.push(apiTemplateNode)
         }
         return TreeData
     }
@@ -491,6 +512,26 @@ function App() {
                                             }}
                                     />
                                     <Button shape="circle" icon={<EditOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                add(nodeData.key);
+                                            }}
+                                    />
+                                </div>)
+                            } else if (nodeData.key === 'AmisTemplate') {
+                                return (<div>
+                                    <span style={{fontWeight: 'bold'}}>📄{nodeData.title}</span>
+                                    <Button shape="circle" icon={<ReloadOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={async () => {
+                                                setTreeSpinning(true)
+                                                let TreeData: DataNode[] = [...treeData];
+                                                TreeData = await loadAmisTemplate(TreeData)
+                                                setTreeData(TreeData)
+                                                setTreeSpinning(false)
+                                            }}
+                                    />
+                                    <Button shape="circle" icon={<PlusOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 add(nodeData.key);

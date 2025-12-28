@@ -54,7 +54,7 @@
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <arguments>vite-build</arguments>
+                            <arguments>build</arguments>
                         </configuration>
                     </execution>
                 </executions>
