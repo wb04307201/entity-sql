@@ -6,7 +6,10 @@ import {
     EditOutlined,
     PlusOutlined,
     ReloadOutlined,
-    SettingOutlined
+    SettingOutlined,
+    ConsoleSqlOutlined,
+    EyeOutlined,
+    ApiOutlined
 } from '@ant-design/icons';
 import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";
@@ -76,7 +79,7 @@ function App() {
         if (functionalState.apiCalcite) {
             TreeData = await loadApiCalcite(TreeData)
         }
-        if (functionalState.amis){
+        if (functionalState.amis) {
             TreeData = await loadAmisTemplate(TreeData)
         }
 
@@ -321,14 +324,14 @@ function App() {
             newPanes.push({
                 label: newLabel,
                 children: <AmisTemplateTabItem isCreate={true} apiTemplateId={""} reload={reloadAmisTemplate}
-                                              remove={() => remove(newActiveKey)}/>,
+                                               remove={() => remove(newActiveKey)}/>,
                 key: newActiveKey,
             })
         } else if (type.startsWith('AmisTemplate-')) {
             newPanes.push({
                 label: newLabel,
                 children: <AmisTemplateTabItem isCreate={false} apiTemplateId={type.substring(13)}
-                                              reload={reloadApiTemplate}/>,
+                                               reload={reloadApiTemplate}/>,
                 key: newActiveKey,
             })
         }
@@ -392,7 +395,7 @@ function App() {
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => reloadApiTemplate()}
                                     />
-                                    <Button shape="circle" icon={<PlusOutlined/>} size="small"
+                                    <Button shape="circle" icon={<ConsoleSqlOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 add(nodeData.key);
@@ -408,11 +411,11 @@ function App() {
                                     <span>🔖{nodeData.title}</span>
                                 </div>)
                             }
-                            // else if (nodeData.key.startsWith('DatabaseSchemaTableTypeTable-') && (nodeData.key.indexOf('-BASE TABLE-') > 0 || nodeData.key.indexOf('-TABLE-') > 0)) {
-                            //     return (<div>
-                            //         <span>🧾{nodeData.title}</span>
-                            //         <TableOutlined/>
-                            //     </div>)
+                                // else if (nodeData.key.startsWith('DatabaseSchemaTableTypeTable-') && (nodeData.key.indexOf('-BASE TABLE-') > 0 || nodeData.key.indexOf('-TABLE-') > 0)) {
+                                //     return (<div>
+                                //         <span>🧾{nodeData.title}</span>
+                                //         <TableOutlined/>
+                                //     </div>)
                             // }
                             else if (nodeData.key.startsWith('DatabaseSchemaTableTypeTable-')) {
                                 return (<div>
@@ -425,7 +428,7 @@ function App() {
                             } else if (nodeData.key === 'ApiJson') {
                                 return (<div>
                                     <span style={{fontWeight: 'bold'}}>🚄{nodeData.title}</span>
-                                    <Button shape="circle" icon={<PlusOutlined/>} size="small"
+                                    <Button shape="circle" icon={<ApiOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 add(nodeData.key);
@@ -468,7 +471,7 @@ function App() {
                                                 })
                                             }}
                                     />
-                                    <Button shape="circle" icon={<EditOutlined/>} size="small"
+                                    <Button shape="circle" icon={<PlusOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 add(nodeData.key);
@@ -497,7 +500,7 @@ function App() {
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
-                                                add(nodeData.key);
+                                                add(nodeData.key)
                                             }}
                                     />
                                 </div>)
@@ -563,7 +566,7 @@ function App() {
                                 </div>)
                             } else if (nodeData.key.startsWith('AmisTemplate-')) {
                                 return (<div>
-                                    <span>🔌{nodeData.title}</span>
+                                    <span>🌐{nodeData.title}</span>
                                     <Button shape="circle" icon={<DeleteOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
@@ -581,6 +584,13 @@ function App() {
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 add(nodeData.key);
+                                            }}
+                                    />
+                                    <Button shape="circle" icon={<EyeOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                // add(nodeData.key);
+                                                console.log("executeView")
                                             }}
                                     />
                                 </div>)

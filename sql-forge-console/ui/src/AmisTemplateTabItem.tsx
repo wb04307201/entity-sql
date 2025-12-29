@@ -32,6 +32,14 @@ function AmisTemplateTabItem(props: {
             return;
         }
 
+        try {
+            JSON.parse(context);
+        } catch (error) {
+            const typedError = error as { message: string };
+            Modal.error({title: '错误', content: typedError.message});
+            return;
+        }
+
         apiClient.post('/sql/forge/amis/template', {id: apiTemplateId, context: context})
             .then((_) => {
                 props.reload && props.reload()
@@ -69,7 +77,34 @@ function AmisTemplateTabItem(props: {
                             isCreate && (
                                 <Button
                                     onClick={() => {
-                                        setContext(`SELECT * FROM users WHERE 1=1<if test="name != null && name != ''"> AND username = #{name}</if><if test="ids != null && !ids.isEmpty()"><foreach collection="ids" item="id" open=" AND id IN (" separator="," close=")">#{id}</foreach></if><if test="(name == null || name == '') && (ids == null || ids.isEmpty()) "> AND 0=1</if> ORDER BY username DESC`)
+                                        setContext(`{
+  type: 'page',
+  body: {
+    type: 'form',
+    api: '/api/form',
+    body: [{
+        type: 'input-text',
+        name: 'name',
+        label: '姓名'
+      },
+      {
+        name: 'email',
+        type: 'input-email',
+        label: '邮箱'
+      },
+      {
+        name: 'color',
+        type: 'input-color',
+        label: 'color'
+      },
+      {
+        type: 'editor',
+        name: 'editor',
+        label: '编辑器'
+      }
+    ]
+  }
+}`)
                                     }}
                                 >示例</Button>
                             )

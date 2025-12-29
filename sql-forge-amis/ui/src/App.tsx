@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 import '@fortawesome/fontawesome-free/css/v4-shims.css';
@@ -10,49 +10,32 @@ import 'amis/sdk/iconfont.css';
 
 import {ToastComponent, AlertComponent} from 'amis';
 import AMISComponent from "./AMISComponent";
+import axios from 'axios';
 
 function APP() {
+    
+    const [data, setData] = useState({
+        "type": "page",
+        "body": {
+            "type": "spinner",
+            "show": true
+        }
+    });
 
     useEffect( () => {
         let params = new URL(document.location.href).searchParams;
-        console.log('params',params)
+        let id = params.get('id');
+        axios.get(`/sql/forge/amis/template/${id}`).then(res => {
+            console.log('res',res)
+            setData(JSON.parse(res.data.context))
+        })
     })
 
     return (
         <>
             <ToastComponent key="toast" position={'top-right'}/>
             <AlertComponent key="alert"/>
-            <AMISComponent
-                page={{
-                    type: 'page',
-                    body: {
-                        type: 'form',
-                        api: '/api/form',
-                        body: [
-                            {
-                                type: 'input-text',
-                                name: 'name',
-                                label: '姓名'
-                            },
-                            {
-                                name: 'email',
-                                type: 'input-email',
-                                label: '邮箱'
-                            },
-                            {
-                                name: 'color',
-                                type: 'input-color',
-                                label: 'color'
-                            },
-                            {
-                                type: 'editor',
-                                name: 'editor',
-                                label: '编辑器'
-                            }
-                        ]
-                    }
-                }}
-            />
+            <AMISComponent page={data}/>
         </>
     );
 }
