@@ -451,8 +451,6 @@ Content-Type: application/json
 - `POST /sql/forge/api/template/execute/{id}` - 执行指定 ID 的模板
   - 模板参数 Map
 
-#### 模板语法
-
 
 ### 示例
 ```http request
