@@ -430,7 +430,7 @@ Content-Type: application/json
 ```
 
 #### 配置
-可通过`sql.forge.api.json.enabled=false`关闭Json API 模块
+可通过`sql.forge.api.json.enabled=false`关闭**Json API 模块**
 
 ### Template API 模块
 面对更复杂SQL语句需求，提供SQL模板引擎功能，支持条件判断、循环等模板语法，根据参数动态生成`SQL`执行并返回结果。
@@ -472,6 +472,9 @@ content-type: application/json
 "ids":null
 }
 ```
+
+#### 配置
+可通过`sql.forge.api.template.enabled=false`关闭**Template API 模块**
 
 ### 联邦查询 API 模块
 集成Apache Calcite实现联邦查询：
