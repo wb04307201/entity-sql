@@ -433,7 +433,7 @@ Content-Type: application/json
 可通过`sql.forge.api.json.enabled=false`关闭**Json API 模块**
 
 ### Template API 模块
-面对更复杂SQL语句需求，提供SQL模板引擎功能，支持条件判断、循环等模板语法，根据参数动态生成`SQL`执行并返回结果。
+提供`SQL`模板引擎功能，支持条件判断、循环等模板语法，根据参数动态生成`SQL`执行并返回结果。
 - **API 模板管理**：提供 API 模板的存储、查询、删除等管理功能
 - **模板化 API 执行**：支持通过模板 ID 和参数来执行预定义的 API 模板
 
@@ -476,18 +476,9 @@ content-type: application/json
 #### 配置
 可通过`sql.forge.api.template.enabled=false`关闭**Template API 模块**
 
-### 联邦查询 API 模块
-集成Apache Calcite实现联邦查询：
-```java
-// 支持跨多个数据源的联合查询
-String sql = """
-    SELECT student.name, sum(score.grade) as grade 
-    FROM MYSQL.student as student 
-    JOIN POSTGRES.score as score ON student.id=score.student_id 
-    WHERE student.id>0 
-    GROUP BY student.name
-    """;
-```
+### Calcite API 模块
+基于`Apache Calcite`实现的`SQL`模板引擎，用于执行跨数据库的联邦查询。
+
 
 ### 控制台
 提供Web界面用于调试和管理SQL操作：
