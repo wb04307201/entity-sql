@@ -430,7 +430,7 @@ Content-Type: application/json
 ```
 
 ### Template API 模块
-提供SQL模板引擎功能，支持动态SQL生成：
+面对更复杂SQL语句需求，提供SQL模板引擎功能，支持条件判断、循环等模板语法，根据参数动态生成`SQL`
 ```java
 String template = "SELECT * FROM users WHERE 1=1" +
     "<if test=\"name != null && name != ''\"> AND username = #{name}</if>" +
