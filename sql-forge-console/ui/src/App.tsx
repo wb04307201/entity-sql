@@ -590,7 +590,7 @@ function App() {
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 // add(nodeData.key);
-                                                console.log("executeView")
+                                                window.open(`http://localhost:8080/sql/forge/amis?id=${nodeData.key.substring(13)}`)
                                             }}
                                     />
                                 </div>)

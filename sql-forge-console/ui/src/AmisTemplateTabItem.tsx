@@ -79,30 +79,8 @@ function AmisTemplateTabItem(props: {
                                     onClick={() => {
                                         setContext(`{
   "type": "page",
-  "body": {
-    "type": "form",
-    "body": [{
-        "type": "input-text",
-        "name": "name",
-        "label": "姓名"
-      },
-      {
-        "name": "email",
-        "type": "input-email",
-        "label": "邮箱"
-      },
-      {
-        "name": "color",
-        "type": "input-color",
-        "label": "color"
-      },
-      {
-        "type": "editor",
-        "name": "editor",
-        "label": "编辑器"
-      }
-    ]
-  }
+  "title": "标题",
+  "body": "Hello World!"
 }`)
                                     }}
                                 >示例</Button>

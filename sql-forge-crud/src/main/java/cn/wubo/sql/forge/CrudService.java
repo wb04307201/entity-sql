@@ -21,37 +21,71 @@ public record CrudService(Executor executor) {
 
     public static final String ON_TEMPLATE = "%s ON %s";
 
+    /**
+     * 删除指定表中的记录
+     *
+     * @param tableName 表名，不能为空
+     * @param delete    删除操作对象，包含删除条件和查询条件
+     * @return 如果delete.select()不为null则返回查询结果，否则返回删除记录的数量
+     * @throws SQLException SQL执行异常
+     */
     public Object delete(@NotBlank String tableName, @Valid Delete delete) throws SQLException {
+        // 创建参数映射和SQL构建器
         ParamMap params = new ParamMap();
         SQL sql = new SQL().DELETE_FROM(tableName);
 
+        // 应用删除条件到SQL中
         applyWheres(sql, delete.wheres(), params);
 
+        // 执行删除操作并获取影响的记录数
         int count = executor.executeUpdate(new SqlScript(sql.toString(), params));
 
+        // 如果存在查询条件则执行查询并返回结果，否则返回删除数量
         if (delete.select() != null)
             return select(tableName, delete.select());
         else
             return count;
     }
 
+
+    /**
+     * 插入数据到指定表中
+     *
+     * @param tableName 表名，不能为空
+     * @param insert    插入操作对象，包含要插入的字段和值
+     * @return 如果指定了select查询则返回查询结果，否则返回插入记录的主键值
+     * @throws SQLException SQL执行异常
+     */
     public Object insert(@NotBlank String tableName, @Valid Insert insert) throws SQLException {
+        // 创建参数映射和SQL构建器
         ParamMap params = new ParamMap();
         SQL sql = new SQL().INSERT_INTO(tableName);
 
-        for (Map.Entry<String,Object> set : insert.sets().entrySet()) {
+        // 遍历插入字段和值，构建VALUES子句
+        for (Map.Entry<String, Object> set : insert.sets().entrySet()) {
             params.put(set.getValue());
             sql.VALUES(set.getKey(), QUESTION_MARK);
         }
 
+        // 执行插入操作并获取主键值
         Object key = executor.executeInsert(new SqlScript(sql.toString(), params));
 
+        // 如果插入操作中指定了select查询，则执行查询并返回结果，否则返回主键值
         if (insert.select() != null)
             return select(tableName, insert.select());
         else
             return key;
     }
 
+
+    /**
+     * 执行SELECT查询操作
+     *
+     * @param tableName 表名，不能为空
+     * @param select    查询条件对象，必须符合校验规则
+     * @return 查询结果行映射列表
+     * @throws SQLException SQL执行异常
+     */
     public List<RowMap> select(@NotBlank String tableName, @Valid Select select) throws SQLException {
         ParamMap params = new ParamMap();
         SQL sql = new SQL().FROM(tableName);
@@ -61,12 +95,15 @@ public record CrudService(Executor executor) {
         else
             sql.SELECT(columns);
 
+        // 处理JOIN子句
         if (select.joins() != null && !select.joins().isEmpty()) {
             for (Join join : select.joins()) {
                 switch (join.type()) {
                     case INNER_JOIN -> sql.INNER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case LEFT_OUTER_JOIN -> sql.LEFT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case RIGHT_OUTER_JOIN -> sql.RIGHT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case LEFT_OUTER_JOIN ->
+                            sql.LEFT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case RIGHT_OUTER_JOIN ->
+                            sql.RIGHT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
                     case OUTER_JOIN -> sql.OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
                     default -> sql.JOIN(join.on());
                 }
@@ -75,13 +112,15 @@ public record CrudService(Executor executor) {
 
         applyWheres(sql, select.wheres(), params);
 
+        // 处理GROUP BY子句
         if (select.groups() != null && select.groups().length > 0)
             sql.GROUP_BY(select.groups());
 
-
+        // 处理ORDER BY子句
         if (select.orders() != null && select.orders().length > 0)
             sql.ORDER_BY(select.orders());
 
+        // 处理分页参数
         if (select.page() != null) {
             params.put(select.page().pageSize());
             params.put((long) select.page().pageIndex() * select.page().pageSize());
@@ -93,11 +132,20 @@ public record CrudService(Executor executor) {
     }
 
 
+    /**
+     * 更新指定表中的数据记录
+     *
+     * @param tableName 要更新的表名，不能为空
+     * @param update    更新操作对象，包含SET子句、WHERE条件和可选的SELECT查询
+     * @return 如果指定了select查询则返回查询结果，否则返回受影响的记录数量
+     * @throws SQLException 执行SQL操作时可能抛出的数据库异常
+     */
     public Object update(@NotBlank String tableName, @Valid Update update) throws SQLException {
         ParamMap params = new ParamMap();
         SQL sql = new SQL().UPDATE(tableName);
 
-        for (Map.Entry<String,Object> set : update.sets().entrySet()) {
+        // 构建SET子句，遍历更新字段和值的映射关系
+        for (Map.Entry<String, Object> set : update.sets().entrySet()) {
             params.put(set.getValue());
             sql.SET(set.getKey() + ConditionType.EQ.getValue() + QUESTION_MARK);
         }
@@ -106,11 +154,13 @@ public record CrudService(Executor executor) {
 
         int count = executor.executeUpdate(new SqlScript(sql.toString(), params));
 
+        // 根据是否包含select查询决定返回结果
         if (update.select() != null)
             return select(tableName, update.select());
         else
             return count;
     }
+
 
     private void applyWheres(SQL sql, List<Where> wheres, ParamMap params) {
         if (wheres != null && !wheres.isEmpty()) {
