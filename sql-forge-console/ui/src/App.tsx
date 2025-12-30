@@ -471,7 +471,7 @@ function App() {
                                                 })
                                             }}
                                     />
-                                    <Button shape="circle" icon={<PlusOutlined/>} size="small"
+                                    <Button shape="circle" icon={<EditOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 add(nodeData.key);

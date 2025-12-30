@@ -144,7 +144,7 @@ int count = entityService.run(Entity.delete(user));
 
 
 ### Json API 模块
-让前端无需编写后端代码即可操作数据库，通过`JSON`格式描述自己需要的数据结构和操作，后端自动生成对应的`SQL`并返回结果。
+让前端无需编写后端代码即可操作数据库，通过`JSON`格式描述自己需要的数据结构和操作，后端自动生成对应的`SQL`执行并返回结果。
 
 - **请求路径**: `sql/forge/api/json/{method}/{tableName}`
 - **请求方法**: `POST`
@@ -429,21 +429,50 @@ Content-Type: application/json
 }
 ```
 
+#### 配置
+可通过`sql.forge.api.json.enabled=false`关闭Json API 模块
+
 ### Template API 模块
-面对更复杂SQL语句需求，提供SQL模板引擎功能，支持条件判断、循环等模板语法，根据参数动态生成`SQL`
-```java
-String template = "SELECT * FROM users WHERE 1=1" +
-    "<if test=\"name != null && name != ''\"> AND username = #{name}</if>" +
-    "<if test=\"ids != null && !ids.isEmpty()\">" +
-    "<foreach collection=\"ids\" item=\"id\" open=\" AND id IN (\" separator=\",\" close=\")\">#{id}</foreach>" +
-    "</if>";
+面对更复杂SQL语句需求，提供SQL模板引擎功能，支持条件判断、循环等模板语法，根据参数动态生成`SQL`执行并返回结果。
+- **API 模板管理**：提供 API 模板的存储、查询、删除等管理功能
+- **模板化 API 执行**：支持通过模板 ID 和参数来执行预定义的 API 模板
 
-Map<String, Object> params = new HashMap<>();
-params.put("name", "john");
-params.put("ids", Arrays.asList(1, 2, 3));
+#### 模板管理接口
 
-SqlTemplateEngine engine = new SqlTemplateEngine();
-SqlScript script = engine.process(template, params);
+- `POST /sql/forge/api/template` - 保存新的 API 模板
+   - id: 模板 ID
+   - context: 模板内容
+- `GET /sql/forge/api/template/{id}` - 根据 ID 获取模板
+- `GET /sql/forge/api/template` - 获取模板列表
+- `DELETE /sql/forge/api/template/{id}` - 删除指定 ID 的模板
+
+#### 模板执行接口
+
+- `POST /sql/forge/api/template/execute/{id}` - 执行指定 ID 的模板
+  - 模板参数 Map
+
+#### 模板语法
+
+
+### 示例
+```http request
+POST http://localhost:8080/sql/forge/api/template
+content-type: application/json
+
+{
+  "id": "api-template-test",
+  "context": "SELECT * FROM users WHERE 1=1<if test=\"name != null && name != ''\"> AND username = #{name}</if><if test=\"ids != null && !ids.isEmpty()\"><foreach collection=\"ids\" item=\"id\" open=\" AND id IN (\" separator=\",\" close=\")\">#{id}</foreach></if><if test=\"(name == null || name == '') && (ids == null || ids.isEmpty()) \"> AND 0=1</if> ORDER BY username DESC"
+}
+```
+
+```http request
+POST http://localhost:8080/sql/forge/api/template/execute/api-template-test
+content-type: application/json
+
+{
+"name":"alice",
+"ids":null
+}
 ```
 
 ### 联邦查询 API 模块
