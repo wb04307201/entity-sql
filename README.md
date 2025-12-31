@@ -480,6 +480,8 @@ content-type: application/json
 基于`Apache Calcite`实现的`SQL`模板引擎，用于执行跨数据库的联邦查询。
 
 
+
+
 ### 控制台
 提供Web界面用于调试和管理SQL操作：
 - 数据库元数据浏览

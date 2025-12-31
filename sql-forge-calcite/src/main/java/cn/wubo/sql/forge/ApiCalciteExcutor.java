@@ -2,7 +2,9 @@ package cn.wubo.sql.forge;
 
 import cn.wubo.sql.forge.map.RowMap;
 import cn.wubo.sql.forge.records.SqlScript;
+import cn.wubo.sql.forge.utils.CalciteExcutorUtils;
 import cn.wubo.sql.forge.utils.ResultSetUtils;
+import jakarta.validation.constraints.NotNull;
 
 import java.sql.*;
 import java.util.List;
@@ -13,26 +15,11 @@ public record ApiCalciteExcutor(
         IApiCalciteStorage calciteStorage
 ) {
 
-    public List<RowMap> execute(String id, Map<String, Object> params) throws SQLException {
-        String config = calciteStorage.getConfig().getContext();
-        if (config == null || config.trim().isEmpty()) {
-            throw new SQLException("config is null");
-        }
-
-        Properties info = new Properties();
-        info.setProperty("model", "inline:" + config);
-        info.setProperty("lex", "JAVA");
-
+    public List<RowMap> execute(@NotNull String id, Map<String, Object> params) throws SQLException {
         ApiTemplate apiTemplate = calciteStorage.get(id);
         SqlTemplateEngine engine = new SqlTemplateEngine();
         SqlScript result = engine.process(apiTemplate.getContext(), params, SqlGenerationMode.WITH_VALUES);
 
-        try (Connection conn = DriverManager.getConnection("jdbc:calcite:", info)) {
-            // 查询数据
-            Statement stmt = conn.createStatement();
-            try (ResultSet resultSet = stmt.executeQuery(result.sql())) {
-                return ResultSetUtils.resultSetToList(resultSet);
-            }
-        }
+        return CalciteExcutorUtils.execute(calciteStorage.getConfig().getContext(),result);
     }
 }

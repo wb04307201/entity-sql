@@ -17,6 +17,7 @@ import ApiTemplateTabItem from "./ApiTemplateTabItem.tsx";
 import ApiCalciteTabItem from "./ApiCalciteTabItem.tsx";
 import ApiCalciteConfigTabItem from "./ApiCalciteConfigTabItem.tsx";
 import AmisTemplateTabItem from "./AmisTemplateTabItem.tsx";
+import ApiCalciteSqlTabItem from "./ApiCalciteSqlTabItem.tsx";
 
 const {Content, Sider} = Layout;
 
@@ -306,6 +307,13 @@ function App() {
                 key: newActiveKey,
             })
 
+        } else if (type === 'ApiCalcite-sql') {
+            newPanes.push({
+                label: newLabel,
+                children: <ApiCalciteSqlTabItem/>,
+                key: newActiveKey,
+            })
+
         } else if (type === 'ApiCalcite') {
             newPanes.push({
                 label: newLabel,
@@ -495,6 +503,13 @@ function App() {
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 add(`${nodeData.key}-config`)
+                                            }}
+                                    />
+
+                                    <Button shape="circle" icon={<ConsoleSqlOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                add(`${nodeData.key}-sql`);
                                             }}
                                     />
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
