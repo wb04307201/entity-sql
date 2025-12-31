@@ -568,6 +568,8 @@ content-type: application/json
 #### 配置
 可通过`sql.forge.api.calcite.enabled=false`关闭**Calcite API 模块**
 
+### Amis 模块
+
 ### 控制台
 提供Web界面用于调试和管理SQL操作：
 - 数据库元数据浏览
