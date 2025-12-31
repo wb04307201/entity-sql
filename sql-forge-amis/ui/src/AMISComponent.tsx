@@ -12,6 +12,7 @@ interface AMISComponentProps {
 }
 
 function AMISComponent(props: AMISComponentProps) {
+    console.log(props.page, props.props, props.options);
     return render(
         props.page,
         props.props,
@@ -25,10 +26,18 @@ AMISComponent.defaultProps = {
     // amis 环境配置
     options: {
         // 下面三个接口必须实现
-        fetcher: (config: fetchOptions): Promise<fetcherResult> => {
-            let {url, method, data, responseType, config: userConfig, headers} = config;
+        fetcher: (options: fetchOptions): Promise<fetcherResult> => {
+            console.log('options', options);
+            let {
+              url,
+              method,
+              data,
+              responseType,
+              config,
+              headers
+            } = options;
 
-            let axiosConfig = userConfig || {};
+            let axiosConfig = config || {};
             axiosConfig.withCredentials = true;
             responseType && (axiosConfig.responseType = responseType);
 

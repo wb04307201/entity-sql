@@ -78,9 +78,10 @@ function AmisTemplateTabItem(props: {
                                 <Button
                                     onClick={() => {
                                         setContext(`{
-  "type": "page",
-  "title": "标题",
-  "body": "Hello World!"
+\t"type": "page",
+\t"initApi": "/api/mock2/page/initDataError",
+\t"title": "标题",
+\t"body": "Hello World!"
 }`)
                                     }}
                                 >示例</Button>
