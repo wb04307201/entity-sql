@@ -453,6 +453,7 @@ Content-Type: application/json
 
 
 ### 示例
+模板配置：
 ```http request
 POST http://localhost:8080/sql/forge/api/template
 content-type: application/json
@@ -463,6 +464,7 @@ content-type: application/json
 }
 ```
 
+执行模板：
 ```http request
 POST http://localhost:8080/sql/forge/api/template/execute/api-template-test
 content-type: application/json
@@ -473,12 +475,98 @@ content-type: application/json
 }
 ```
 
+响应：
+```json
+[
+  {
+    "ID": "550e8400-e29b-41d4-a716-446655440000",
+    "USERNAME": "alice",
+    "EMAIL": "alice@example.com"
+  }
+]
+```
+
 #### 配置
 可通过`sql.forge.api.template.enabled=false`关闭**Template API 模块**
 
 ### Calcite API 模块
 基于`Apache Calcite`实现的`SQL`模板引擎，用于执行跨数据库的联邦查询。
+- **数据源配置**：提供数据源的配置功能
+- **API 模板管理**：提供 API 模板的存储、查询、删除等管理功能
+- **模板化 API 执行**：支持通过模板 ID 和参数来执行预定义的 API 模板
 
+#### 数据源配置接口
+- `POST sql/forge/api/calciteConfig` - 修改数据源配置
+  - context: 数据源配置
+- `GET sql/forge/api/calciteConfig` - 获取数据源配置
+
+#### 模板管理接口
+
+- `POST /sql/forge/api/calcite` - 保存新的 API 模板
+  - id: 模板 ID
+  - context: 模板内容
+- `GET /sql/forge/api/calcite/{id}` - 根据 ID 获取模板
+- `GET /sql/forge/api/calcite` - 获取模板列表
+- `DELETE /sql/forge/api/calcite/{id}` - 删除指定 ID 的模板
+
+#### 模板执行接口
+
+- `POST /sql/forge/api/calcite/execute/{id}` - 执行指定 ID 的模板
+  - 模板参数 Map
+
+#### 示例
+数据源配置：
+```http request
+POST http://localhost:8080/sql/forge/api/calciteConfig
+content-type: application/json
+
+{
+    "context": "{\n  \"version\": \"1.0\",\n  \"defaultSchema\": \"MYSQL\",\n  \"schemas\": [\n    {\n      \"factory\": \"org.apache.calcite.adapter.jdbc.JdbcSchema$Factory\",\n      \"name\": \"MYSQL\",\n      \"operand\": {\n        \"jdbcDriver\": \"com.mysql.cj.jdbc.Driver\",\n        \"jdbcUrl\": \"jdbc:mysql://localhost:3306/test\",\n        \"jdbcUser\": \"root\",\n        \"jdbcPassword\": \"123456\"\n      },\n      \"type\": \"custom\"\n    },\n    {\n      \"factory\": \"org.apache.calcite.adapter.jdbc.JdbcSchema$Factory\",\n      \"name\": \"POSTGRES\",\n      \"operand\": {\n        \"jdbcDriver\": \"org.postgresql.Driver\",\n        \"jdbcUrl\": \"jdbc:postgresql://localhost:5432/test\",\n        \"jdbcUser\": \"postgres\",\n        \"jdbcPassword\": \"123456\"\n      },\n      \"type\": \"custom\"\n    }\n  ]\n}"
+}
+```
+
+模板配置：
+```http request
+POST http://localhost:8080/sql/forge/api/calcite
+content-type: application/json
+
+[
+    {
+        "id": "222",
+        "context": "select student.name, sum(score.grade) as grade from MYSQL.student as student join POSTGRES.score as score on student.id=score.student_id where 1=1<if test=\"ids == null || ids.isEmpty()\"> AND 0=1</if><if test=\"ids != null && !ids.isEmpty()\"><foreach collection=\"ids\" item=\"id\" open=\" AND student.id IN (\" separator=\",\" close=\")\">#{id}</foreach></if> group by student.name"
+    }
+]
+```
+
+执行模板：
+```http request
+POST http://localhost:8080/sql/forge/api/calcite/execute/222
+content-type: application/json
+
+{
+    "ids": [
+        1,
+        2
+    ]
+}
+```
+
+响应：
+```json
+[
+    {
+        "name": "小明",
+        "grade": 80
+    },
+    {
+        "name": "小红",
+        "grade": 90
+    }
+]
+```
+
+#### 配置
+可通过`sql.forge.api.calcite.enabled=false`关闭**Calcite API 模块**
 
 
 

@@ -259,6 +259,7 @@ public class SqlForgeConfiguration {
         return builder.build();
     }
 
+
     @Bean("sqlForgeConsoleRouter")
     @ConditionalOnProperty(name = "sql.forge.console.enabled", havingValue = "true", matchIfMissing = true)
     public RouterFunction<ServerResponse> sqlForgeConsoleRouter(FunctionalState functionalState) {
