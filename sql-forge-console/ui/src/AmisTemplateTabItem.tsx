@@ -88,11 +88,11 @@ function AmisTemplateTabItem(props: {
 \t\t\t\t"@where": [{
 \t\t\t\t\t"column": "USERNAME",
 \t\t\t\t\t"condition": "LIKE",
-\t\t\t\t\t"value": "\\$\\{USERNAME\\}"
+\t\t\t\t\t"value": "$\{USERNAME\}"
 \t\t\t\t}, {
 \t\t\t\t\t"column": "EMAIL",
 \t\t\t\t\t"condition": "LIKE",
-\t\t\t\t\t"value": "\\$\\{EMAIL\\}"
+\t\t\t\t\t"value": "$\{EMAIL\}"
 \t\t\t\t}]
 \t\t\t}
 \t\t},
