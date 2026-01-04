@@ -47,8 +47,8 @@ function AmisTemplateTabItem(props: {
             })
     }
 
-    const executeView = () => {
-        console.log("executeView")
+    const amisEditor = () => {
+        console.log("amisEditor")
     }
 
     return (
@@ -78,10 +78,50 @@ function AmisTemplateTabItem(props: {
                                 <Button
                                     onClick={() => {
                                         setContext(`{
-\t"type": "page",
-\t"initApi": "/api/mock2/page/initDataError",
-\t"title": "标题",
-\t"body": "Hello World!"
+\t"title": "users增删改查",
+\t"body": {
+\t\t"type": "crud",
+\t\t"api": {
+\t\t\t"method": "post",
+\t\t\t"url": "/sql/forge/api/json/select/users",
+\t\t\t"data": {
+\t\t\t\t"@where": [{
+\t\t\t\t\t"column": "USERNAME",
+\t\t\t\t\t"condition": "LIKE",
+\t\t\t\t\t"value": "\\$\\{USERNAME\\}"
+\t\t\t\t}, {
+\t\t\t\t\t"column": "EMAIL",
+\t\t\t\t\t"condition": "LIKE",
+\t\t\t\t\t"value": "\\$\\{EMAIL\\}"
+\t\t\t\t}]
+\t\t\t}
+\t\t},
+\t\t"autoGenerateFilter": true,
+\t\t"showIndex": true,
+\t\t"columns": [{
+\t\t\t"name": "ID",
+\t\t\t"label": "ID",
+\t\t\t"hidden": true
+\t\t}, {
+\t\t\t"name": "USERNAME",
+\t\t\t"label": "用户名",
+\t\t\t"searchable": {
+\t\t\t\t"type": "input-text",
+\t\t\t\t"name": "USERNAME",
+\t\t\t\t"label": "用户名",
+\t\t\t\t"placeholder": "输入用户名"
+\t\t\t}
+\t\t}, {
+\t\t\t"name": "EMAIL",
+\t\t\t"label": "邮箱",
+\t\t\t"searchable": {
+\t\t\t\t"type": "input-text",
+\t\t\t\t"name": "EMAIL",
+\t\t\t\t"label": "邮箱",
+\t\t\t\t"placeholder": "输入邮箱"
+\t\t\t}
+\t\t}]
+\t}
 }`)
                                     }}
                                 >示例</Button>
@@ -90,8 +130,8 @@ function AmisTemplateTabItem(props: {
                         {
                             !isCreate && (
                                 <Button
-                                    onClick={executeView}
-                                >查看</Button>
+                                    onClick={amisEditor}
+                                >可视化编辑</Button>
                             )
                         }
                         <Button
