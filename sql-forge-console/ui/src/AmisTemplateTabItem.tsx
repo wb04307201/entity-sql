@@ -95,16 +95,27 @@ function AmisTemplateTabItem(props: {
 \t\t\t\t\t"value": "$\{EMAIL\}"
 \t\t\t\t}],
 \t\t\t\t"@page": {
-\t\t\t\t\t"pageIndex": "$\{page - 1}",
+\t\t\t\t\t"pageIndex": "$\{page - 1\}",
 \t\t\t\t\t"pageSize": "$\{perPage\}"
 \t\t\t\t}
 \t\t\t}
 \t\t},
-\t\t"headerToolbar": [],
+\t\t"headerToolbar": [
+\t\t\t"bulkActions"
+\t\t],
 \t\t"footerToolbar": [
 \t\t\t"switch-per-page",
 \t\t\t"pagination"
 \t\t],
+\t\t"bulkActions": [{
+\t\t\t"label": "批量删除",
+\t\t\t"actionType": "ajax",
+\t\t\t"api": "delete:/amis/api/mock2/sample/$\{ids | raw\}",
+\t\t\t"confirmText": "确定要批量删除?"
+\t\t}],
+\t\t"keepItemSelectionOnPageChange": true,
+\t\t"labelTpl": "$\{USERNAME\}",
+\t\t"autoFillHeight": true,
 \t\t"autoGenerateFilter": true,
 \t\t"showIndex": true,
 \t\t"columns": [{
