@@ -1,14 +1,13 @@
 package cn.wubo.sql.forge;
 
-import cn.wubo.sql.forge.crud.Delete;
-import cn.wubo.sql.forge.crud.Insert;
-import cn.wubo.sql.forge.crud.Select;
-import cn.wubo.sql.forge.crud.Update;
+import cn.wubo.sql.forge.crud.*;
 import cn.wubo.sql.forge.crud.base.Join;
+import cn.wubo.sql.forge.crud.base.Page;
 import cn.wubo.sql.forge.crud.base.Where;
 import cn.wubo.sql.forge.enums.ConditionType;
 import cn.wubo.sql.forge.enums.JoinType;
 import cn.wubo.sql.forge.map.RowMap;
+import cn.wubo.sql.forge.record.SelectPageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,15 +34,14 @@ class CrudServiceTest {
     @Test
     void testSelect() throws SQLException {
         Select select = new Select(
-                new String[]{
+                List.of(
                         "orders.id AS order_id",
                         "users.username",
                         "products.name AS product_name",
                         "products.price",
                         "orders.quantity",
                         "(products.price * orders.quantity) AS total"
-                },
-                null,
+                ),
                 null,
                 new ArrayList<>() {{
                     add(new Join(JoinType.INNER_JOIN, "users","orders.user_id = users.id"));
@@ -61,6 +59,33 @@ class CrudServiceTest {
     }
 
     @Test
+    void testSelectPage() throws SQLException {
+        SelectPage selectPage = new SelectPage(
+                List.of(
+                        "orders.id AS order_id",
+                        "users.username",
+                        "products.name AS product_name",
+                        "products.price",
+                        "orders.quantity",
+                        "(products.price * orders.quantity) AS total"
+                ),
+                null,
+                new Page(0,2),
+                new ArrayList<>() {{
+                    add(new Join(JoinType.INNER_JOIN, "users","orders.user_id = users.id"));
+                    add(new Join(JoinType.INNER_JOIN, "products","orders.product_id = products.id"));
+                }},
+                null,
+                false
+        );
+
+
+        SelectPageResult<RowMap> selectPageResult = crudService.selectPage("orders", selectPage);
+        log.info("selectPageResult: {}", selectPageResult);
+        assertEquals(2, selectPageResult.rows().size());
+    }
+
+    @Test
     void test() throws SQLException {
         String id = UUID.randomUUID().toString();
         List<Where> wheres = new ArrayList<>() {{
@@ -75,7 +100,6 @@ class CrudServiceTest {
                 new Select(
                         null,
                         wheres,
-                        null,
                         null,
                         null,
                         null,
@@ -97,7 +121,6 @@ class CrudServiceTest {
                         null,
                         null,
                         null,
-                        null,
                         false
                 )
         );
@@ -111,7 +134,6 @@ class CrudServiceTest {
                 new Select(
                         null,
                         wheres,
-                        null,
                         null,
                         null,
                         null,

@@ -1,9 +1,7 @@
 package cn.wubo.sql.forge;
 
-import cn.wubo.sql.forge.entity.EntityDelete;
-import cn.wubo.sql.forge.entity.EntityInsert;
-import cn.wubo.sql.forge.entity.EntitySelect;
-import cn.wubo.sql.forge.entity.EntityUpdate;
+import cn.wubo.sql.forge.entity.*;
+import cn.wubo.sql.forge.record.SelectPageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,8 @@ import org.springframework.test.context.ActiveProfiles;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @SpringBootTest
@@ -28,10 +28,24 @@ class EntityServiceTest {
                 .distinct(true)
                 .columns(User::getId, User::getUsername, User::getEmail)
                 .orders(User::getUsername)
-                .in(User::getUsername, "alice", "bob")
-                .page(0, 1);
+                .in(User::getUsername, "alice", "bob");
         List<User> users = entityService.run(select);
         log.info("{}", users);
+        assertEquals(2, users.size());
+    }
+
+    @Test
+    void testEntitySelectPage() throws Exception {
+        EntitySelectPage<User> select = Entity.selectPage(User.class)
+                .distinct(true)
+                .columns(User::getId, User::getUsername, User::getEmail)
+                .orders(User::getUsername)
+                .in(User::getUsername, "alice", "bob")
+                .page(0, 1);
+        SelectPageResult<User> users = entityService.run(select);
+        log.info("{}", users);
+        assertEquals(2, users.total());
+        assertEquals(1, users.rows().size());
     }
 
     @Test

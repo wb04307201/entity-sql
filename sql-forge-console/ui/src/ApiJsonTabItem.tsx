@@ -37,9 +37,10 @@ function ApiJsonTabItem() {
         }
 
         apiClient.post(`/sql/forge/api/json/${type}/${tableName}`, params)
-            .then(data => {
-                if (Array.isArray(data) && data.length > 0) {
-                    const row = data[0];
+            .then((data: unknown) => {
+                if(type == 'select') {
+                    const res = data as DataType[] ;
+                    const row = res[0];
                     const columns = []
                     for (const key in row) {
                         columns.push({
@@ -49,7 +50,20 @@ function ApiJsonTabItem() {
                         });
                     }
                     setColumns(columns)
-                    setDataSource(data)
+                    setDataSource(res)
+                }else if(type == 'selectPage'){
+                    const res = data as { rows: DataType[], total: number };
+                    const row = res.rows[0];
+                    const columns = []
+                    for (const key in row) {
+                        columns.push({
+                            title: key,
+                            dataIndex: key,
+                            key: key,
+                        });
+                    }
+                    setColumns(columns)
+                    setDataSource(res.rows)
                 } else {
                     setColumns([{
                         title: '',
@@ -83,6 +97,7 @@ function ApiJsonTabItem() {
                             value={type}
                             options={[
                                 {value: "select", label: '查询'},
+                                {value: "selectPage", label: '分页查询'},
                                 {value: "insert", label: '插入'},
                                 {value: "update", label: '更新'},
                                 {value: "delete", label: '删除'},
@@ -92,6 +107,42 @@ function ApiJsonTabItem() {
                         <Button
                             onClick={() => {
                                 if (type === "select") {
+                                    setTableName("orders")
+                                    setJson(`{
+    "@column": [
+        "orders.id AS order_id",
+        "users.username",
+        "products.name AS product_name",
+        "products.price",
+        "orders.quantity",
+        "(products.price * orders.quantity) AS total"
+    ],
+    "@where": [
+        {
+            "column": "users.username",
+            "condition": "EQ",
+            "value": "alice"
+        }
+    ],
+    "@join": [
+        {
+            "type": "INNER_JOIN",
+            "joinTable":"users",
+            "on": "orders.user_id = users.id"
+        },
+        {
+            "type": "INNER_JOIN",
+            "joinTable":"products",
+            "on": "orders.product_id = products.id"
+        }
+    ],
+    "@order": [
+        "orders.order_date"
+    ],
+    "@group": null,
+    "@distince": false
+}`)
+                                } else if (type === "selectPage") {
                                     setTableName("orders")
                                     setJson(`{
     "@column": [
@@ -128,10 +179,9 @@ function ApiJsonTabItem() {
     "@order": [
         "orders.order_date"
     ],
-    "@group": null,
     "@distince": false
 }`)
-                                } else if (type === "insert") {
+                                }else if (type === "insert") {
                                     setTableName("users")
                                     setJson(`{
     "@set": [

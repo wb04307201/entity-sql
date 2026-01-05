@@ -2,8 +2,10 @@ package cn.wubo.sql.forge.entity;
 
 import cn.wubo.sql.forge.CrudService;
 import cn.wubo.sql.forge.crud.Select;
+import cn.wubo.sql.forge.crud.SelectPage;
 import cn.wubo.sql.forge.crud.base.Where;
 import cn.wubo.sql.forge.entity.base.AbstractSelect;
+import cn.wubo.sql.forge.entity.base.AbstractSelectPage;
 import cn.wubo.sql.forge.entity.base.EntityCondition;
 import cn.wubo.sql.forge.entity.base.EntityOrder;
 import cn.wubo.sql.forge.entity.cache.CacheService;
@@ -12,19 +14,20 @@ import cn.wubo.sql.forge.entity.cache.TableStructureInfo;
 import cn.wubo.sql.forge.entity.inter.SFunction;
 import cn.wubo.sql.forge.entity.utils.ValueUtils;
 import cn.wubo.sql.forge.map.RowMap;
+import cn.wubo.sql.forge.record.SelectPageResult;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntitySelect<T> extends AbstractSelect<T, List<T>, EntitySelect<T>> {
+public class EntitySelectPage<T> extends AbstractSelectPage<T, SelectPageResult<T>, EntitySelectPage<T>> {
 
-    public EntitySelect(Class<T> entityClass) {
+    public EntitySelectPage(Class<T> entityClass) {
         super(entityClass);
     }
 
     @Override
-    public List<T> run(CacheService cacheService, CrudService crudService) throws Exception {
+    public SelectPageResult<T> run(CacheService cacheService, CrudService crudService) throws Exception {
         TableStructureInfo tableStructureInfo = cacheService.getTableInfo(entityClass);
 
         List<String> sqlColumns = new ArrayList<>();
@@ -55,17 +58,17 @@ public class EntitySelect<T> extends AbstractSelect<T, List<T>, EntitySelect<T>>
             }
         }
 
-        Select select = new Select(
+        SelectPage select = new SelectPage(
                 sqlColumns,
                 sqlWheres,
+                page,
                 null,
                 sqlOrders,
-                null,
                 distinct
         );
-        List<RowMap> list = crudService.select(tableStructureInfo.getTableName(), select);
+        SelectPageResult<RowMap> selectPageResult = crudService.selectPage(tableStructureInfo.getTableName(), select);
         List<T> result = new ArrayList<>();
-        for (RowMap rowMap : list) {
+        for (RowMap rowMap : selectPageResult.rows()) {
             T obj = entityClass.getDeclaredConstructor().newInstance();
             for (String key : rowMap.keySet()) {
                 ColumnInfo columnInfo = tableStructureInfo.getColumnNameColumnInfoMap().getOrDefault(key.toLowerCase(), null);
@@ -82,6 +85,6 @@ public class EntitySelect<T> extends AbstractSelect<T, List<T>, EntitySelect<T>>
             }
             result.add(obj);
         }
-        return result;
+        return new SelectPageResult<>(selectPageResult.total(), result);
     }
 }

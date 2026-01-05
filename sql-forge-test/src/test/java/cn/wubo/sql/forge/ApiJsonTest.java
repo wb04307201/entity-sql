@@ -1,15 +1,12 @@
 package cn.wubo.sql.forge;
 
-import cn.wubo.sql.forge.crud.Delete;
-import cn.wubo.sql.forge.crud.Insert;
-import cn.wubo.sql.forge.crud.Select;
-import cn.wubo.sql.forge.crud.Update;
+import cn.wubo.sql.forge.crud.*;
 import cn.wubo.sql.forge.crud.base.Join;
+import cn.wubo.sql.forge.crud.base.Page;
 import cn.wubo.sql.forge.crud.base.Where;
 import cn.wubo.sql.forge.enums.ConditionType;
 import cn.wubo.sql.forge.enums.JoinType;
-import cn.wubo.sql.forge.map.RowMap;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import cn.wubo.sql.forge.record.SelectPageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,15 +35,14 @@ public class ApiJsonTest {
     @Test
     void testSelect() {
         Select select = new Select(
-                new String[]{
+                List.of(
                         "orders.id AS order_id",
                         "users.username",
                         "products.name AS product_name",
                         "products.price",
                         "orders.quantity",
                         "(products.price * orders.quantity) AS total"
-                },
-                null,
+                ),
                 null,
                 new ArrayList<>() {{
                     add(new Join(JoinType.INNER_JOIN, "users","orders.user_id = users.id"));
@@ -70,6 +66,39 @@ public class ApiJsonTest {
     }
 
     @Test
+    void testSelectPage() {
+        SelectPage select = new SelectPage(
+                List.of(
+                        "orders.id AS order_id",
+                        "users.username",
+                        "products.name AS product_name",
+                        "products.price",
+                        "orders.quantity",
+                        "(products.price * orders.quantity) AS total"
+                ),
+                null,
+                new Page(0,2),
+                new ArrayList<>() {{
+                    add(new Join(JoinType.INNER_JOIN, "users","orders.user_id = users.id"));
+                    add(new Join(JoinType.INNER_JOIN, "products","orders.product_id = products.id"));
+                }},
+                null,
+                false
+        );
+
+
+        String baseUrl = "http://localhost:" + port;
+        ResponseEntity<SelectPageResult> response = restTemplate.postForEntity(
+                baseUrl + "/sql/forge/api/json/selectPage/orders",
+                select,
+                SelectPageResult.class
+        );
+
+        assertNotEquals(null, response.getBody());
+        assertEquals(2, response.getBody().rows().size());
+    }
+
+    @Test
     void test() {
         String id = UUID.randomUUID().toString();
         List<Where> wheres = new ArrayList<>() {{
@@ -84,7 +113,6 @@ public class ApiJsonTest {
                 new Select(
                         null,
                         wheres,
-                        null,
                         null,
                         null,
                         null,
@@ -114,7 +142,6 @@ public class ApiJsonTest {
                         null,
                         null,
                         null,
-                        null,
                         false
                 )
         );
@@ -134,7 +161,6 @@ public class ApiJsonTest {
                 new Select(
                         null,
                         wheres,
-                        null,
                         null,
                         null,
                         null,

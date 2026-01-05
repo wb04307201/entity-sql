@@ -9,7 +9,6 @@ import java.util.List;
 
 public abstract class AbstractSelect<T, R, C extends AbstractSelect<T, R, C>> extends AbstractWhere<T, R, C> {
     protected List<SFunction<T, ?>> columns = new ArrayList<>();
-    protected Page page;
     protected List<EntityOrder<T>> orders = new ArrayList<>();
     protected boolean distinct;
 
@@ -46,11 +45,6 @@ public abstract class AbstractSelect<T, R, C extends AbstractSelect<T, R, C>> ex
 
     public C distinct(Boolean distinct) {
         this.distinct = distinct;
-        return typedThis;
-    }
-
-    public C page(Integer pageIndex, Integer pageSize) {
-        this.page = new Page(pageIndex, pageSize);
         return typedThis;
     }
 }

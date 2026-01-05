@@ -55,6 +55,17 @@ public class Entity {
     }
 
     /**
+     * 创建一个实体分页查询对象
+     *
+     * @param <T>         实体类型参数
+     * @param entityClass 实体类的Class对象，用于指定要查询的实体类型
+     * @return EntitySelectPage<T> 返回指定实体类型的分页查询对象
+     */
+    public <T> EntitySelectPage<T> selectPage(Class<T> entityClass) {
+        return new EntitySelectPage<>(entityClass);
+    }
+
+    /**
      * 创建一个实体更新操作对象
      *
      * @param <T>         实体类型参数

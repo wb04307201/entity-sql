@@ -5,6 +5,7 @@ import cn.wubo.sql.forge.enums.ConditionType;
 import cn.wubo.sql.forge.jdbc.SQL;
 import cn.wubo.sql.forge.map.ParamMap;
 import cn.wubo.sql.forge.map.RowMap;
+import cn.wubo.sql.forge.record.SelectPageResult;
 import cn.wubo.sql.forge.records.SqlScript;
 import cn.wubo.sql.forge.crud.base.Join;
 import cn.wubo.sql.forge.crud.base.Where;
@@ -89,7 +90,7 @@ public record CrudService(Executor executor) {
     public List<RowMap> select(@NotBlank String tableName, @Valid Select select) throws SQLException {
         ParamMap params = new ParamMap();
         SQL sql = new SQL().FROM(tableName);
-        String[] columns = select.columns() == null || select.columns().length == 0 ? new String[]{"*"} : select.columns();
+        String[] columns = select.columns() == null || select.columns().isEmpty() ? new String[]{"*"} : select.columns().toArray(String[]::new);
         if (select.distinct())
             sql.SELECT_DISTINCT(columns);
         else
@@ -113,22 +114,55 @@ public record CrudService(Executor executor) {
         applyWheres(sql, select.wheres(), params);
 
         // 处理GROUP BY子句
-        if (select.groups() != null && select.groups().length > 0)
-            sql.GROUP_BY(select.groups());
+        if (select.groups() != null && !select.groups().isEmpty())
+            sql.GROUP_BY(select.groups().toArray(String[]::new));
 
         // 处理ORDER BY子句
-        if (select.orders() != null && select.orders().length > 0)
-            sql.ORDER_BY(select.orders());
-
-        // 处理分页参数
-        if (select.page() != null) {
-            params.put(select.page().pageSize());
-            params.put((long) select.page().pageIndex() * select.page().pageSize());
-            sql.LIMIT(QUESTION_MARK)
-                    .OFFSET(QUESTION_MARK);
-        }
+        if (select.orders() != null && !select.orders().isEmpty())
+            sql.ORDER_BY(select.orders().toArray(String[]::new));
 
         return executor.executeQuery(new SqlScript(sql.toString(), params));
+    }
+
+    public SelectPageResult<RowMap> selectPage(@NotBlank String tableName, @Valid SelectPage select) throws SQLException {
+        ParamMap params = new ParamMap();
+        SQL sql = new SQL().FROM(tableName);
+        String[] columns = select.columns() == null || select.columns().isEmpty() ? new String[]{"*"} : select.columns().toArray(String[]::new);
+        if (select.distinct())
+            sql.SELECT_DISTINCT(columns);
+        else
+            sql.SELECT(columns);
+
+        // 处理JOIN子句
+        if (select.joins() != null && !select.joins().isEmpty()) {
+            for (Join join : select.joins()) {
+                switch (join.type()) {
+                    case INNER_JOIN -> sql.INNER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case LEFT_OUTER_JOIN ->
+                            sql.LEFT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case RIGHT_OUTER_JOIN ->
+                            sql.RIGHT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case OUTER_JOIN -> sql.OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    default -> sql.JOIN(join.on());
+                }
+            }
+        }
+
+        applyWheres(sql, select.wheres(), params);
+
+        // 处理ORDER BY子句
+        if (select.orders() != null && !select.orders().isEmpty())
+            sql.ORDER_BY(select.orders().toArray(String[]::new));
+
+        // 处理分页参数
+        params.put(select.page().pageSize());
+        params.put((long) select.page().pageIndex() * select.page().pageSize());
+        sql.LIMIT(QUESTION_MARK)
+                .OFFSET(QUESTION_MARK);
+
+        List<RowMap> countList = select(tableName, select.selectCount());
+
+        return new SelectPageResult<>((Long) countList.get(0).entrySet().stream().findFirst().get().getValue(), executor.executeQuery(new SqlScript(sql.toString(), params)));
     }
 
 

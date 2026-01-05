@@ -1,9 +1,6 @@
 package cn.wubo.sql.forge;
 
-import cn.wubo.sql.forge.crud.Delete;
-import cn.wubo.sql.forge.crud.Insert;
-import cn.wubo.sql.forge.crud.Select;
-import cn.wubo.sql.forge.crud.Update;
+import cn.wubo.sql.forge.crud.*;
 import cn.wubo.sql.forge.entity.cache.CacheService;
 import cn.wubo.sql.forge.records.SqlScript;
 import cn.wubo.sql.forge.utils.CalciteExcutorUtils;
@@ -83,6 +80,7 @@ public class SqlForgeConfiguration {
                 case "delete" -> crudService.delete(tableName, request.body(Delete.class));
                 case "insert" -> crudService.insert(tableName, request.body(Insert.class));
                 case "select" -> crudService.select(tableName, request.body(Select.class));
+                case "selectPage" -> crudService.selectPage(tableName, request.body(SelectPage.class));
                 case "update" -> crudService.update(tableName, request.body(Update.class));
                 default -> throw new IllegalArgumentException("method not found");
             };

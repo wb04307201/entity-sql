@@ -1,7 +1,5 @@
 package cn.wubo.sql.forge.jdbc;
 
-import cn.wubo.sql.forge.enums.StatementType;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

@@ -5,24 +5,40 @@ import cn.wubo.sql.forge.crud.base.Page;
 import cn.wubo.sql.forge.crud.base.Where;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public record Select(
+public record SelectPage(
         @JsonProperty("@column")
         List<String> columns,
         @JsonProperty("@where")
         @Valid
         List<Where> wheres,
+        @JsonProperty("@page")
+        @NotNull
+        @Valid
+        Page page,
         @JsonProperty("@join")
         @Valid
         List<Join> joins,
         @JsonProperty("@order")
         List<String> orders,
-        @JsonProperty("@group")
-        List<String> groups,
         @JsonProperty("@distince")
         boolean distinct
 ) {
+
+        public Select selectCount(){
+                return new Select(
+                        new ArrayList<>() {{
+                            add("count(1) AS total");
+                        }},
+                        wheres,
+                        joins,
+                        null,
+                        null,
+                        false
+                );
+        }
 }
