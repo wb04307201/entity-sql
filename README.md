@@ -64,10 +64,18 @@ EntitySelect<User> select = Entity.select(User.class)
                 .distinct(true)
                 .columns(User::getId, User::getUsername, User::getEmail)
                 .orders(User::getUsername)
-                .in(User::getUsername, "alice", "bob")
-                .page(0, 1);
+                .in(User::getUsername, "alice", "bob");
 List<User> users = entityService.run(select);
 Object key = entityService.run(insert);
+
+// 分页查询操作
+EntitySelectPage<User> select = Entity.selectPage(User.class)
+        .distinct(true)
+        .columns(User::getId, User::getUsername, User::getEmail)
+        .orders(User::getUsername)
+        .in(User::getUsername, "alice", "bob")
+        .page(0, 1);
+SelectPageResult<User> users = entityService.run(select);
 
 // 插入操作  
 EntityInsert<User> insert = Entity.insert(User.class).set(User::getId, id)
@@ -181,7 +189,7 @@ int count = entityService.run(Entity.delete(user));
   - column: 要匹配的字段名
   - condition: 条件类型（EQ、NOT_EQ、GT、LT、GTEQ、LTEQ、LIKE、NOT_LIKE、LEFT_LIKE、RIGHT_LIKE、BETWEEN、NOT_BETWEEN、IN、NOT_IN、IS_NULL、IS_NOT_NULL）
   - value: 匹配的值
-- `@with_select`: 可选的查询条件，用于关联查询
+- `@with_select`: 可选的查询条件，用于在删除后执行一个查询
 
 #### insert 方法
 
@@ -206,7 +214,7 @@ int count = entityService.run(Entity.delete(user));
 
 #### 参数说明
 - `@set`: 要插入的字段和值的键值对，至少需要一个字段
-- `@with_select`: 可选的查询条件，用于关联查询
+- `@with_select`: 可选的查询条件，用于插入后执行一个查询
 
 #### select 方法
 
@@ -238,15 +246,77 @@ int count = entityService.run(Entity.delete(user));
 }
 ```
 
+#### select 方法
+
+#### 请求格式
+```json
+{
+  "@column": ["字段名1", "字段名2"],
+  "@where": [
+    {
+      "column": "字段名",
+      "condition": "条件类型",
+      "value": "值"
+    }
+  ],
+  "@join": [
+    {
+      "type": "JOIN类型",
+      "joinTable": "关联表名",
+      "on": "关联条件"
+    }
+  ],
+  "@order": ["字段名 ASC", "字段名 DESC"],
+  "@group": ["字段名"],
+  "@distince": false
+}
+```
+
 ##### 参数说明
 - `@column`: 要查询的字段数组，为空则查询所有字段
 - `@where`: 查询条件数组
-- `@page`v分页参数
+- `@join`: 关联查询条件数组
+- `@order`: 排序字段数组
+- `@group`: 分组字段数组
+- `@distince`: 是否去重
+
+#### selectPage 方法
+
+#### 请求格式
+```json
+{
+  "@column": ["字段名1", "字段名2"],
+  "@where": [
+    {
+      "column": "字段名",
+      "condition": "条件类型",
+      "value": "值"
+    }
+  ],
+  "@page": {
+    "pageIndex": 0,
+    "pageSize": 10
+  },
+  "@join": [
+    {
+      "type": "JOIN类型",
+      "joinTable": "关联表名",
+      "on": "关联条件"
+    }
+  ],
+  "@order": ["字段名 ASC", "字段名 DESC"],
+  "@distince": false
+}
+```
+
+##### 参数说明
+- `@column`: 要查询的字段数组，为空则查询所有字段
+- `@where`: 查询条件数组
+- `@page`分页参数
   - pageIndex: 页码（从0开始）
   - pageSize: 每页大小
 - `@join`: 关联查询条件数组
 - `@order`: 排序字段数组
-- `@group`: 分组字段数组
 - `@distince`: 是否去重
 
 #### update 方法
@@ -279,7 +349,7 @@ int count = entityService.run(Entity.delete(user));
 ##### 参数说明
 - `@set`: 要更新的字段和新值的键值对，至少需要一个字段
 - `@where`: 更新条件数组，指定要更新哪些记录
-- `@with_select`: 可选的查询条件，用于更新后查询
+- `@with_select`: 可选的查询条件，用于更新后执行一个查询
 
 #### 示例
 ```http request
@@ -322,6 +392,49 @@ Content-Type: application/json
         "orders.order_date"
     ],
     "@group": null,
+    "@distince": false
+}
+```
+
+```http request
+POST http://localhost:8080/sql/forge/api/json/selectPage/orders
+Content-Type: application/json
+
+{
+    "@column": [
+        "orders.id AS order_id",
+        "users.username",
+        "products.name AS product_name",
+        "products.price",
+        "orders.quantity",
+        "(products.price * orders.quantity) AS total"
+    ],
+    "@where": [
+        {
+            "column": "users.username",
+            "condition": "EQ",
+            "value": "alice"
+        }
+    ],
+    "@page": {
+        "pageIndex": 0,
+        "pageSize": 10
+    },
+    "@join": [
+        {
+            "type": "INNER_JOIN",
+            "joinTable":"users",
+            "on": "orders.user_id = users.id"
+        },
+        {
+            "type": "INNER_JOIN",
+            "joinTable":"products",
+            "on": "orders.product_id = products.id"
+        }
+    ],
+    "@order": [
+        "orders.order_date"
+    ],
     "@distince": false
 }
 ```

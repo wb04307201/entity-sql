@@ -83,7 +83,7 @@ function AmisTemplateTabItem(props: {
 \t\t"type": "crud",
 \t\t"api": {
 \t\t\t"method": "post",
-\t\t\t"url": "/sql/forge/api/json/select/users",
+\t\t\t"url": "/sql/forge/api/json/selectPage/users",
 \t\t\t"data": {
 \t\t\t\t"@where": [{
 \t\t\t\t\t"column": "USERNAME",
@@ -93,9 +93,18 @@ function AmisTemplateTabItem(props: {
 \t\t\t\t\t"column": "EMAIL",
 \t\t\t\t\t"condition": "LIKE",
 \t\t\t\t\t"value": "$\{EMAIL\}"
-\t\t\t\t}]
+\t\t\t\t}],
+\t\t\t\t"@page": {
+\t\t\t\t\t"pageIndex": "$\{page - 1}",
+\t\t\t\t\t"pageSize": "$\{perPage\}"
+\t\t\t\t}
 \t\t\t}
 \t\t},
+\t\t"headerToolbar": [],
+\t\t"footerToolbar": [
+\t\t\t"switch-per-page",
+\t\t\t"pagination"
+\t\t],
 \t\t"autoGenerateFilter": true,
 \t\t"showIndex": true,
 \t\t"columns": [{
