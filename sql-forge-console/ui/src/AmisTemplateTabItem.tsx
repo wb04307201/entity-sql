@@ -118,6 +118,7 @@ function AmisTemplateTabItem(props: {
 \t\t"autoFillHeight": true,
 \t\t"autoGenerateFilter": true,
 \t\t"showIndex": true,
+\t\t"primaryField": "ID",
 \t\t"columns": [{
 \t\t\t"name": "ID",
 \t\t\t"label": "ID",
