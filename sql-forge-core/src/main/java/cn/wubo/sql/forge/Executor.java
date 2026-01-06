@@ -58,7 +58,7 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    public Object executeInsert(@Valid SqlScript sqlScript) throws SQLException {
+    public RowMap executeInsert(@Valid SqlScript sqlScript) throws SQLException {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlScript.sql(), Statement.RETURN_GENERATED_KEYS)) {
@@ -67,10 +67,14 @@ public record Executor(DataSource dataSource) {
                 preparedStatement.executeUpdate();
 
                 try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                    if (generatedKeys.next())
-                        return generatedKeys.getObject(1);
-                    else
-                        return null;
+                    ResultSetMetaData metaData = generatedKeys.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    if (generatedKeys.next() && columnCount >= 1) {
+                        RowMap row = new RowMap(1);
+                        row.put(metaData.getColumnName(1), generatedKeys.getObject(metaData.getColumnName(1)));
+                        return row;
+                    } else
+                        return new RowMap(0);
                 }
             }
         } finally {
@@ -105,7 +109,7 @@ public record Executor(DataSource dataSource) {
         }
     }
 
-    public Object[] executeBatchInsert(@NotBlank String sql, List<ParamMap> paramsList) throws SQLException {
+    public List<RowMap> executeBatchInsert(@NotBlank String sql, List<ParamMap> paramsList) throws SQLException {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -117,10 +121,16 @@ public record Executor(DataSource dataSource) {
                 preparedStatement.executeBatch();
 
                 try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                    Object[] ids = new Object[paramsList.size()];
-                    int index = 0;
-                    while (generatedKeys.next() && index < ids.length) {
-                        ids[index++] = generatedKeys.getObject(1);
+                    ResultSetMetaData metaData = generatedKeys.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    if (columnCount == 0){
+                        return new ArrayList<>();
+                    }
+                    List<RowMap> ids = new ArrayList<>(paramsList.size());
+                    while (generatedKeys.next()  && columnCount >= 1) {
+                        RowMap row = new RowMap(1);
+                        row.put(metaData.getColumnName(1), generatedKeys.getObject(metaData.getColumnName(1)));
+                        ids.add(row);
                     }
                     return ids;
                 }
