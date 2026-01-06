@@ -207,7 +207,10 @@ public class MetaDataUtils {
                 List<DataSourceMetaDataTree.TableColumns> tableColumns = new ArrayList<>();
                 for (TableInfo table : tables) {
                     List<ColumnInfo> columns = getColumns(connection, schema.tableCatalog(), schema.tableSchema(), table.tableName(), null);
-                    tableColumns.add(new DataSourceMetaDataTree.TableColumns(table, columns));
+                    List<PrimaryKeyInfo> primaryKeys = getPrimaryKeys(connection, schema.tableCatalog(), schema.tableSchema(), table.tableName());
+                    List<ForeignKeyInfo> foreignKeys = getImportedKeys(connection, schema.tableCatalog(), schema.tableSchema(), table.tableName());
+                    List<IndexInfo> indexes = getIndexInfo(connection, schema.tableCatalog(), schema.tableSchema(), table.tableName(), false, false);
+                    tableColumns.add(new DataSourceMetaDataTree.TableColumns(table, columns, primaryKeys, foreignKeys, indexes));
                 }
                 tableTypeTables.add(new DataSourceMetaDataTree.TableTypeTables(tableType, tableColumns));
             }

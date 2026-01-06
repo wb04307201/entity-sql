@@ -240,6 +240,14 @@ function App() {
         loadData()
     }, [])
 
+    const reloadApiDatabase = async () => {
+        setTreeSpinning(true)
+        let TreeData: DataNode[] = [...treeData];
+        TreeData = await loadApiDatabase(TreeData)
+        setTreeData(TreeData)
+        setTreeSpinning(false)
+    }
+
     const reloadApiTemplate = async () => {
         setTreeSpinning(true)
         let TreeData: DataNode[] = [...treeData];
@@ -401,7 +409,7 @@ function App() {
                                     <span style={{fontWeight: 'bold'}}>🗃️{nodeData.title}</span>
                                     <Button shape="circle" icon={<ReloadOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
-                                            onClick={() => reloadApiTemplate()}
+                                            onClick={() => reloadApiDatabase()}
                                     />
                                     <Button shape="circle" icon={<ConsoleSqlOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}

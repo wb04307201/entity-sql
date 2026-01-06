@@ -20,7 +20,7 @@ public class DataSourceMetaDataTreeTest {
 
     @Test
     void test() throws SQLException {
-        DataSourceMetaDataTree dataSourceMetaDataTree =MetaDataUtils.getDataSourceMetaDataTree(dataSource.getConnection());
-        log.info("{}",dataSourceMetaDataTree);
+        DataSourceMetaDataTree dataSourceMetaDataTree = MetaDataUtils.getDataSourceMetaDataTree(dataSource.getConnection());
+        log.info("{}", dataSourceMetaDataTree);
     }
 }

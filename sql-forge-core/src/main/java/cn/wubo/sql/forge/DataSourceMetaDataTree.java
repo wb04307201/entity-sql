@@ -1,9 +1,6 @@
 package cn.wubo.sql.forge;
 
-import cn.wubo.sql.forge.records.ColumnInfo;
-import cn.wubo.sql.forge.records.DatabaseInfo;
-import cn.wubo.sql.forge.records.SchemaInfo;
-import cn.wubo.sql.forge.records.TableInfo;
+import cn.wubo.sql.forge.records.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -35,5 +32,8 @@ public class DataSourceMetaDataTree {
     public static class TableColumns{
         private TableInfo table;
         private List<ColumnInfo> columns;
+        private List<PrimaryKeyInfo> primaryKeys;
+        private List<ForeignKeyInfo> foreignKeys;
+        private List<IndexInfo> indexes;
     }
 }
