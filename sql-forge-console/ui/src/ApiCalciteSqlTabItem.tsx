@@ -61,7 +61,10 @@ function DatabaseTabItem() {
                     <Flex gap={"small"} style={{float: "right"}}>
                         <Button
                             onClick={() => {
-                                setSql(`select student.name, sum(score.grade) as grade from MYSQL.student as student join POSTGRES.score as score on student.id=score.student_id group by student.name`)
+                                setSql(`select student.name, sum(score.grade) as grade
+from MYSQL.student as student
+    join POSTGRES.score as score
+        on student.id=score.student_id group by student.name`)
                             }}
                         >示例</Button>
                         <Button

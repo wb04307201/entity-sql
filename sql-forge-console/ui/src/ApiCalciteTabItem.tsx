@@ -119,7 +119,10 @@ function ApiCalciteTabItem(props: {
                                 <Button
                                     onClick={() => {
                                         setApiTemplateId("ApiCalciteTemplate-test")
-                                        setContext(`select student.name, sum(score.grade) as grade from MYSQL.student as student join POSTGRES.score as score on student.id=score.student_id where 1=1<if test="ids == null || ids.isEmpty()"> AND 0=1</if><if test="ids != null && !ids.isEmpty()"><foreach collection="ids" item="id" open=" AND student.id IN (" separator="," close=")">#{id}</foreach></if> group by student.name`)
+                                        setContext(`select student.name, sum(score.grade) as grade from MYSQL.student as student join POSTGRES.score as score on student.id=score.student_id where 1=1
+<if test="ids == null || ids.isEmpty()">AND 0=1</if>
+<if test="ids != null && !ids.isEmpty()"><foreach collection="ids" item="id" open="AND student.id IN (" separator="," close=")">#{id}</foreach></if>
+group by student.name`)
                                     }}
                                 >示例</Button>
                             )
