@@ -42,7 +42,8 @@ interface DatabaseInfo {
             tableType: string,
             tables: {
                 table: { tableName: string },
-                columns: { columnName: string }[]
+                columns: { columnName: string }[],
+                primaryKeys: { columnName: string }[]
             }[]
         } []
     }[]
@@ -116,12 +117,30 @@ function App() {
                                     children: []
                                 }
                                 const columns = table.columns;
-                                if (columns) {
-                                    tableNode.children = columns.map((column) => ({
-                                        title: column.columnName,
-                                        key: `DatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
-                                        isLeaf: true
-                                    }))
+                                if (columns && columns.length > 0) {
+                                    const tableColumnsNode: DataNode = {
+                                        title: `列`,
+                                        key: `ApiCalciteDatabaseSchemaTableTypeTableColumns-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-columns`,
+                                        children: columns.map((column) => ({
+                                            title: column.columnName,
+                                            key: `ApiCalciteDatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
+                                            isLeaf: true
+                                        }))
+                                    }
+                                    tableNode.children?.push(tableColumnsNode)
+                                }
+                                const primaryKeys = table.primaryKeys;
+                                if (primaryKeys && primaryKeys.length > 0){
+                                    const tablePrimaryKeysNode: DataNode = {
+                                        title: `主键`,
+                                        key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKeys-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-primaryKeys`,
+                                        children: primaryKeys.map((primaryKey) => ({
+                                            title: primaryKey.columnName,
+                                            key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKey-${schemaTableTypeTable.schema.tableSchema}-${primaryKey.columnName}`,
+                                            isLeaf: true
+                                        }))
+                                    }
+                                    tableNode.children?.push(tablePrimaryKeysNode)
                                 }
                                 tableTypeNode.children?.push(tableNode);
                             })
@@ -187,12 +206,30 @@ function App() {
                                     children: []
                                 }
                                 const columns = table.columns;
-                                if (columns) {
-                                    tableNode.children = columns.map((column) => ({
-                                        title: column.columnName,
-                                        key: `ApiCalciteDatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
-                                        isLeaf: true
-                                    }))
+                                if (columns && columns.length > 0) {
+                                    const tableColumnsNode: DataNode = {
+                                        title: `列`,
+                                        key: `ApiCalciteDatabaseSchemaTableTypeTableColumns-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-columns`,
+                                        children: columns.map((column) => ({
+                                            title: column.columnName,
+                                            key: `ApiCalciteDatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
+                                            isLeaf: true
+                                        }))
+                                    }
+                                    tableNode.children?.push(tableColumnsNode)
+                                }
+                                const primaryKeys = table.primaryKeys;
+                                if (primaryKeys && primaryKeys.length > 0){
+                                    const tablePrimaryKeysNode: DataNode = {
+                                        title: `主键`,
+                                        key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKeys-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-primaryKeys`,
+                                        children: primaryKeys.map((primaryKey) => ({
+                                            title: primaryKey.columnName,
+                                            key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKey-${schemaTableTypeTable.schema.tableSchema}-${primaryKey.columnName}`,
+                                            isLeaf: true
+                                        }))
+                                    }
+                                    tableNode.children?.push(tablePrimaryKeysNode)
                                 }
                                 tableTypeNode.children?.push(tableNode);
                             })
@@ -499,13 +536,7 @@ function App() {
                                     <span style={{fontWeight: 'bold'}}>🗃️📄{nodeData.title}</span>
                                     <Button shape="circle" icon={<ReloadOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
-                                            onClick={async () => {
-                                                setTreeSpinning(true)
-                                                let TreeData: DataNode[] = [...treeData];
-                                                TreeData = await loadApiTemplate(TreeData)
-                                                setTreeData(TreeData)
-                                                setTreeSpinning(false)
-                                            }}
+                                            onClick={() => reloadApiCalcite()}
                                     />
                                     <Button shape="circle" icon={<SettingOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
