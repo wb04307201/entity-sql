@@ -132,7 +132,15 @@ function AmisTemplateTabItem(props: {
 \t\t\t\t\t}
 \t\t\t\t}
 \t\t\t},
-\t\t\t"bulkActions",
+\t\t\t"bulkActions", 
+\t\t\t{
+\t\t\t\t"type": "columns-toggler",
+\t\t\t\t"align": "right"
+\t\t\t},
+\t\t\t{
+\t\t\t\t"type": "drag-toggler",
+\t\t\t\t"align": "right"
+\t\t\t},
 \t\t\t{
 \t\t\t\t"type": "export-excel",
 \t\t\t\t"label": "导出",
@@ -149,19 +157,18 @@ function AmisTemplateTabItem(props: {
 \t\t\t\t\t\t\t"column": "EMAIL",
 \t\t\t\t\t\t\t"condition": "LIKE",
 \t\t\t\t\t\t\t"value": "$\{EMAIL\}"
-\t\t\t\t\t\t}],
-\t\t\t\t\t\t"@page": {
-\t\t\t\t\t\t\t"pageIndex": "$\{page - 1\}",
-\t\t\t\t\t\t\t"pageSize": "$\{perPage\}"
-\t\t\t\t\t\t}
+\t\t\t\t\t\t}]
 \t\t\t\t\t}
-\t\t\t\t}
+\t\t\t\t},
+\t\t\t\t"align": "right"
 \t\t\t}
 \t\t],
 \t\t"footerToolbar": [
-\t\t\t"switch-per-page",
 \t\t\t"statistics",
-\t\t\t"pagination"
+\t\t\t{
+\t\t\t\t"type": "pagination",
+\t\t\t\t"layout": "total,perPage,pager,go"
+\t\t\t}
 \t\t],
 \t\t"bulkActions": [{
 \t\t\t"label": "批量删除",
