@@ -1,6 +1,7 @@
 import {Button, Col, Flex, Input, Modal, Row} from "antd";
 import {useEffect, useState} from "react";
 import apiClient from "./apiClient.tsx";
+import Editor from '@monaco-editor/react';
 
 function AmisTemplateTabItem(props: {
     isCreate: boolean,
@@ -11,7 +12,7 @@ function AmisTemplateTabItem(props: {
 
     const [isCreate] = useState(props.isCreate);
     const [apiTemplateId, setApiTemplateId] = useState(props.apiTemplateId);
-    const [context, setContext] = useState("");
+    const [context, setContext] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (!isCreate && apiTemplateId) {
@@ -56,15 +57,8 @@ function AmisTemplateTabItem(props: {
         <div style={{height: '100%'}}>
             <Row style={{height: 'calc(100% - 33px)'}} gutter={8}>
                 <Col span={24}>
-                    <Input.TextArea
-                        wrap="soft"
-                        value={context}
-                        onChange={(e) => setContext(e.target.value)}
-                        autoSize={false}
-                        styles={{textarea: {height: '100%'}}}
-                        style={{resize: "none"}}
-                        placeholder="请输入模板内容"
-                    />
+                    <Editor language="json" value={context}
+                            onChange={(value: string | undefined) => setContext(value)}/>
                 </Col>
             </Row>
             <Row>
@@ -79,6 +73,7 @@ function AmisTemplateTabItem(props: {
                                 <>
                                     <Button
                                         onClick={() => {
+                                            setApiTemplateId("AmisTemplate-crud-test")
                                             setContext(`{
 \t"title": "users增删改查",
 \t"body": {
@@ -295,11 +290,12 @@ function AmisTemplateTabItem(props: {
                                     >CRUD示例</Button>
                                     <Button
                                         onClick={() => {
+                                            setApiTemplateId("AmisTemplate-chart-test")
                                             setContext(`{
 \t"type": "chart",
 \t"api": {
 \t\t"method": "post",
-\t\t"url": "/sql/forge/api/calcite/execute/111",
+\t\t"url": "/sql/forge/api/calcite/execute/ApiCalciteTemplate-test",
 \t\t"data": {
 \t\t\t"ids": [
 \t\t\t\t1,

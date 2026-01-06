@@ -390,7 +390,7 @@ function App() {
 
     return (
         <Layout style={{height: '100%'}}>
-            <Sider theme={'light'} width={'300px'}>
+            <Sider theme={'light'} width={'400px'}>
                 <Spin spinning={treeSpinning}>
                     <Tree
                         treeData={treeData}

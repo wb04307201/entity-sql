@@ -1,12 +1,13 @@
-import {Button, Col, Flex, Input, Modal, Row} from "antd";
+import {Button, Col, Flex, Modal, Row} from "antd";
 import {useEffect, useState} from "react";
 import apiClient from "./apiClient.tsx";
+import Editor from "@monaco-editor/react";
 
 function ApiCalciteConfigTabItem(props: {
     remove: () => void,
     reload: () => void
 }) {
-    const [config, setConfig] = useState("");
+    const [config, setConfig] = useState<string | undefined>(undefined);
 
     useEffect(() => {
             apiClient.get(`/sql/forge/api/calciteConfig`)
@@ -41,15 +42,8 @@ function ApiCalciteConfigTabItem(props: {
         <div style={{height: '100%'}}>
             <Row style={{height: 'calc(100% - 33px)'}}>
                 <Col span={24}>
-                    <Input.TextArea
-                        wrap="soft"
-                        value={config}
-                        onChange={(e) => setConfig(e.target.value)}
-                        autoSize={false}
-                        styles={{textarea: {height: '100%'}}}
-                        style={{resize: "none"}}
-                        placeholder="请输入配置内容"
-                    />
+                    <Editor language="json" value={config}
+                            onChange={(value: string | undefined) => setConfig(value)}/>
                 </Col>
             </Row>
             <Row>

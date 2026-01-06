@@ -1,6 +1,7 @@
 import {Button, Col, Flex, Input, Modal, Row, Table, Radio} from "antd";
 import {useState} from "react";
 import apiClient from "./apiClient.tsx";
+import Editor from "@monaco-editor/react";
 
 interface ColumnType {
     title: string;
@@ -14,7 +15,7 @@ function ApiJsonTabItem() {
 
     const [tableName, setTableName] = useState("");
     const [type, setType] = useState("select");
-    const [json, setJson] = useState("");
+    const [json, setJson] = useState<string | undefined>(undefined);
     const [dataSource, setDataSource] = useState<DataType[]>([]);
     const [columns, setColumns] = useState<ColumnType[]>([]);
 
@@ -79,14 +80,8 @@ function ApiJsonTabItem() {
         <div style={{height: '100%'}}>
             <Row style={{height: 'calc(50% - 33px)'}}>
                 <Col span={24}>
-                    <Input.TextArea
-                        value={json}
-                        onChange={(e) => setJson(e.target.value)}
-                        autoSize={false}
-                        styles={{textarea: {height: '100%'}}}
-                        style={{resize: "none"}}
-                        placeholder="请输入json"
-                    />
+                    <Editor language="json" value={json}
+                            onChange={(value: string | undefined) => setJson(value)}/>
                 </Col>
             </Row>
             <Row>

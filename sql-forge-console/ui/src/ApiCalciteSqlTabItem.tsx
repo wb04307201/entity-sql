@@ -1,6 +1,7 @@
-import {Button, Col, Flex, Input, Modal, Row, Table} from "antd";
+import {Button, Col, Flex, Modal, Row, Table} from "antd";
 import {useState} from "react";
 import apiClient from "./apiClient.tsx";
+import Editor from "@monaco-editor/react";
 
 interface ColumnType {
     title: string;
@@ -12,7 +13,7 @@ type DataType = Record<string, unknown>;
 
 function DatabaseTabItem() {
 
-    const [sql, setSql] = useState('');
+    const [sql, setSql] = useState<string | undefined>(undefined);
     const [dataSource, setDataSource] = useState<DataType[]>([]);
     const [columns, setColumns] = useState<ColumnType[]>([]);
 
@@ -51,14 +52,8 @@ function DatabaseTabItem() {
         <div style={{height: '100%'}}>
             <Row style={{height: 'calc(50% - 33px)'}}>
                 <Col span={24}>
-                    <Input.TextArea
-                        value={sql}
-                        onChange={(e) => setSql(e.target.value)}
-                        autoSize={false}
-                        styles={{textarea: {height: '100%'}}}
-                        style={{resize: "none"}}
-                        placeholder="请输入sql"
-                    />
+                    <Editor language="sql" value={sql}
+                            onChange={(value: string | undefined) => setSql(value)}/>
                 </Col>
             </Row>
             <Row>

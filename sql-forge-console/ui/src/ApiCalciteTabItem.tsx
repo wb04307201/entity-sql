@@ -1,6 +1,7 @@
 import {Button, Col, Flex, Input, Modal, Row, Table} from "antd";
 import {useEffect, useState} from "react";
 import apiClient from "./apiClient.tsx";
+import Editor from "@monaco-editor/react";
 
 interface ColumnType {
     title: string;
@@ -19,8 +20,8 @@ function ApiCalciteTabItem(props: {
 
     const [isCreate] = useState(props.isCreate);
     const [apiTemplateId, setApiTemplateId] = useState(props.apiTemplateId);
-    const [context, setContext] = useState("");
-    const [json, setJson] = useState("");
+    const [context, setContext] = useState<string | undefined>(undefined);
+    const [json, setJson] = useState<string | undefined>(undefined);
     const [dataSource, setDataSource] = useState<DataType[]>([]);
     const [columns, setColumns] = useState<ColumnType[]>([]);
 
@@ -94,27 +95,14 @@ function ApiCalciteTabItem(props: {
         <div style={{height: '100%'}}>
             <Row style={{height: 'calc(50% - 33px)'}} gutter={8}>
                 <Col span={isCreate ? 24 : 16}>
-                    <Input.TextArea
-                        wrap="soft"
-                        value={context}
-                        onChange={(e) => setContext(e.target.value)}
-                        autoSize={false}
-                        styles={{textarea: {height: '100%'}}}
-                        style={{resize: "none"}}
-                        placeholder="请输入模板内容"
-                    />
+                    <Editor language="xml" value={context}
+                            onChange={(value: string | undefined) => setContext(value)}/>
                 </Col>
                 {
                     !isCreate && (
                         <Col span={8}>
-                            <Input.TextArea
-                                value={json}
-                                onChange={(e) => setJson(e.target.value)}
-                                autoSize={false}
-                                styles={{textarea: {height: '100%'}}}
-                                style={{resize: "none"}}
-                                placeholder="请输入json"
-                            />
+                            <Editor language="json" value={json}
+                                    onChange={(value: string | undefined) => setJson(value)}/>
                         </Col>
                     )
                 }
@@ -130,6 +118,7 @@ function ApiCalciteTabItem(props: {
                             isCreate && (
                                 <Button
                                     onClick={() => {
+                                        setApiTemplateId("ApiCalciteTemplate-test")
                                         setContext(`select student.name, sum(score.grade) as grade from MYSQL.student as student join POSTGRES.score as score on student.id=score.student_id where 1=1<if test="ids == null || ids.isEmpty()"> AND 0=1</if><if test="ids != null && !ids.isEmpty()"><foreach collection="ids" item="id" open=" AND student.id IN (" separator="," close=")">#{id}</foreach></if> group by student.name`)
                                     }}
                                 >示例</Button>
