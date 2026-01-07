@@ -712,12 +712,11 @@ content-type: application/json
 
 ![img.png](img.png)
 
+#### 配置
+可通过`sql.forge.amis.enabled=false`关闭**Amis**
+
 ### 控制台
-提供Web界面用于调试和管理SQL操作：
-- 数据库元数据浏览
-- SQL模板管理
-- 在线SQL执行
-- 查询结果展示
+提供简单的Web界面用于调试和模板管理：
 
 #### 配置
 可通过`sql.forge.console.enabled=false`关闭**控制台**
