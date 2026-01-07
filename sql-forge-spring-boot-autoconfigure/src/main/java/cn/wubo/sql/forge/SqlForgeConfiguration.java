@@ -223,8 +223,9 @@ public class SqlForgeConfiguration {
         functionalState.setApiDatabase(true);
         RouterFunctions.Builder builder = route();
         builder.GET("sql/forge/api/databaseMetaData", request -> {
-            Connection connection = DataSourceUtils.getConnection(dataSource);
-            return ServerResponse.ok().body(MetaDataUtils.getDataSourceMetaDataTree(connection));
+            try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
+                return ServerResponse.ok().body(MetaDataUtils.getDataSourceMetaDataTree(connection));
+            }
         });
         return builder.build();
     }

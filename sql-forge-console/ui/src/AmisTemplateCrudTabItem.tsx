@@ -58,7 +58,7 @@ function AmisTemplateCrudTabItem(props: {
 
     return (
         <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(100% - 33px)'}} gutter={8}>
+            <Row gutter={8}>
                 <Col span={24}>
                     <Select
                         value={templateType}
@@ -68,6 +68,10 @@ function AmisTemplateCrudTabItem(props: {
                             { value: 'single-table', label: '单表' }
                         ]}
                     />
+                </Col>
+            </Row>
+            <Row style={{height: 'calc(100% - 66px)'}}>
+                <Col span={24}>
                     {renderTemplateContent()}
                 </Col>
             </Row>
