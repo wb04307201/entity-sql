@@ -91,10 +91,12 @@ function AmisTemplateTabItem(props: {
 \t\t\t\t\t"condition": "LIKE",
 \t\t\t\t\t"value": "$\{EMAIL\}"
 \t\t\t\t}],
+\t\t\t\t"@order": ["$\{default(orderBy && orderDir ? (orderBy + ' ' + orderDir):'',undefined)\}"],
 \t\t\t\t"@page": {
 \t\t\t\t\t"pageIndex": "$\{page - 1\}",
 \t\t\t\t\t"pageSize": "$\{perPage\}"
-\t\t\t\t}
+\t\t\t\t},
+\t\t\t\t"&": "$$"
 \t\t\t}
 \t\t},
 \t\t"headerToolbar": [{
@@ -132,7 +134,7 @@ function AmisTemplateTabItem(props: {
 \t\t\t\t\t}
 \t\t\t\t}
 \t\t\t},
-\t\t\t"bulkActions", 
+\t\t\t"bulkActions",
 \t\t\t{
 \t\t\t\t"type": "columns-toggler",
 \t\t\t\t"align": "right"
@@ -205,7 +207,8 @@ function AmisTemplateTabItem(props: {
 \t\t\t\t\t"name": "USERNAME",
 \t\t\t\t\t"label": "用户名",
 \t\t\t\t\t"placeholder": "输入用户名"
-\t\t\t\t}
+\t\t\t\t},
+\t\t\t\t"sortable": true
 \t\t\t}, {
 \t\t\t\t"name": "EMAIL",
 \t\t\t\t"label": "邮箱",
@@ -214,7 +217,8 @@ function AmisTemplateTabItem(props: {
 \t\t\t\t\t"name": "EMAIL",
 \t\t\t\t\t"label": "邮箱",
 \t\t\t\t\t"placeholder": "输入邮箱"
-\t\t\t\t}
+\t\t\t\t},
+\t\t\t\t"sortable": true
 \t\t\t},
 \t\t\t{
 \t\t\t\t"type": "operation",
@@ -310,6 +314,7 @@ function AmisTemplateTabItem(props: {
 \t\t\t]
 \t\t}
 \t},
+\t"height": "100vh",
 \t"config": {
 \t\t"xAxis": {
 \t\t\t"type": "category",

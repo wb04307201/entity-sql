@@ -30,7 +30,27 @@ CREATE TABLE orders (
 INSERT INTO users (id, username, email) VALUES
                                             ('550e8400-e29b-41d4-a716-446655440000', 'alice', 'alice@example.com'),
                                             ('550e8400-e29b-41d4-a716-446655440001', 'bob', 'bob@example.com'),
-                                            ('550e8400-e29b-41d4-a716-446655440002', 'charlie', 'charlie@example.com');
+                                            ('550e8400-e29b-41d4-a716-446655440002', 'charlie', 'charlie@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440003', 'wubo01', 'wubo01@@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440004', 'wubo02', 'wubo02@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440005', 'wubo03', 'wubo03@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440006', 'wubo04', 'wubo04@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440007', 'wubo05', 'wubo05@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440008', 'wubo06', 'wubo06@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440009', 'wubo07', 'wubo07@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440010', 'wubo08', 'wubo08@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440011', 'wubo09', 'wubo09@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440012', 'wubo10', 'wubo10@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440013', 'wubo11', 'wubo11@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440014', 'wubo12', 'wubo12@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440015', 'wubo13', 'wubo13@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440016', 'wubo14', 'wubo14@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440017', 'wubo15', 'wubo15@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440018', 'wubo16', 'wubo16@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440019', 'wubo17', 'wubo17@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440020', 'wubo18', 'wubo18@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440021', 'wubo19', 'wubo19@example.com'),
+                                            ('550e8400-e29b-41d4-a716-446655440022', 'wubo20', 'wubo20@example.com');
 
 -- 插入测试商品数据
 INSERT INTO products (id, name, price) VALUES

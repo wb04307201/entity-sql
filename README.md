@@ -572,14 +572,14 @@ POST http://localhost:8080/sql/forge/api/template
 content-type: application/json
 
 {
-  "id": "api-template-test",
-  "context": "SELECT * FROM users WHERE 1=1<if test=\"name != null && name != ''\"> AND username = #{name}</if><if test=\"ids != null && !ids.isEmpty()\"><foreach collection=\"ids\" item=\"id\" open=\" AND id IN (\" separator=\",\" close=\")\">#{id}</foreach></if><if test=\"(name == null || name == '') && (ids == null || ids.isEmpty()) \"> AND 0=1</if> ORDER BY username DESC"
+    "id": "ApiTemplate-test",
+    "context": "SELECT * FROM users WHERE 1=1\n<if test=\"name != null && name != ''\">AND username = #{name}</if>\n<if test=\"ids != null && !ids.isEmpty()\"><foreach collection=\"ids\" item=\"id\" open=\"AND id IN (\" separator=\",\" close=\")\">#{id}</foreach></if>\n<if test=\"(name == null || name == '') && (ids == null || ids.isEmpty()) \">AND 0=1</if>\nORDER BY username DESC"
 }
 ```
 
 执行模板：
 ```http request
-POST http://localhost:8080/sql/forge/api/template/execute/api-template-test
+POST http://localhost:8080/sql/forge/api/template/execute/ApiTemplate-test
 content-type: application/json
 
 {
@@ -643,17 +643,15 @@ content-type: application/json
 POST http://localhost:8080/sql/forge/api/calcite
 content-type: application/json
 
-[
-    {
-        "id": "222",
-        "context": "select student.name, sum(score.grade) as grade from MYSQL.student as student join POSTGRES.score as score on student.id=score.student_id where 1=1<if test=\"ids == null || ids.isEmpty()\"> AND 0=1</if><if test=\"ids != null && !ids.isEmpty()\"><foreach collection=\"ids\" item=\"id\" open=\" AND student.id IN (\" separator=\",\" close=\")\">#{id}</foreach></if> group by student.name"
-    }
-]
+{
+    "id": "ApiCalciteTemplate-test",
+    "context": "select student.name, sum(score.grade) as grade from MYSQL.student as student join POSTGRES.score as score on student.id=score.student_id where 1=1\r\n<if test=\"ids == null || ids.isEmpty()\">AND 0=1</if>\r\n<if test=\"ids != null && !ids.isEmpty()\"><foreach collection=\"ids\" item=\"id\" open=\"AND student.id IN (\" separator=\",\" close=\")\">#{id}</foreach></if>\r\ngroup by student.name"
+}
 ```
 
 执行模板：
 ```http request
-POST http://localhost:8080/sql/forge/api/calcite/execute/222
+POST http://localhost:8080/sql/forge/api/calcite/execute/ApiCalciteTemplate-test
 content-type: application/json
 
 {
@@ -682,6 +680,37 @@ content-type: application/json
 可通过`sql.forge.api.calcite.enabled=false`关闭**Calcite API 模块**
 
 ### Amis 模块
+使用[Amis](https://aisuda.bce.baidu.com/amis/zh-CN/docs/index)配合**Json API**模块、**Template API**模块、**Calcite API**模块快速构建的Web页面。
+
+#### 模板管理接口
+
+- `POST /sql/forge/amis/template` - 保存新的 API 模板
+  - id: 模板 ID
+  - context: 模板内容
+- `GET /sql/forge/amis/template/{id}` - 根据 ID 获取模板
+- `GET /sql/forge/amis/template` - 获取模板列表
+- `DELETE /sql/forge/amis/template/{id}` - 删除指定 ID 的模板
+
+#### web页面
+
+- `/sql/forge/amis?id={id}` - 打开指定 ID 的web页面
+
+#### 示例
+模板配置：
+```http request
+POST http://localhost:8080/sql/forge/amis/template
+content-type: application/json
+
+{
+    "id": "AmisTemplate-crud-test",
+    "context": "{\n\t\"title\": \"users增删改查\",\n\t\"body\": {\n\t\t\"type\": \"crud\",\n\t\t\"api\": {\n\t\t\t\"method\": \"post\",\n\t\t\t\"url\": \"/sql/forge/api/json/selectPage/users\",\n\t\t\t\"data\": {\n\t\t\t\t\"@where\": [{\n\t\t\t\t\t\"column\": \"USERNAME\",\n\t\t\t\t\t\"condition\": \"LIKE\",\n\t\t\t\t\t\"value\": \"${USERNAME}\"\n\t\t\t\t}, {\n\t\t\t\t\t\"column\": \"EMAIL\",\n\t\t\t\t\t\"condition\": \"LIKE\",\n\t\t\t\t\t\"value\": \"${EMAIL}\"\n\t\t\t\t}],\n\t\t\t\t\"@page\": {\n\t\t\t\t\t\"pageIndex\": \"${page - 1}\",\n\t\t\t\t\t\"pageSize\": \"${perPage}\"\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t\"headerToolbar\": [{\n\t\t\t\t\"label\": \"新增\",\n\t\t\t\t\"type\": \"button\",\n\t\t\t\t\"icon\": \"fa fa-plus\",\n\t\t\t\t\"level\": \"primary\",\n\t\t\t\t\"actionType\": \"drawer\",\n\t\t\t\t\"drawer\": {\n\t\t\t\t\t\"title\": \"新增表单\",\n\t\t\t\t\t\"body\": {\n\t\t\t\t\t\t\"type\": \"form\",\n\t\t\t\t\t\t\"api\": {\n\t\t\t\t\t\t\t\"method\": \"post\",\n\t\t\t\t\t\t\t\"url\": \"/sql/forge/api/json/insert/users\",\n\t\t\t\t\t\t\t\"data\": {\n\t\t\t\t\t\t\t\t\"@set\": \"$$\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"body\": [{\n\t\t\t\t\t\t\t\t\"type\": \"uuid\",\n\t\t\t\t\t\t\t\t\"name\": \"ID\"\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\"type\": \"input-text\",\n\t\t\t\t\t\t\t\t\"name\": \"USERNAME\",\n\t\t\t\t\t\t\t\t\"label\": \"用户名\"\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\"type\": \"input-text\",\n\t\t\t\t\t\t\t\t\"name\": \"EMAIL\",\n\t\t\t\t\t\t\t\t\"label\": \"邮箱\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t]\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"bulkActions\", \n\t\t\t{\n\t\t\t\t\"type\": \"columns-toggler\",\n\t\t\t\t\"align\": \"right\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"type\": \"drag-toggler\",\n\t\t\t\t\"align\": \"right\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"type\": \"export-excel\",\n\t\t\t\t\"label\": \"导出\",\n\t\t\t\t\"icon\": \"fa fa-file-excel\",\n\t\t\t\t\"api\": {\n\t\t\t\t\t\"method\": \"post\",\n\t\t\t\t\t\"url\": \"/sql/forge/api/json/select/users\",\n\t\t\t\t\t\"data\": {\n\t\t\t\t\t\t\"@where\": [{\n\t\t\t\t\t\t\t\"column\": \"USERNAME\",\n\t\t\t\t\t\t\t\"condition\": \"LIKE\",\n\t\t\t\t\t\t\t\"value\": \"${USERNAME}\"\n\t\t\t\t\t\t}, {\n\t\t\t\t\t\t\t\"column\": \"EMAIL\",\n\t\t\t\t\t\t\t\"condition\": \"LIKE\",\n\t\t\t\t\t\t\t\"value\": \"${EMAIL}\"\n\t\t\t\t\t\t}]\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"align\": \"right\"\n\t\t\t}\n\t\t],\n\t\t\"footerToolbar\": [\n\t\t\t\"statistics\",\n\t\t\t{\n\t\t\t\t\"type\": \"pagination\",\n\t\t\t\t\"layout\": \"total,perPage,pager,go\"\n\t\t\t}\n\t\t],\n\t\t\"bulkActions\": [{\n\t\t\t\"label\": \"批量删除\",\n\t\t\t\"icon\": \"fa fa-trash\",\n\t\t\t\"actionType\": \"ajax\",\n\t\t\t\"api\": {\n\t\t\t\t\"method\": \"post\",\n\t\t\t\t\"url\": \"/sql/forge/api/json/delete/users\",\n\t\t\t\t\"data\": {\n\t\t\t\t\t\"@where\": [{\n\t\t\t\t\t\t\"column\": \"ID\",\n\t\t\t\t\t\t\"condition\": \"IN\",\n\t\t\t\t\t\t\"value\": \"${ids | split}\"\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"confirmText\": \"确定要批量删除?\"\n\t\t}],\n\t\t\"keepItemSelectionOnPageChange\": true,\n\t\t\"labelTpl\": \"${USERNAME}\",\n\t\t\"autoFillHeight\": true,\n\t\t\"autoGenerateFilter\": true,\n\t\t\"showIndex\": true,\n\t\t\"primaryField\": \"ID\",\n\t\t\"columns\": [{\n\t\t\t\t\"name\": \"ID\",\n\t\t\t\t\"label\": \"ID\",\n\t\t\t\t\"hidden\": true\n\t\t\t}, {\n\t\t\t\t\"name\": \"USERNAME\",\n\t\t\t\t\"label\": \"用户名\",\n\t\t\t\t\"searchable\": {\n\t\t\t\t\t\"type\": \"input-text\",\n\t\t\t\t\t\"name\": \"USERNAME\",\n\t\t\t\t\t\"label\": \"用户名\",\n\t\t\t\t\t\"placeholder\": \"输入用户名\"\n\t\t\t\t}\n\t\t\t}, {\n\t\t\t\t\"name\": \"EMAIL\",\n\t\t\t\t\"label\": \"邮箱\",\n\t\t\t\t\"searchable\": {\n\t\t\t\t\t\"type\": \"input-text\",\n\t\t\t\t\t\"name\": \"EMAIL\",\n\t\t\t\t\t\"label\": \"邮箱\",\n\t\t\t\t\t\"placeholder\": \"输入邮箱\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"type\": \"operation\",\n\t\t\t\t\"label\": \"操作\",\n\t\t\t\t\"buttons\": [{\n\t\t\t\t\t\t\"label\": \"修改\",\n\t\t\t\t\t\t\"type\": \"button\",\n\t\t\t\t\t\t\"icon\": \"fa fa-pen-to-square\",\n\t\t\t\t\t\t\"actionType\": \"drawer\",\n\t\t\t\t\t\t\"drawer\": {\n\t\t\t\t\t\t\t\"title\": \"新增表单\",\n\t\t\t\t\t\t\t\"body\": {\n\t\t\t\t\t\t\t\t\"type\": \"form\",\n\t\t\t\t\t\t\t\t\"initApi\": {\n\t\t\t\t\t\t\t\t\t\"method\": \"post\",\n\t\t\t\t\t\t\t\t\t\"url\": \"/sql/forge/api/json/select/users\",\n\t\t\t\t\t\t\t\t\t\"data\": {\n\t\t\t\t\t\t\t\t\t\t\"@where\": [{\n\t\t\t\t\t\t\t\t\t\t\t\"column\": \"ID\",\n\t\t\t\t\t\t\t\t\t\t\t\"condition\": \"EQ\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"${ID}\"\n\t\t\t\t\t\t\t\t\t\t}]\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"responseData\": {\n\t\t\t\t\t\t\t\t\t\t\"&\": \"${items | first}\"\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\"api\": {\n\t\t\t\t\t\t\t\t\t\"method\": \"post\",\n\t\t\t\t\t\t\t\t\t\"url\": \"/sql/forge/api/json/update/users\",\n\t\t\t\t\t\t\t\t\t\"data\": {\n\t\t\t\t\t\t\t\t\t\t\"@set\": \"$$\",\n\t\t\t\t\t\t\t\t\t\t\"@where\": [{\n\t\t\t\t\t\t\t\t\t\t\t\"column\": \"ID\",\n\t\t\t\t\t\t\t\t\t\t\t\"condition\": \"EQ\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"${ID}\"\n\t\t\t\t\t\t\t\t\t\t}]\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\"body\": [{\n\t\t\t\t\t\t\t\t\t\t\"type\": \"input-text\",\n\t\t\t\t\t\t\t\t\t\t\"name\": \"USERNAME\",\n\t\t\t\t\t\t\t\t\t\t\"label\": \"用户名\"\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\"type\": \"input-text\",\n\t\t\t\t\t\t\t\t\t\t\"name\": \"EMAIL\",\n\t\t\t\t\t\t\t\t\t\t\"label\": \"邮箱\"\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"label\": \"删除\",\n\t\t\t\t\t\t\"type\": \"button\",\n\t\t\t\t\t\t\"icon\": \"fa fa-minus\",\n\t\t\t\t\t\t\"actionType\": \"ajax\",\n\t\t\t\t\t\t\"level\": \"danger\",\n\t\t\t\t\t\t\"confirmText\": \"确认要删除？\",\n\t\t\t\t\t\t\"api\": {\n\t\t\t\t\t\t\t\"method\": \"post\",\n\t\t\t\t\t\t\t\"url\": \"/sql/forge/api/json/delete/users\",\n\t\t\t\t\t\t\t\"data\": {\n\t\t\t\t\t\t\t\t\"@where\": [{\n\t\t\t\t\t\t\t\t\t\"column\": \"ID\",\n\t\t\t\t\t\t\t\t\t\"condition\": \"EQ\",\n\t\t\t\t\t\t\t\t\t\"value\": \"${ID}\"\n\t\t\t\t\t\t\t\t}]\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t],\n\t\t\t\t\"fixed\": \"right\"\n\t\t\t}\n\t\t]\n\t}\n}"
+}
+```
+
+打开web页面：
+`http://localhost:8080/sql/forge/amis?id=AmisTemplate-crud-test`
+
+![img.png](img.png)
 
 ### 控制台
 提供Web界面用于调试和管理SQL操作：
