@@ -9,7 +9,7 @@ import {
     SettingOutlined,
     ConsoleSqlOutlined,
     EyeOutlined,
-    ApiOutlined
+    ApiOutlined, TableOutlined
 } from '@ant-design/icons';
 import ApiJsonTabItem from "./ApiJsonTabItem.tsx";
 import apiClient from "./apiClient.tsx";
@@ -18,6 +18,8 @@ import ApiCalciteTabItem from "./ApiCalciteTabItem.tsx";
 import ApiCalciteConfigTabItem from "./ApiCalciteConfigTabItem.tsx";
 import AmisTemplateTabItem from "./AmisTemplateTabItem.tsx";
 import ApiCalciteSqlTabItem from "./ApiCalciteSqlTabItem.tsx";
+import AmisTemplateCrudTabItem from "./AmisTemplateCrudTabItem.tsx";
+import type { DatabaseInfo } from "./type.tsx";
 
 const {Content, Sider} = Layout;
 
@@ -32,21 +34,6 @@ interface TabItem {
     label: string;
     children: React.ReactNode;
     key: string;
-}
-
-interface DatabaseInfo {
-    databaseInfo: unknown,
-    schemaTableTypeTables: {
-        schema: { tableSchema: string },
-        tableTypeTables: {
-            tableType: string,
-            tables: {
-                table: { tableName: string },
-                columns: { columnName: string }[],
-                primaryKeys: { columnName: string }[]
-            }[]
-        } []
-    }[]
 }
 
 function App() {
@@ -380,6 +367,13 @@ function App() {
                                                remove={() => remove(newActiveKey)}/>,
                 key: newActiveKey,
             })
+        } else if (type === 'AmisTemplateCrud') {
+            newPanes.push({
+                label: newLabel,
+                children: <AmisTemplateCrudTabItem reload={reloadAmisTemplate}
+                                               remove={() => remove(newActiveKey)}/>,
+                key: newActiveKey,
+            })
         } else if (type.startsWith('AmisTemplate-')) {
             newPanes.push({
                 label: newLabel,
@@ -544,7 +538,6 @@ function App() {
                                                 add(`${nodeData.key}-config`)
                                             }}
                                     />
-
                                     <Button shape="circle" icon={<ConsoleSqlOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
@@ -582,7 +575,6 @@ function App() {
                                             onClick={() => {
                                                 setTreeSpinning(true)
                                                 apiClient.delete(`/sql/forge/api/calcite/${nodeData.key.substring(11)}`)
-
                                                     .then((_) => {
                                                         removes(nodeData.key);
                                                         reloadApiCalcite();
@@ -603,18 +595,18 @@ function App() {
                                     <span style={{fontWeight: 'bold'}}>📄{nodeData.title}</span>
                                     <Button shape="circle" icon={<ReloadOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
-                                            onClick={async () => {
-                                                setTreeSpinning(true)
-                                                let TreeData: DataNode[] = [...treeData];
-                                                TreeData = await loadAmisTemplate(TreeData)
-                                                setTreeData(TreeData)
-                                                setTreeSpinning(false)
-                                            }}
+                                            onClick={async () => reloadAmisTemplate()}
                                     />
                                     <Button shape="circle" icon={<PlusOutlined/>} size="small"
                                             style={{marginLeft: '8px', border: 'none'}}
                                             onClick={() => {
                                                 add(nodeData.key);
+                                            }}
+                                    />
+                                    <Button shape="circle" icon={<TableOutlined/>} size="small"
+                                            style={{marginLeft: '8px', border: 'none'}}
+                                            onClick={() => {
+                                                add(`${nodeData.key}Crud`);
                                             }}
                                     />
                                 </div>)

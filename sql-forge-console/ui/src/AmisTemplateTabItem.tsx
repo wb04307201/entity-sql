@@ -49,10 +49,6 @@ function AmisTemplateTabItem(props: {
             })
     }
 
-    const amisEditor = () => {
-        console.log("amisEditor")
-    }
-
     return (
         <div style={{height: '100%'}}>
             <Row style={{height: 'calc(100% - 33px)'}} gutter={8}>
@@ -332,13 +328,6 @@ function AmisTemplateTabItem(props: {
                                         }}
                                     >图表示例</Button>
                                 </>
-                            )
-                        }
-                        {
-                            !isCreate && (
-                                <Button
-                                    onClick={amisEditor}
-                                >可视化编辑</Button>
                             )
                         }
                         <Button
