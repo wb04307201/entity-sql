@@ -100,7 +100,8 @@ public class MetaDataUtils {
                 columns.add(new ColumnInfo(
                         rs.getString("TABLE_NAME"),
                         rs.getString("COLUMN_NAME"),
-                        rs.getString("DATA_TYPE"),
+                        rs.getInt("DATA_TYPE"),
+                        ReflectUtils.getJavaSqlTypeName(rs.getInt("DATA_TYPE")),
                         rs.getString("TYPE_NAME"),
                         rs.getInt("COLUMN_SIZE"),
                         rs.getInt("DECIMAL_DIGITS"),

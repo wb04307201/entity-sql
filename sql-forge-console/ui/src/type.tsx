@@ -1,6 +1,3 @@
-export function SchemaTableTypeTableInfo() {
-}
-
 export interface DatabaseInfo {
     databaseInfo: unknown,
     schemaTableTypeTables: SchemaTableTypeTable[]
@@ -24,6 +21,8 @@ export interface TableColumn {
 
 export interface ColumnInfo {
     columnName:string,
+    dataType:number,
+    javaSqlType:string,
     typeName:string,
     columnSize:number,
     decimalDigits:number,
@@ -31,7 +30,11 @@ export interface ColumnInfo {
 }
 
 export interface AmisTemplateCrudMethods {
-    getContext: () => string;
+    getContext: () => string | undefined;
+}
+
+export interface AmisTemplateCrudProps {
+    setapiTemplateId: (value: string) => void
 }
 
 export interface OptionType {

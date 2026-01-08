@@ -50,7 +50,7 @@ function AmisTemplateCrudTabItem(props: {
     const renderTemplateContent = () => {
         switch (templateType) {
             case 'single-table':
-                return <SingleTable ref={childRef}/>
+                return <SingleTable ref={childRef} setapiTemplateId={setApiTemplateId}/>
             default:
                 return <None ref={childRef}/>;
         }
@@ -61,6 +61,7 @@ function AmisTemplateCrudTabItem(props: {
             <Row gutter={8}>
                 <Col span={24}>
                     <Select
+                        placeholder="请选择模板类型"
                         value={templateType}
                         onChange={(value) => setTemplateType(value)}
                         allowClear={true}

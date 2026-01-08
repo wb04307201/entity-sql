@@ -7,7 +7,8 @@ package cn.wubo.sql.forge.records;
 public record ColumnInfo(
         String tableName,
         String columnName,
-        String dataType,
+        Integer dataType,
+        String javaSqlType,
         String typeName,
         int columnSize,
         int decimalDigits,
