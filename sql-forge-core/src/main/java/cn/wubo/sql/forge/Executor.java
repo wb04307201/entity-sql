@@ -123,11 +123,11 @@ public record Executor(DataSource dataSource) {
                 try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                     ResultSetMetaData metaData = generatedKeys.getMetaData();
                     int columnCount = metaData.getColumnCount();
-                    if (columnCount == 0){
+                    if (columnCount == 0) {
                         return new ArrayList<>();
                     }
                     List<RowMap> ids = new ArrayList<>(paramsList.size());
-                    while (generatedKeys.next()  && columnCount >= 1) {
+                    while (generatedKeys.next() && columnCount >= 1) {
                         RowMap row = new RowMap(1);
                         row.put(metaData.getColumnName(1), generatedKeys.getObject(metaData.getColumnName(1)));
                         ids.add(row);
