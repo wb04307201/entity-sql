@@ -194,260 +194,293 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>((
         })
 
         const columns = [
-                {
-                    "name": primaryKey.columnName,
-                    "label": primaryKey.columnName,
-                    "hidden": true
-                },
-                ...tableableColumns.map( item => {
-                    if (item.isSearchable){
-                        if (isNumberJavaSqlType(item.javaSqlType)){
-                            return {
-                                "name": item.columnName,
-                                "label": item.remarks ? item.remarks : item.columnName,
-                                "searchable": {
-                                    "type": "input-number",
-                                    "name": item.columnName,
-                                    "label": item.remarks ? item.remarks : item.columnName,
-                                    "precision": item.decimalDigits,
-                                    "placeholder": `输入${item.remarks ? item.remarks : item.columnName}`
-                                },
-                                "sortable": true,
-                                "align": "right"
-                            }
-                        }else {
-                            return {
-                                "name": item.columnName,
-                                "label": item.remarks ? item.remarks : item.columnName,
-                                "searchable": {
-                                    "type": "input-text",
-                                    "name": item.columnName,
-                                    "label": item.remarks ? item.remarks : item.columnName,
-                                    "maxLength": item.columnSize,
-                                    "placeholder": `输入${item.remarks ? item.remarks : item.columnName}`
-                                },
-                                "sortable": true
-                            }
-                        }
-                    }else{
-                        return {
-                            "name": item.columnName,
-                            "label": item.remarks ? item.remarks : item.columnName,
-                            "sortable": true
-                        }
-                    }
-                }),
-            {
-                "type": "operation",
-                "label": "操作",
-                "buttons": [{
-                    "label": "修改",
-                    "type": "button",
-                    "icon": "fa fa-pen-to-square",
-                    "actionType": "drawer",
-                    "drawer": {
-                        "title": "新增表单",
-                        "body": {
-                            "type": "form",
-                            "initApi": {
-                                "method": "post",
-                                "url": `/sql/forge/api/json/select/${table}`,
-                                "data": {
-                                    "@where": [{
-                                        "column": primaryKey.columnName,
-                                        "condition": "EQ",
-                                        "value": "${ID}"
-                                    }]
-                                },
-                                "responseData": {
-                                    "&": "${items | first}"
-                                }
-                            },
-                            "api": {
-                                "method": "post",
-                                "url": `/sql/forge/api/json/update/${table}`,
-                                "data": {
-                                    "@set": "$$",
-                                    "@where": [{
-                                        "column": primaryKey.columnName,
-                                        "condition": "EQ",
-                                        "value": "${ID}"
-                                    }]
-                                }
-                            },
-                            "onEvent": {
-                                "submitSucc": {
-                                    "actions": [{
-                                        "actionType": "reload",
-                                        "componentId": "crud_table"
-                                    }]
-                                }
-                            },
-                            "body": updatableColumns.map(item => {
-                                if (isNumberJavaSqlType(item.javaSqlType)){
-                                    return {
-                                        "type": "input-number",
-                                        "name": `${item.columnName}`,
-                                        "label": `${item.remarks ? item.remarks : item.columnName}`,
-                                        "precision": item.decimalDigits,
-                                    }
-                                }else {
-                                    return {
-                                        "type": "input-text",
-                                        "name": `${item.columnName}`,
-                                        "label": `${item.remarks ? item.remarks : item.columnName}`,
-                                        "maxLength": item.columnSize
-                                    }
-                                }
-                            })
-                        }
-                    }
-                },
-                    {
-                        "label": "删除",
-                        "type": "button",
-                        "icon": "fa fa-minus",
-                        "actionType": "ajax",
-                        "level": "danger",
-                        "confirmText": "确认要删除？",
-                        "api": {
-                            "method": "post",
-                            "url": `/sql/forge/api/json/delete/${table}`,
-                            "data": {
-                                "@where": [{
-                                    "column": primaryKey.columnName,
-                                    "condition": "EQ",
-                                    "value": "${ID}"
-                                }]
-                            }
-                        }
-                    }
-                ],
-                "fixed": "right"
+          {
+            name: primaryKey.columnName,
+            label: primaryKey.columnName,
+            hidden: true
+          },
+          ...tableableColumns.map(item => {
+            if (item.isSearchable) {
+              if (isNumberJavaSqlType(item.javaSqlType)) {
+                return {
+                  name: item.columnName,
+                  label: item.remarks ? item.remarks : item.columnName,
+                  searchable: {
+                    type: 'input-number',
+                    name: item.columnName,
+                    label: item.remarks ? item.remarks : item.columnName,
+                    precision: item.decimalDigits,
+                    placeholder: `输入${
+                      item.remarks ? item.remarks : item.columnName
+                    }`
+                  },
+                  sortable: true,
+                  align: 'right'
+                };
+              } else {
+                return {
+                  name: item.columnName,
+                  label: item.remarks ? item.remarks : item.columnName,
+                  searchable: {
+                    type: 'input-text',
+                    name: item.columnName,
+                    label: item.remarks ? item.remarks : item.columnName,
+                    maxLength: item.columnSize,
+                    placeholder: `输入${
+                      item.remarks ? item.remarks : item.columnName
+                    }`
+                  },
+                  sortable: true
+                };
+              }
+            } else {
+              return {
+                name: item.columnName,
+                label: item.remarks ? item.remarks : item.columnName,
+                sortable: true
+              };
             }
-        ]
+          }),
+          {
+            type: 'operation',
+            label: '操作',
+            buttons: [
+              {
+                label: '修改',
+                type: 'button',
+                icon: 'fa fa-pen-to-square',
+                actionType: 'drawer',
+                drawer: {
+                  title: '新增表单',
+                  body: {
+                    type: 'form',
+                    initApi: {
+                      method: 'post',
+                      url: `/sql/forge/api/json/select/${table}`,
+                      data: {
+                        '@where': [
+                          {
+                            column: primaryKey.columnName,
+                            condition: 'EQ',
+                            value: '${ID}'
+                          }
+                        ]
+                      },
+                      responseData: {
+                        '&': '${items | first}'
+                      }
+                    },
+                    api: {
+                      method: 'post',
+                      url: `/sql/forge/api/json/update/${table}`,
+                      data: {
+                        '@set': '$$',
+                        '@where': [
+                          {
+                            column: primaryKey.columnName,
+                            condition: 'EQ',
+                            value: '${ID}'
+                          }
+                        ]
+                      }
+                    },
+                    onEvent: {
+                      submitSucc: {
+                        actions: [
+                          {
+                            actionType: 'reload',
+                            componentId: 'crud_table'
+                          }
+                        ]
+                      }
+                    },
+                    body: updatableColumns.map(item => {
+                      if (isNumberJavaSqlType(item.javaSqlType)) {
+                        return {
+                          type: 'input-number',
+                          name: `${item.columnName}`,
+                          label: `${
+                            item.remarks ? item.remarks : item.columnName
+                          }`,
+                          precision: item.decimalDigits
+                        };
+                      } else {
+                        return {
+                          type: 'input-text',
+                          name: `${item.columnName}`,
+                          label: `${
+                            item.remarks ? item.remarks : item.columnName
+                          }`,
+                          maxLength: item.columnSize
+                        };
+                      }
+                    })
+                  }
+                }
+              },
+              {
+                label: '删除',
+                type: 'button',
+                icon: 'fa fa-minus',
+                actionType: 'ajax',
+                level: 'danger',
+                confirmText: '确认要删除？',
+                api: {
+                  method: 'post',
+                  url: `/sql/forge/api/json/delete/${table}`,
+                  data: {
+                    '@where': [
+                      {
+                        column: primaryKey.columnName,
+                        condition: 'EQ',
+                        value: '${ID}'
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            fixed: 'right'
+          }
+        ];
 
         const context = {
-            "type": "crud",
-            "id":"crud_table",
-            "api": {
-                "method": "post",
-                "url": `/sql/forge/api/json/selectPage/${table}`,
-                "data": {
-                    "@where": where,
-                    "@order": ["${default(orderBy && orderDir ? (orderBy + ' ' + orderDir):'',undefined)}"],
-                    "@page": {
-                        "pageIndex": "${page - 1}",
-                        "pageSize": "${perPage}"
-                    }
+          type: 'page',
+          body: {
+            type: 'crud',
+            id: 'crud_table',
+            api: {
+              method: 'post',
+              url: `/sql/forge/api/json/selectPage/${table}`,
+              data: {
+                '@where': where,
+                '@order': [
+                  "${default(orderBy && orderDir ? (orderBy + ' ' + orderDir):'',undefined)}"
+                ],
+                '@page': {
+                  pageIndex: '${page - 1}',
+                  pageSize: '${perPage}'
                 }
+              }
             },
-            "headerToolbar": [
-                {
-                    "label": "新增",
-                    "type": "button",
-                    "icon": "fa fa-plus",
-                    "level": "primary",
-                    "actionType": "drawer",
-                    "drawer": {
-                        "title": "新增表单",
-                        "body": {
-                            "type": "form",
-                            "api": {
-                                "method": "post",
-                                "url": `/sql/forge/api/json/insert/${table}`,
-                                "data": {
-                                    "@set": "$$"
-                                }
-                            },
-                            "onEvent":{
-                                "submitSucc": {
-                                    "actions": [{
-                                        "actionType": "reload",
-                                        "componentId": "crud_table"
-                                    }]
-                                }
-                            },
-                            "body": [{
-                                "type": "uuid",
-                                "name": `${primaryKey.columnName}`
-                            },
-                                ...insertableColumns.map(item => {
-                                    if (isNumberJavaSqlType(item.javaSqlType)){
-                                        return {
-                                            "type": "input-number",
-                                            "name": `${item.columnName}`,
-                                            "label": `${item.remarks ? item.remarks : item.columnName}`,
-                                            "precision": item.decimalDigits,
-                                        }
-                                    }else {
-                                        return {
-                                            "type": "input-text",
-                                            "name": `${item.columnName}`,
-                                            "label": `${item.remarks ? item.remarks : item.columnName}`,
-                                            "maxLength": item.columnSize
-                                        }
-                                    }
-                                })
-                            ]
-                        }
-                    }
-                },
-                "bulkActions",
-                {
-                    "type": "columns-toggler",
-                    "align": "right"
-                },
-                {
-                    "type": "drag-toggler",
-                    "align": "right"
-                },
-                {
-                    "type": "export-excel",
-                    "label": "导出",
-                    "icon": "fa fa-file-excel",
-                    "api": {
-                        "method": "post",
-                        "url": `/sql/forge/api/json/select/${table}`,
-                        "data": {
-                            "@where": where
-                        }
+            headerToolbar: [
+              {
+                label: '新增',
+                type: 'button',
+                icon: 'fa fa-plus',
+                level: 'primary',
+                actionType: 'drawer',
+                drawer: {
+                  title: '新增表单',
+                  body: {
+                    type: 'form',
+                    api: {
+                      method: 'post',
+                      url: `/sql/forge/api/json/insert/${table}`,
+                      data: {
+                        '@set': '$$'
+                      }
                     },
-                    "align": "right"
+                    onEvent: {
+                      submitSucc: {
+                        actions: [
+                          {
+                            actionType: 'reload',
+                            componentId: 'crud_table'
+                          }
+                        ]
+                      }
+                    },
+                    body: [
+                      {
+                        type: 'uuid',
+                        name: `${primaryKey.columnName}`
+                      },
+                      ...insertableColumns.map(item => {
+                        if (isNumberJavaSqlType(item.javaSqlType)) {
+                          return {
+                            type: 'input-number',
+                            name: `${item.columnName}`,
+                            label: `${
+                              item.remarks ? item.remarks : item.columnName
+                            }`,
+                            precision: item.decimalDigits
+                          };
+                        } else {
+                          return {
+                            type: 'input-text',
+                            name: `${item.columnName}`,
+                            label: `${
+                              item.remarks ? item.remarks : item.columnName
+                            }`,
+                            maxLength: item.columnSize
+                          };
+                        }
+                      })
+                    ]
+                  }
                 }
-            ],
-            "footerToolbar": [
-                "statistics",
-                {
-                    "type": "pagination",
-                    "layout": "total,perPage,pager,go"
-                }
-            ],
-            "bulkActions": [{
-                "label": "批量删除",
-                "icon": "fa fa-trash",
-                "actionType": "ajax",
-                "api": {
-                    "method": "post",
-                    "url": `/sql/forge/api/json/delete/${table}`,
-                    "data": {
-                        "@where": [{
-                            "column": primaryKey.columnName,
-                            "condition": "IN",
-                            "value": "${ids | split}"
-                        }]
-                    }
+              },
+              'bulkActions',
+              {
+                type: 'columns-toggler',
+                align: 'right'
+              },
+              {
+                type: 'drag-toggler',
+                align: 'right'
+              },
+              {
+                type: 'export-excel',
+                label: '导出',
+                icon: 'fa fa-file-excel',
+                api: {
+                  method: 'post',
+                  url: `/sql/forge/api/json/select/${table}`,
+                  data: {
+                    '@where': where
+                  }
                 },
-                "confirmText": "确定要批量删除?"
-            }],
-            "keepItemSelectionOnPageChange": true,
-            "labelTpl": "${USERNAME}",
-            "autoFillHeight": true,
-            "autoGenerateFilter": true,
-            "showIndex": true,
-            "primaryField": primaryKey.columnName,
-            "columns": columns
-        }
+                align: 'right'
+              }
+            ],
+            footerToolbar: [
+              'statistics',
+              {
+                type: 'pagination',
+                layout: 'total,perPage,pager,go'
+              }
+            ],
+            bulkActions: [
+              {
+                label: '批量删除',
+                icon: 'fa fa-trash',
+                actionType: 'ajax',
+                api: {
+                  method: 'post',
+                  url: `/sql/forge/api/json/delete/${table}`,
+                  data: {
+                    '@where': [
+                      {
+                        column: primaryKey.columnName,
+                        condition: 'IN',
+                        value: '${ids | split}'
+                      }
+                    ]
+                  }
+                },
+                confirmText: '确定要批量删除?'
+              }
+            ],
+            keepItemSelectionOnPageChange: true,
+            labelTpl: '${USERNAME}',
+            autoFillHeight: true,
+            autoGenerateFilter: true,
+            showIndex: true,
+            primaryField: primaryKey.columnName,
+            columns: columns
+          }
+        };
 
         return JSON.stringify(context, null, 2)
     };
