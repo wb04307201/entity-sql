@@ -33,7 +33,7 @@
 <dependency>
     <groupId>com.gitee.wb04307201.sql-forge</groupId>
     <artifactId>sql-forge-spring-boot-starter</artifactId>
-    <version>1.4.4</version>
+    <version>1.5.0</version>
 </dependency>
 ```
 
