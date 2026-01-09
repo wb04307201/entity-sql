@@ -18,14 +18,6 @@
 [![fork](https://img.shields.io/github/forks/wb04307201/sql-forge)](https://github.com/wb04307201/sql-forge)  
 ![MIT](https://img.shields.io/badge/License-Apache2.0-blue.svg) ![JDK](https://img.shields.io/badge/JDK-17+-green.svg) ![SpringBoot](https://img.shields.io/badge/Spring%20Boot-3+-green.svg)
 
-## 功能特性
-
-- **Entity 模块**: 根据实体对象构建`SQL`
-- **Json API 模块**: 通过`JSON`格式描述数据库操作，调用接口执行
-- **Template API 模块**: 提供`SQL`模板引擎功能
-- **Calcite API模块**: 提供跨数据库联邦查询
-- **Amis 模块**: 百度Amis低代码前端框架
-
 ## 使用
 ### 引入依赖
 增加 JitPack 仓库
