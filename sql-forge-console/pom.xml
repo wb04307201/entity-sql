@@ -18,7 +18,7 @@
         </dependency>
     </dependencies>
 
-    <build>
+    <!--build>
         <plugins>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
@@ -60,6 +60,6 @@
                 </executions>
             </plugin>
         </plugins>
-    </build>
+    </build-->
 
 </project>
