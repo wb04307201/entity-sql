@@ -48,49 +48,48 @@ function AmisTemplateCrudTabItem(props: {
     }
 
     const renderTemplateContent = () => {
-        switch (templateType) {
-            case 'single-table':
-                return <SingleTable ref={childRef} setapiTemplateId={setApiTemplateId}/>
-            default:
-                return <None ref={childRef}/>;
-        }
+      switch (templateType) {
+        case 'single-table':
+          return (
+            <SingleTable ref={childRef} setapiTemplateId={setApiTemplateId} />
+          );
+        default:
+          return <None ref={childRef} />;
+      }
     };
 
     return (
-        <div style={{height: '100%'}}>
-            <Row gutter={8}>
-                <Col span={24}>
-                    <Select
-                        placeholder="请选择模板类型"
-                        value={templateType}
-                        onChange={(value) => setTemplateType(value)}
-                        allowClear={true}
-                        options={[
-                            { value: 'single-table', label: '单表' }
-                        ]}
-                    />
-                </Col>
-            </Row>
-            <Row style={{height: 'calc(100% - 66px)'}}>
-                <Col span={24}>
-                    {renderTemplateContent()}
-                </Col>
-            </Row>
-            <Row>
-                <Col span={24}>
-                    <Flex gap={"small"} style={{float: "right"}}>
-                        <Input placeholder="模板标识" value={apiTemplateId}
-                               onChange={(e) => setApiTemplateId(e.target.value)}
-                        />
-                        <Button
-                            type="primary"
-                            onClick={executeSave}
-                        >保存</Button>
-                    </Flex>
-                </Col>
-            </Row>
-        </div>
-    )
+      <>
+        <Row style={{height: '33px'}}>
+          <Col span={24}>
+            <Select
+              placeholder="请选择模板类型"
+              value={templateType}
+              onChange={value => setTemplateType(value)}
+              allowClear={true}
+              options={[{value: 'single-table', label: '单表'}]}
+            />
+          </Col>
+        </Row>
+        <Row style={{height: 'calc(100% - 66px)'}}>
+          <Col span={24}>{renderTemplateContent()}</Col>
+        </Row>
+        <Row style={{height: '33px'}}>
+          <Col span={24}>
+            <Flex gap={'small'} style={{float: 'right'}}>
+              <Input
+                placeholder="模板标识"
+                value={apiTemplateId}
+                onChange={e => setApiTemplateId(e.target.value)}
+              />
+              <Button type="primary" onClick={executeSave}>
+                保存
+              </Button>
+            </Flex>
+          </Col>
+        </Row>
+      </>
+    );
 }
 
 export default AmisTemplateCrudTabItem;

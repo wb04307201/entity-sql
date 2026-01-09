@@ -92,67 +92,67 @@ function ApiTemplateTabItem(props: {
     }
 
     return (
-        <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(50% - 33px)'}} gutter={8}>
-                <Col span={isCreate ? 24 : 16}>
-                    <Editor language="xml" value={context}
-                            onChange={(value: string | undefined) => setContext(value)}/>
-                </Col>
-                {
-                    !isCreate && (
-                        <Col span={8}>
-                            <Editor language="json" value={json}
-                                    onChange={(value: string | undefined) => setJson(value)}/>
-                        </Col>
-                    )
-                }
-            </Row>
-            <Row>
-                <Col span={24}>
-                    <Flex gap={"small"} style={{float: "right"}}>
-                        <Input placeholder="模板标识" value={apiTemplateId}
-                               onChange={(e) => setApiTemplateId(e.target.value)}
-                               disabled={!isCreate}
-                        />
-                        {
-                            isCreate && (
-                                <Button
-                                    onClick={() => {
-                                        setApiTemplateId("ApiTemplate-test")
-                                        setContext(`SELECT * FROM users WHERE 1=1
+      <>
+        <Row style={{height: 'calc(50% - 33px)'}} gutter={8}>
+          <Col span={isCreate ? 24 : 16}>
+            <Editor
+              language="xml"
+              value={context}
+              onChange={(value: string | undefined) => setContext(value)}
+            />
+          </Col>
+          {!isCreate && (
+            <Col span={8}>
+              <Editor
+                language="json"
+                value={json}
+                onChange={(value: string | undefined) => setJson(value)}
+              />
+            </Col>
+          )}
+        </Row>
+        <Row style={{height: '33px'}}>
+          <Col span={24}>
+            <Flex gap={'small'} style={{float: 'right'}}>
+              <Input
+                placeholder="模板标识"
+                value={apiTemplateId}
+                onChange={e => setApiTemplateId(e.target.value)}
+                disabled={!isCreate}
+              />
+              {isCreate && (
+                <Button
+                  onClick={() => {
+                    setApiTemplateId('ApiTemplate-test');
+                    setContext(`SELECT * FROM users WHERE 1=1
 <if test="name != null && name != ''">AND username = #{name}</if>
 <if test="ids != null && !ids.isEmpty()"><foreach collection="ids" item="id" open="AND id IN (" separator="," close=")">#{id}</foreach></if>
 <if test="(name == null || name == '') && (ids == null || ids.isEmpty()) ">AND 0=1</if>
-ORDER BY username DESC`)
-                                    }}
-                                >示例</Button>
-                            )
-                        }
-                        {
-                            !isCreate && (
-                                <Button
-                                    onClick={executeTest}
-                                >测试</Button>
-                            )
-                        }
-                        <Button
-                            type="primary"
-                            onClick={executeSave}
-                        >保存</Button>
-                    </Flex>
-                </Col>
-            </Row>
-            <Row style={{height: '50%'}}>
-                <Col span={24}>
-                    <Table
-                        dataSource={dataSource}
-                        columns={columns}
-                        pagination={false}
-                    />
-                </Col>
-            </Row>
-        </div>
-    )
+ORDER BY username DESC`);
+                  }}
+                >
+                  示例
+                </Button>
+              )}
+              {!isCreate && <Button onClick={executeTest}>测试</Button>}
+              <Button type="primary" onClick={executeSave}>
+                保存
+              </Button>
+            </Flex>
+          </Col>
+        </Row>
+        <Row style={{height: '50%'}}>
+          <Col span={24}>
+            <Table
+              dataSource={dataSource}
+              columns={columns}
+              pagination={false}
+              scroll={{y: 'calc(50vh - 86px)'}}
+            />
+          </Col>
+        </Row>
+      </>
+    );
 }
 
 export default ApiTemplateTabItem;

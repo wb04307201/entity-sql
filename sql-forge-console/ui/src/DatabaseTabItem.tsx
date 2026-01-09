@@ -49,35 +49,37 @@ function DatabaseTabItem() {
     }
 
     return (
-        <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(50% - 33px)'}}>
-                <Col span={24}>
-                    <Editor language="sql" value={sql}
-                            onChange={(value: string | undefined) => setSql(value)}/>
-                </Col>
-            </Row>
-            <Row>
-                <Col span={24}>
-                    <Flex gap={"small"} style={{float: "right"}}>
-                        <Button
-                            type="primary"
-                            onClick={executeSql}
-                        >执行</Button>
-                    </Flex>
-                </Col>
-            </Row>
-
-            <Row style={{height: '50%'}}>
-                <Col span={24}>
-                    <Table
-                        dataSource={dataSource}
-                        columns={columns}
-                        pagination={false}
-                    />
-                </Col>
-            </Row>
-        </div>
-    )
+      <>
+        <Row style={{height: 'calc(50% - 33px)'}}>
+          <Col span={24}>
+            <Editor
+              language="sql"
+              value={sql}
+              onChange={(value: string | undefined) => setSql(value)}
+            />
+          </Col>
+        </Row>
+        <Row style={{height: '33px'}}>
+          <Col span={24}>
+            <Flex gap={'small'} style={{float: 'right'}}>
+              <Button type="primary" onClick={executeSql}>
+                执行
+              </Button>
+            </Flex>
+          </Col>
+        </Row>
+        <Row style={{height: '50%'}}>
+          <Col span={24}>
+            <Table
+              dataSource={dataSource}
+              columns={columns}
+              pagination={false}
+              scroll={{y: 'calc(50vh - 86px)'}}
+            />
+          </Col>
+        </Row>
+      </>
+    );
 }
 
 export default DatabaseTabItem;

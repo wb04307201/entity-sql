@@ -77,14 +77,14 @@ function ApiJsonTabItem() {
     }
 
     return (
-        <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(50% - 33px)'}}>
+        <>
+            <Row style={{height: 'calc(50% - 66px)'}}>
                 <Col span={24}>
                     <Editor language="json" value={json}
                             onChange={(value: string | undefined) => setJson(value)}/>
                 </Col>
             </Row>
-            <Row>
+            <Row style={{height: '66px'}}>
                 <Col span={24}>
                     <Flex gap={"small"} style={{float: "right"}}>
                         <Input placeholder="表名" value={tableName} onChange={(e) => setTableName(e.target.value)}/>
@@ -277,17 +277,17 @@ function ApiJsonTabItem() {
                     </Flex>
                 </Col>
             </Row>
-
             <Row style={{height: '50%'}}>
                 <Col span={24}>
                     <Table
                         dataSource={dataSource}
                         columns={columns}
                         pagination={false}
+                        scroll={{y: 'calc(50vh - 86px)'}}
                     />
                 </Col>
             </Row>
-        </div>
+        </>
     )
 }
 

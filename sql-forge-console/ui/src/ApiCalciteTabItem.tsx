@@ -92,66 +92,66 @@ function ApiCalciteTabItem(props: {
     }
 
     return (
-        <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(50% - 33px)'}} gutter={8}>
-                <Col span={isCreate ? 24 : 16}>
-                    <Editor language="xml" value={context}
-                            onChange={(value: string | undefined) => setContext(value)}/>
-                </Col>
-                {
-                    !isCreate && (
-                        <Col span={8}>
-                            <Editor language="json" value={json}
-                                    onChange={(value: string | undefined) => setJson(value)}/>
-                        </Col>
-                    )
-                }
-            </Row>
-            <Row>
-                <Col span={24}>
-                    <Flex gap={"small"} style={{float: "right"}}>
-                        <Input placeholder="模板标识" value={apiTemplateId}
-                               onChange={(e) => setApiTemplateId(e.target.value)}
-                               disabled={!isCreate}
-                        />
-                        {
-                            isCreate && (
-                                <Button
-                                    onClick={() => {
-                                        setApiTemplateId("ApiCalciteTemplate-test")
-                                        setContext(`select student.name, sum(score.grade) as grade from MYSQL.student as student join POSTGRES.score as score on student.id=score.student_id where 1=1
+      <>
+        <Row style={{height: 'calc(50% - 33px)'}} gutter={8}>
+          <Col span={isCreate ? 24 : 16}>
+            <Editor
+              language="xml"
+              value={context}
+              onChange={(value: string | undefined) => setContext(value)}
+            />
+          </Col>
+          {!isCreate && (
+            <Col span={8}>
+              <Editor
+                language="json"
+                value={json}
+                onChange={(value: string | undefined) => setJson(value)}
+              />
+            </Col>
+          )}
+        </Row>
+        <Row style={{height: '33px'}}>
+          <Col span={24}>
+            <Flex gap={'small'} style={{float: 'right'}}>
+              <Input
+                placeholder="模板标识"
+                value={apiTemplateId}
+                onChange={e => setApiTemplateId(e.target.value)}
+                disabled={!isCreate}
+              />
+              {isCreate && (
+                <Button
+                  onClick={() => {
+                    setApiTemplateId('ApiCalciteTemplate-test');
+                    setContext(`select student.name, sum(score.grade) as grade from MYSQL.student as student join POSTGRES.score as score on student.id=score.student_id where 1=1
 <if test="ids == null || ids.isEmpty()">AND 0=1</if>
 <if test="ids != null && !ids.isEmpty()"><foreach collection="ids" item="id" open="AND student.id IN (" separator="," close=")">#{id}</foreach></if>
-group by student.name`)
-                                    }}
-                                >示例</Button>
-                            )
-                        }
-                        {
-                            !isCreate && (
-                                <Button
-                                    onClick={executeTest}
-                                >测试</Button>
-                            )
-                        }
-                        <Button
-                            type="primary"
-                            onClick={executeSave}
-                        >保存</Button>
-                    </Flex>
-                </Col>
-            </Row>
-            <Row style={{height: '50%'}}>
-                <Col span={24}>
-                    <Table
-                        dataSource={dataSource}
-                        columns={columns}
-                        pagination={false}
-                    />
-                </Col>
-            </Row>
-        </div>
-    )
+group by student.name`);
+                  }}
+                >
+                  示例
+                </Button>
+              )}
+              {!isCreate && <Button onClick={executeTest}>测试</Button>}
+              <Button type="primary" onClick={executeSave}>
+                保存
+              </Button>
+            </Flex>
+          </Col>
+        </Row>
+        <Row style={{height: '50%'}}>
+          <Col span={24}>
+            <Table
+              dataSource={dataSource}
+              columns={columns}
+              pagination={false}
+              scroll={{y: 'calc(50vh - 86px)'}}
+            />
+          </Col>
+        </Row>
+      </>
+    );
 }
 
 export default ApiCalciteTabItem;

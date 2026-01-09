@@ -39,19 +39,22 @@ function ApiCalciteConfigTabItem(props: {
 
 
     return (
-        <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(100% - 33px)'}}>
-                <Col span={24}>
-                    <Editor language="json" value={config}
-                            onChange={(value: string | undefined) => setConfig(value)}/>
-                </Col>
-            </Row>
-            <Row>
-                <Col span={24}>
-                    <Flex gap={"small"} style={{float: "right"}}>
-                        <Button
-                            onClick={() => {
-                                setConfig(`{
+      <>
+        <Row style={{height: 'calc(100% - 33px)'}}>
+          <Col span={24}>
+            <Editor
+              language="json"
+              value={config}
+              onChange={(value: string | undefined) => setConfig(value)}
+            />
+          </Col>
+        </Row>
+        <Row style={{height: '33px'}}>
+          <Col span={24}>
+            <Flex gap={'small'} style={{float: 'right'}}>
+              <Button
+                onClick={() => {
+                  setConfig(`{
   "version": "1.0",
   "defaultSchema": "MYSQL",
   "schemas": [
@@ -78,18 +81,19 @@ function ApiCalciteConfigTabItem(props: {
       "type": "custom"
     }
   ]
-}`)
-                            }}
-                        >示例</Button>
-                        <Button
-                            type="primary"
-                            onClick={executeSave}
-                        >保存</Button>
-                    </Flex>
-                </Col>
-            </Row>
-        </div>
-    )
+}`);
+                }}
+              >
+                示例
+              </Button>
+              <Button type="primary" onClick={executeSave}>
+                保存
+              </Button>
+            </Flex>
+          </Col>
+        </Row>
+      </>
+    );
 }
 
 export default ApiCalciteConfigTabItem;

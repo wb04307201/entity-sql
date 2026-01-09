@@ -50,27 +50,31 @@ function AmisTemplateTabItem(props: {
     }
 
     return (
-        <div style={{height: '100%'}}>
-            <Row style={{height: 'calc(100% - 33px)'}} gutter={8}>
-                <Col span={24}>
-                    <Editor language="json" value={context}
-                            onChange={(value: string | undefined) => setContext(value)}/>
-                </Col>
-            </Row>
-            <Row>
-                <Col span={24}>
-                    <Flex gap={"small"} style={{float: "right"}}>
-                        <Input placeholder="模板标识" value={apiTemplateId}
-                               onChange={(e) => setApiTemplateId(e.target.value)}
-                               disabled={!isCreate}
-                        />
-                        {
-                            isCreate && (
-                                <>
-                                    <Button
-                                        onClick={() => {
-                                            setApiTemplateId("AmisTemplate-crud-test")
-                                            setContext(`{
+      <>
+        <Row style={{height: 'calc(100% - 33px)'}}>
+          <Col span={24}>
+            <Editor
+              language="json"
+              value={context}
+              onChange={(value: string | undefined) => setContext(value)}
+            />
+          </Col>
+        </Row>
+        <Row style={{height: '33px'}}>
+          <Col span={24}>
+            <Flex gap={'small'} style={{float: 'right'}}>
+              <Input
+                placeholder="模板标识"
+                value={apiTemplateId}
+                onChange={e => setApiTemplateId(e.target.value)}
+                disabled={!isCreate}
+              />
+              {isCreate && (
+                <>
+                  <Button
+                    onClick={() => {
+                      setApiTemplateId('AmisTemplate-crud-test');
+                      setContext(`{
 \t"type": "crud",
 \t"id": "crud_users",
 \t"api": {
@@ -305,13 +309,15 @@ function AmisTemplateTabItem(props: {
 \t\t\t"fixed": "right"
 \t\t}
 \t]
-}`)
-                                        }}
-                                    >CRUD示例</Button>
-                                    <Button
-                                        onClick={() => {
-                                            setApiTemplateId("AmisTemplate-chart-test")
-                                            setContext(`{
+}`);
+                    }}
+                  >
+                    CRUD示例
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setApiTemplateId('AmisTemplate-chart-test');
+                      setContext(`{
 \t"type": "chart",
 \t"api": {
 \t\t"method": "post",
@@ -337,21 +343,21 @@ function AmisTemplateTabItem(props: {
 \t\t\t"type": "bar"
 \t\t}]
 \t}
-}`)
-                                        }}
-                                    >图表示例</Button>
-                                </>
-                            )
-                        }
-                        <Button
-                            type="primary"
-                            onClick={executeSave}
-                        >保存</Button>
-                    </Flex>
-                </Col>
-            </Row>
-        </div>
-    )
+}`);
+                    }}
+                  >
+                    图表示例
+                  </Button>
+                </>
+              )}
+              <Button type="primary" onClick={executeSave}>
+                保存
+              </Button>
+            </Flex>
+          </Col>
+        </Row>
+      </>
+    );
 }
 
 export default AmisTemplateTabItem;

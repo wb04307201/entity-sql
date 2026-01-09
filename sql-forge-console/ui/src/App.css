@@ -1,0 +1,7 @@
+.console-tabs .ant-tabs-content-holder .ant-tabs-content {
+height: 100%;
+}
+
+.console-tabs .ant-tabs-content-holder .ant-tabs-content .ant-tabs-tabpane {
+    height: 100%;
+}

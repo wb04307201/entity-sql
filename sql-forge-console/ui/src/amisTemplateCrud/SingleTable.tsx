@@ -457,7 +457,7 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>((
     }));
 
     return <div style={{height: '100%'}}>
-        <Row>
+        <Row style={{height: '33px'}}>
             <Col span={24}>
                 <Select
                     placeholder="请选择schema"

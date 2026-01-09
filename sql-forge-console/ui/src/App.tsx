@@ -20,6 +20,7 @@ import AmisTemplateTabItem from "./AmisTemplateTabItem.tsx";
 import ApiCalciteSqlTabItem from "./ApiCalciteSqlTabItem.tsx";
 import AmisTemplateCrudTabItem from "./AmisTemplateCrudTabItem.tsx";
 import type { DatabaseInfo } from "./type.tsx";
+import "./App.css"
 
 const {Content, Sider} = Layout;
 
@@ -657,10 +658,7 @@ function App() {
                     onEdit={onEdit}
                     items={items}
                     style={{height: '100vh'}}
-                    styles={{
-                        content: {height: 'calc(100vh - 56px)', padding: '0 16px'}
-                    }}
-
+                    className="console-tabs"
                 />
             </Content>
         </Layout>

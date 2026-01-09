@@ -1,34 +1,63 @@
 {
-  "name": "sql-forge-console",
+  "name": "sql-forge-amis",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
   "dependencies": {
-    "@ant-design/icons": "6.x",
+    "@ant-design/icons": "^5.6.1",
     "@monaco-editor/react": "^4.7.0",
-    "antd": "^6.0.1",
+    "@types/jest": "^27.0.3",
+    "@types/node": "^16.11.11",
+    "@types/react-dom": "^17.0.14",
+    "antd": "^5.29.2",
     "axios": "^1.13.2",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "copy-to-clipboard": "^3.3.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "typescript": "^4.4.3"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "build": "webpack",
+    "server": "node server.js",
+    "vite": "vite",
+    "vite-build": "vite build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@types/node": "^24.10.1",
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.1",
-    "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
-    "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "@vitejs/plugin-react": "^1.1.0",
+    "@vue/compiler-sfc": "^3.0.4",
+    "clean-webpack-plugin": "^4.0.0",
+    "css-loader": "^6.5.1",
+    "express": "^4.17.1",
+    "file-loader": "^6.2.0",
+    "fork-ts-checker-webpack-plugin": "^7.2.1",
+    "html-webpack-plugin": "^5.5.0",
+    "monaco-editor-webpack-plugin": "^6.0.0",
+    "prettier": "^2.2.1",
+    "style-loader": "^3.3.1",
+    "ts-loader": "^9.2.6",
+    "url-loader": "^4.1.1",
+    "vite": "^2.6.14",
+    "webpack": "^5.46.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-middleware": "^5.2.2",
+    "webpack-dev-server": "^4.6.0"
   }
 }
