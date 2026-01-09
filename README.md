@@ -4,7 +4,7 @@
   English | <a href="README.zh-CN.md">中文</a>
 </div>
 
-> SQL Forge is a Java-based ORM framework, providing the following functions:
+> SQL Forge is a ORM framework, providing the following functions:
 - **Entity**: Build `SQL` based on entity objects
 - **Json API**: Describe database operations in `JSON` format and execute via API calls
 - **Template API**: Provides `SQL` template engine functionality

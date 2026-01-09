@@ -4,7 +4,7 @@
   <a href="README.md">English</a> | 中文
 </div>
 
-> SQL Forge 是一个基于 Java 开发的ORM框架，提供以下功能：
+> SQL Forge 是一个ORM框架，提供以下功能：
 - **Entity**: 根据实体对象构建`SQL`
 - **Json API**: 通过`JSON`格式描述数据库操作，调用接口执行
 - **Template API**: 提供`SQL`模板引擎功能
