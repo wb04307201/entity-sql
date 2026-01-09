@@ -4,7 +4,12 @@
   English | <a href="README.zh-CN.md">中文</a>
 </div>
 
-> SQL Forge is a Java-based database operation framework that adopts a multi-module Maven project structure, providing functions such as entity relationship mapping, SQL generation, and CRUD operations.
+> SQL Forge is a Java-based ORM framework, providing the following functions:
+> - **Entity Module**: Build `SQL` based on entity objects
+> - **Json API Module**: Describe database operations in `JSON` format and execute via API calls
+> - **Template API Module**: Provides `SQL` template engine functionality
+> - **Calcite API Module**: Provides cross-database federated queries
+> - **Amis Module**: Baidu Amis low-code frontend framework
 
 [![](https://jitpack.io/v/com.gitee.wb04307201/sql-forge.svg)](https://jitpack.io/#com.gitee.wb04307201/sql-forge)
 [![star](https://gitee.com/wb04307201/sql-forge/badge/star.svg?theme=dark)](https://gitee.com/wb04307201/sql-forge)
@@ -12,14 +17,6 @@
 [![star](https://img.shields.io/github/stars/wb04307201/sql-forge)](https://github.com/wb04307201/sql-forge)
 [![fork](https://img.shields.io/github/forks/wb04307201/sql-forge)](https://github.com/wb04307201/sql-forge)  
 ![MIT](https://img.shields.io/badge/License-Apache2.0-blue.svg) ![JDK](https://img.shields.io/badge/JDK-17+-green.svg) ![SpringBoot](https://img.shields.io/badge/Spring%20Boot-3+-green.svg)
-
-## Features
-
-- **Entity Module**: Build `SQL` based on entity objects
-- **Json API Module**: Describe database operations in `JSON` format and execute via API calls
-- **Template API Module**: Provides `SQL` template engine functionality
-- **Calcite API Module**: Provides cross-database federated queries
-- **Amis Module**: Baidu Amis low-code frontend framework
 
 ## Usage
 ### Add Dependencies

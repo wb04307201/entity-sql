@@ -4,7 +4,12 @@
   <a href="README.md">English</a> | 中文
 </div>
 
-> SQL Forge 是一个基于 Java 开发的数据库操作框架，采用多模块 Maven 项目结构，提供了实体关系映射、SQL 生成、CRUD 操作等功能。
+> SQL Forge 是一个基于 Java 开发的ORM框架，提供以下功能：
+> - **Entity 模块**: 根据实体对象构建`SQL`
+> - **Json API 模块**: 通过`JSON`格式描述数据库操作，调用接口执行
+> - **Template API 模块**: 提供`SQL`模板引擎功能
+> - **Calcite API模块**: 提供跨数据库联邦查询
+> - **Amis 模块**: 百度Amis低代码前端框架
 
 [![](https://jitpack.io/v/com.gitee.wb04307201/sql-forge.svg)](https://jitpack.io/#com.gitee.wb04307201/sql-forge)
 [![star](https://gitee.com/wb04307201/sql-forge/badge/star.svg?theme=dark)](https://gitee.com/wb04307201/sql-forge)
