@@ -1,7 +1,8 @@
-import {Button, Col, Flex, Input, Modal, Row} from "antd";
+import {Button, Col, Drawer, Flex, Input, Modal, Row} from 'antd';
 import {useEffect, useState} from "react";
 import apiClient from "./apiClient.tsx";
 import Editor from '@monaco-editor/react';
+import {Editor as AmisEitor} from 'amis-editor';
 
 function AmisTemplateTabItem(props: {
     isCreate: boolean,
@@ -13,6 +14,7 @@ function AmisTemplateTabItem(props: {
     const [isCreate] = useState(props.isCreate);
     const [apiTemplateId, setApiTemplateId] = useState(props.apiTemplateId);
     const [context, setContext] = useState<string | undefined>(undefined);
+    const [showAmisEditor, setShowAmisEditor] = useState(false);
 
     useEffect(() => {
         if (!isCreate && apiTemplateId) {
@@ -350,12 +352,27 @@ function AmisTemplateTabItem(props: {
                   </Button>
                 </>
               )}
+              <Button type="primary" onClick={() => setShowAmisEditor(true)}>
+                可视化编辑
+              </Button>
               <Button type="primary" onClick={executeSave}>
                 保存
               </Button>
             </Flex>
           </Col>
         </Row>
+        <Drawer
+          title="Amis可视化编辑"
+          closable={{'aria-label': 'Close Button'}}
+          onClose={() => setShowAmisEditor(false)}
+          open={showAmisEditor}
+          width={'100%'}
+        >
+          <AmisEitor
+            value={context ? JSON.parse(context) : {type:'page'}}
+            onChange={(value) => setContext(JSON.stringify(value))}
+          />
+        </Drawer>
       </>
     );
 }

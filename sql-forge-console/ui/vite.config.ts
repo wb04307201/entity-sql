@@ -1,5 +1,6 @@
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
+import * as path from 'node:path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,4 +18,12 @@ export default defineConfig({
       },
     },
   },
+  resolve: {
+    alias: [
+      {
+        find: 'i18n-runtime',
+        replacement: path.resolve(__dirname, 'node_modules/i18n-runtime/lib/index.js')
+      }
+    ]
+  }
 });
