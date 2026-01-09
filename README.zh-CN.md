@@ -5,11 +5,11 @@
 </div>
 
 > SQL Forge 是一个基于 Java 开发的ORM框架，提供以下功能：
-> - **Entity 模块**: 根据实体对象构建`SQL`
-> - **Json API 模块**: 通过`JSON`格式描述数据库操作，调用接口执行
-> - **Template API 模块**: 提供`SQL`模板引擎功能
-> - **Calcite API模块**: 提供跨数据库联邦查询
-> - **Amis 模块**: 百度Amis低代码前端框架
+- **Entity**: 根据实体对象构建`SQL`
+- **Json API**: 通过`JSON`格式描述数据库操作，调用接口执行
+- **Template API**: 提供`SQL`模板引擎功能
+- **Calcite API**: 提供跨数据库联邦查询
+- **Amis**: 百度Amis低代码前端框架
 
 [![](https://jitpack.io/v/com.gitee.wb04307201/sql-forge.svg)](https://jitpack.io/#com.gitee.wb04307201/sql-forge)
 [![star](https://gitee.com/wb04307201/sql-forge/badge/star.svg?theme=dark)](https://gitee.com/wb04307201/sql-forge)

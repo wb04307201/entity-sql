@@ -5,11 +5,11 @@
 </div>
 
 > SQL Forge is a Java-based ORM framework, providing the following functions:
-> - **Entity Module**: Build `SQL` based on entity objects
-> - **Json API Module**: Describe database operations in `JSON` format and execute via API calls
-> - **Template API Module**: Provides `SQL` template engine functionality
-> - **Calcite API Module**: Provides cross-database federated queries
-> - **Amis Module**: Baidu Amis low-code frontend framework
+- **Entity**: Build `SQL` based on entity objects
+- **Json API**: Describe database operations in `JSON` format and execute via API calls
+- **Template API**: Provides `SQL` template engine functionality
+- **Calcite API**: Provides cross-database federated queries
+- **Amis**: Baidu Amis low-code frontend framework
 
 [![](https://jitpack.io/v/com.gitee.wb04307201/sql-forge.svg)](https://jitpack.io/#com.gitee.wb04307201/sql-forge)
 [![star](https://gitee.com/wb04307201/sql-forge/badge/star.svg?theme=dark)](https://gitee.com/wb04307201/sql-forge)
