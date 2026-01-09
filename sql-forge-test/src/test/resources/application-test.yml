@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:./data/testdb;AUTO_SERVER=TRUE
+    username: sa

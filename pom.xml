@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.gitee.wb04307201</groupId>
-    <artifactId>entity-sql-parent</artifactId>
+    <artifactId>sql-forge-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
     <url>
-        https://gitee.com/wb04307201/entity-sql
+        https://gitee.com/wb04307201/sql-forge
     </url>
     <licenses>
         <license>
@@ -21,25 +21,34 @@
     <developers>
         <developer>
             <name>wubo</name>
+            <email>wubo_aaa@163.com</email>
+            <url>https://gitee.com/wb04307201</url>
         </developer>
     </developers>
 
     <modules>
-        <module>entity-sql</module>
-        <module>entity-sql-spring-boot-autoconfigure</module>
-        <module>entity-sql-spring-boot-starter</module>
-        <module>entity-sql-test</module>
+        <module>sql-forge-core</module>
+        <module>sql-forge-crud</module>
+        <module>sql-forge-template</module>
+        <module>sql-forge-calcite</module>
+        <module>sql-forge-amis</module>
+        <module>sql-forge-console</module>
+        <module>sql-forge-spring-boot-autoconfigure</module>
+        <module>sql-forge-spring-boot-starter</module>
+        <module>sql-forge-test</module>
     </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot.version>3.5.3</spring-boot.version>
-        <lombok.version>1.18.38</lombok.version>
-        <logback.version>1.5.18</logback.version>
-        <fastjson2.version>2.0.58</fastjson2.version>
-        <CHMCache.version>1.0.0</CHMCache.version>
+        <spring-boot.version>3.5.9</spring-boot.version>
+        <lombok.version>1.18.42</lombok.version>
+        <jakarta.version>3.2.0</jakarta.version>
+        <jsqlparser.version>5.3</jsqlparser.version>
+        <enjoy.version>5.2.5</enjoy.version>
+        <mvel2.version>2.5.2.Final</mvel2.version>
+        <calcite.version>1.41.0</calcite.version>
     </properties>
 
     <dependencyManagement>
@@ -57,28 +66,26 @@
                 <version>${lombok.version}</version>
             </dependency>
             <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
+                <groupId>jakarta.persistence</groupId>
+                <artifactId>jakarta.persistence-api</artifactId>
+                <version>${jakarta.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba.fastjson2</groupId>
-                <artifactId>fastjson2</artifactId>
-                <version>${fastjson2.version}</version>
+                <groupId>com.github.jsqlparser</groupId>
+                <artifactId>jsqlparser</artifactId>
+                <version>${jsqlparser.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.gitee.wb04307201</groupId>
-                <artifactId>CHMCache</artifactId>
-                <version>${CHMCache.version}</version>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <version>${mvel2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.calcite</groupId>
+                <artifactId>calcite-core</artifactId>
+                <version>${calcite.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
 
 </project>
