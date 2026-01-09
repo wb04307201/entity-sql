@@ -1,5 +1,5 @@
 {
-  "name": "sql-forge-amis",
+  "name": "sql-forge-console",
   "private": true,
   "version": "0.0.0",
   "dependencies": {
