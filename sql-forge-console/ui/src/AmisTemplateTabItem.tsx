@@ -359,7 +359,12 @@ function AmisTemplateTabItem(props: {
 \t\t\t"data": {
 \t\t\t\t"ids": [
 \t\t\t\t\t1,
-\t\t\t\t\t2
+\t\t\t\t\t2,
+\t\t\t\t\t3,
+\t\t\t\t\t4,
+\t\t\t\t\t5,
+\t\t\t\t\t6,
+\t\t\t\t\t7
 \t\t\t\t]
 \t\t\t}
 \t\t},

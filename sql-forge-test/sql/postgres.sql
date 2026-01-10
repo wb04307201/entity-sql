@@ -8,3 +8,8 @@ CREATE TABLE IF NOT EXISTS score
 
 insert into score(id,student_id,grade)values(1,1,80);
 insert into score(id,student_id,grade)values(2,2,90);
+insert into score(id,student_id,grade)values(3,3,60);
+insert into score(id,student_id,grade)values(4,4,70);
+insert into score(id,student_id,grade)values(5,5,80);
+insert into score(id,student_id,grade)values(6,6,65);
+insert into score(id,student_id,grade)values(7,7,85);
