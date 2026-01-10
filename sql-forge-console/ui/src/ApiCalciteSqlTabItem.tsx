@@ -84,6 +84,7 @@ from MYSQL.student as student
               dataSource={dataSource}
               columns={columns}
               pagination={false}
+              scroll={{y: 'calc(50vh - 86px)'}}
             />
           </Col>
         </Row>

@@ -34,7 +34,7 @@
 <dependency>
     <groupId>com.gitee.wb04307201.sql-forge</groupId>
     <artifactId>sql-forge-spring-boot-starter</artifactId>
-    <version>1.5.0</version>
+    <version>1.5.1</version>
 </dependency>
 ```
 
@@ -603,6 +603,9 @@ content-type: application/json
 #### 配置
 可通过`sql.forge.api.template.enabled=false`关闭**Template API 模块**
 
+#### 持久化模板
+继承[IApiTemplateStorage.java](sql-forge-template/src/main/java/cn/wubo/sql/forge/IApiTemplateStorage.java)实现自己的模板服务
+
 ### Calcite API 模块
 基于`Apache Calcite`实现的`SQL`模板引擎，用于执行跨数据库的联邦查询。
 - **数据源配置**：提供数据源的配置功能
@@ -680,6 +683,9 @@ content-type: application/json
 #### 配置
 可通过`sql.forge.api.calcite.enabled=false`关闭**Calcite API 模块**
 
+#### 持久化模板
+继承[IApiCalciteStorage.java](sql-forge-calcite/src/main/java/cn/wubo/sql/forge/IApiCalciteStorage.java)实现自己的模板服务
+
 ### Amis 模块
 使用[Amis](https://aisuda.bce.baidu.com/amis/zh-CN/docs/index)配合**Json API**模块、**Template API**模块、**Calcite API**模块快速构建的Web页面。
 
@@ -715,6 +721,9 @@ content-type: application/json
 
 #### 配置
 可通过`sql.forge.amis.enabled=false`关闭**Amis**
+
+#### 持久化模板
+继承[IAmisStorage.java](sql-forge-amis/src/main/java/cn/wubo/sql/forge/IAmisStorage.java)实现自己的模板服务
 
 ### 控制台
 提供简单的Web界面用于调试和模板管理：

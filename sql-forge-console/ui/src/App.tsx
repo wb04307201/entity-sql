@@ -19,7 +19,7 @@ import ApiCalciteConfigTabItem from "./ApiCalciteConfigTabItem.tsx";
 import AmisTemplateTabItem from "./AmisTemplateTabItem.tsx";
 import ApiCalciteSqlTabItem from "./ApiCalciteSqlTabItem.tsx";
 import AmisTemplateCrudTabItem from "./AmisTemplateCrudTabItem.tsx";
-import type { DatabaseInfo } from "./type.tsx";
+import type {DatabaseInfo} from "./type.tsx";
 import "./App.css"
 
 const {Content, Sider} = Layout;
@@ -79,66 +79,71 @@ function App() {
 
     const loadApiDatabase = async (TreeData: DataNode[]) => {
         const databasNode: DataNode = {title: 'Database', key: 'Database', children: []}
-        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/databaseMetaData')
-        const schemaTableTypeTables = database.schemaTableTypeTables
-        if (schemaTableTypeTables) {
-            schemaTableTypeTables.forEach(schemaTableTypeTable => {
-                const schemaNode: DataNode = {
-                    title: schemaTableTypeTable.schema.tableSchema,
-                    key: `DatabaseSchema-${schemaTableTypeTable.schema.tableSchema}`,
-                    children: []
-                }
-                const tableTypeTables = schemaTableTypeTable.tableTypeTables
-                if (tableTypeTables) {
-                    tableTypeTables.forEach(tableType => {
-                        const tableTypeNode: DataNode = {
-                            title: tableType.tableType,
-                            key: `DatabaseSchemaTableType-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}`,
-                            children: []
-                        }
-                        const tables = tableType.tables;
-                        if (tables) {
-                            tables.forEach(table => {
-                                const tableNode: DataNode = {
-                                    title: table.table.tableName,
-                                    key: `DatabaseSchemaTableTypeTable-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}`,
-                                    children: []
-                                }
-                                const columns = table.columns;
-                                if (columns && columns.length > 0) {
-                                    const tableColumnsNode: DataNode = {
-                                        title: `列`,
-                                        key: `ApiCalciteDatabaseSchemaTableTypeTableColumns-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-columns`,
-                                        children: columns.map((column) => ({
-                                            title: column.columnName,
-                                            key: `ApiCalciteDatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
-                                            isLeaf: true
-                                        }))
+        try {
+            const database: DatabaseInfo = await apiClient.get('/sql/forge/api/databaseMetaData')
+            const schemaTableTypeTables = database.schemaTableTypeTables
+            if (schemaTableTypeTables) {
+                schemaTableTypeTables.forEach(schemaTableTypeTable => {
+                    const schemaNode: DataNode = {
+                        title: schemaTableTypeTable.schema.tableSchema,
+                        key: `DatabaseSchema-${schemaTableTypeTable.schema.tableSchema}`,
+                        children: []
+                    }
+                    const tableTypeTables = schemaTableTypeTable.tableTypeTables
+                    if (tableTypeTables) {
+                        tableTypeTables.forEach(tableType => {
+                            const tableTypeNode: DataNode = {
+                                title: tableType.tableType,
+                                key: `DatabaseSchemaTableType-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}`,
+                                children: []
+                            }
+                            const tables = tableType.tables;
+                            if (tables) {
+                                tables.forEach(table => {
+                                    const tableNode: DataNode = {
+                                        title: table.table.tableName,
+                                        key: `DatabaseSchemaTableTypeTable-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}`,
+                                        children: []
                                     }
-                                    tableNode.children?.push(tableColumnsNode)
-                                }
-                                const primaryKeys = table.primaryKeys;
-                                if (primaryKeys && primaryKeys.length > 0){
-                                    const tablePrimaryKeysNode: DataNode = {
-                                        title: `主键`,
-                                        key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKeys-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-primaryKeys`,
-                                        children: primaryKeys.map((primaryKey) => ({
-                                            title: primaryKey.columnName,
-                                            key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKey-${schemaTableTypeTable.schema.tableSchema}-${primaryKey.columnName}`,
-                                            isLeaf: true
-                                        }))
+                                    const columns = table.columns;
+                                    if (columns && columns.length > 0) {
+                                        const tableColumnsNode: DataNode = {
+                                            title: `列`,
+                                            key: `ApiCalciteDatabaseSchemaTableTypeTableColumns-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-columns`,
+                                            children: columns.map((column) => ({
+                                                title: column.columnName,
+                                                key: `ApiCalciteDatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
+                                                isLeaf: true
+                                            }))
+                                        }
+                                        tableNode.children?.push(tableColumnsNode)
                                     }
-                                    tableNode.children?.push(tablePrimaryKeysNode)
-                                }
-                                tableTypeNode.children?.push(tableNode);
-                            })
-                        }
-                        schemaNode.children?.push(tableTypeNode)
-                    })
-                }
-                databasNode.children?.push(schemaNode)
-            })
+                                    const primaryKeys = table.primaryKeys;
+                                    if (primaryKeys && primaryKeys.length > 0) {
+                                        const tablePrimaryKeysNode: DataNode = {
+                                            title: `主键`,
+                                            key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKeys-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-primaryKeys`,
+                                            children: primaryKeys.map((primaryKey) => ({
+                                                title: primaryKey.columnName,
+                                                key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKey-${schemaTableTypeTable.schema.tableSchema}-${primaryKey.columnName}`,
+                                                isLeaf: true
+                                            }))
+                                        }
+                                        tableNode.children?.push(tablePrimaryKeysNode)
+                                    }
+                                    tableTypeNode.children?.push(tableNode);
+                                })
+                            }
+                            schemaNode.children?.push(tableTypeNode)
+                        })
+                    }
+                    databasNode.children?.push(schemaNode)
+                })
+            }
+        } catch (e) {
+            console.error(e)
         }
+
         const orgTreeNode = TreeData.find(item => item.title === 'Database')
         if (orgTreeNode) {
             TreeData.splice(TreeData.indexOf(orgTreeNode), 1, databasNode)
@@ -150,13 +155,19 @@ function App() {
     }
 
     const loadApiTemplate = async (TreeData: DataNode[]) => {
-        const templates: { id: string }[] = await apiClient.get('/sql/forge/api/template')
-        const apiTemplateNode: DataNode = {
-            title: 'ApiTemplate', key: 'ApiTemplate', children: templates.map(item => ({
-                title: item.id,
-                key: 'ApiTemplate-' + item.id
-            }))
+        const apiTemplateNode: DataNode = {title: 'ApiTemplate', key: 'ApiTemplate', children: []}
+        try{
+            const templates: { id: string }[] = await apiClient.get('/sql/forge/api/template')
+            templates.forEach(template => {
+                apiTemplateNode.children?.push({
+                    title: template.id,
+                    key: 'ApiTemplate-' + template.id
+                })
+            })
+        }catch (e) {
+            console.error(e)
         }
+
         const orgTreeNode = TreeData.find(item => item.title === 'ApiTemplate')
         if (orgTreeNode) {
             TreeData.splice(TreeData.indexOf(orgTreeNode), 1, apiTemplateNode)
@@ -168,73 +179,78 @@ function App() {
 
     const loadApiCalcite = async (TreeData: DataNode[]) => {
         const apiCalciteNode: DataNode = {title: 'ApiCalcite', key: 'ApiCalcite', children: []}
-        const database: DatabaseInfo = await apiClient.get('/sql/forge/api/calciteMetaData')
-        const schemaTableTypeTables = database.schemaTableTypeTables
-        if (schemaTableTypeTables) {
-            schemaTableTypeTables.forEach(schemaTableTypeTable => {
-                const schemaNode: DataNode = {
-                    title: schemaTableTypeTable.schema.tableSchema,
-                    key: `ApiCalciteDatabaseSchema-${schemaTableTypeTable.schema.tableSchema}`,
-                    children: []
-                }
-                const tableTypeTables = schemaTableTypeTable.tableTypeTables
-                if (tableTypeTables) {
-                    tableTypeTables.forEach(tableType => {
-                        const tableTypeNode: DataNode = {
-                            title: tableType.tableType,
-                            key: `ApiCalciteDatabaseSchemaTableType-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}`,
-                            children: []
-                        }
-                        const tables = tableType.tables;
-                        if (tables) {
-                            tables.forEach(table => {
-                                const tableNode: DataNode = {
-                                    title: table.table.tableName,
-                                    key: `ApiCalciteDatabaseSchemaTableTypeTable-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}`,
-                                    children: []
-                                }
-                                const columns = table.columns;
-                                if (columns && columns.length > 0) {
-                                    const tableColumnsNode: DataNode = {
-                                        title: `列`,
-                                        key: `ApiCalciteDatabaseSchemaTableTypeTableColumns-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-columns`,
-                                        children: columns.map((column) => ({
-                                            title: column.columnName,
-                                            key: `ApiCalciteDatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
-                                            isLeaf: true
-                                        }))
+        try {
+            const database: DatabaseInfo = await apiClient.get('/sql/forge/api/calciteMetaData')
+            const schemaTableTypeTables = database.schemaTableTypeTables
+            if (schemaTableTypeTables) {
+                schemaTableTypeTables.forEach(schemaTableTypeTable => {
+                    const schemaNode: DataNode = {
+                        title: schemaTableTypeTable.schema.tableSchema,
+                        key: `ApiCalciteDatabaseSchema-${schemaTableTypeTable.schema.tableSchema}`,
+                        children: []
+                    }
+                    const tableTypeTables = schemaTableTypeTable.tableTypeTables
+                    if (tableTypeTables) {
+                        tableTypeTables.forEach(tableType => {
+                            const tableTypeNode: DataNode = {
+                                title: tableType.tableType,
+                                key: `ApiCalciteDatabaseSchemaTableType-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}`,
+                                children: []
+                            }
+                            const tables = tableType.tables;
+                            if (tables) {
+                                tables.forEach(table => {
+                                    const tableNode: DataNode = {
+                                        title: table.table.tableName,
+                                        key: `ApiCalciteDatabaseSchemaTableTypeTable-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}`,
+                                        children: []
                                     }
-                                    tableNode.children?.push(tableColumnsNode)
-                                }
-                                const primaryKeys = table.primaryKeys;
-                                if (primaryKeys && primaryKeys.length > 0){
-                                    const tablePrimaryKeysNode: DataNode = {
-                                        title: `主键`,
-                                        key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKeys-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-primaryKeys`,
-                                        children: primaryKeys.map((primaryKey) => ({
-                                            title: primaryKey.columnName,
-                                            key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKey-${schemaTableTypeTable.schema.tableSchema}-${primaryKey.columnName}`,
-                                            isLeaf: true
-                                        }))
+                                    const columns = table.columns;
+                                    if (columns && columns.length > 0) {
+                                        const tableColumnsNode: DataNode = {
+                                            title: `列`,
+                                            key: `ApiCalciteDatabaseSchemaTableTypeTableColumns-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-columns`,
+                                            children: columns.map((column) => ({
+                                                title: column.columnName,
+                                                key: `ApiCalciteDatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
+                                                isLeaf: true
+                                            }))
+                                        }
+                                        tableNode.children?.push(tableColumnsNode)
                                     }
-                                    tableNode.children?.push(tablePrimaryKeysNode)
-                                }
-                                tableTypeNode.children?.push(tableNode);
-                            })
-                        }
-                        schemaNode.children?.push(tableTypeNode)
-                    })
-                }
-                apiCalciteNode.children?.push(schemaNode)
+                                    const primaryKeys = table.primaryKeys;
+                                    if (primaryKeys && primaryKeys.length > 0) {
+                                        const tablePrimaryKeysNode: DataNode = {
+                                            title: `主键`,
+                                            key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKeys-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-primaryKeys`,
+                                            children: primaryKeys.map((primaryKey) => ({
+                                                title: primaryKey.columnName,
+                                                key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKey-${schemaTableTypeTable.schema.tableSchema}-${primaryKey.columnName}`,
+                                                isLeaf: true
+                                            }))
+                                        }
+                                        tableNode.children?.push(tablePrimaryKeysNode)
+                                    }
+                                    tableTypeNode.children?.push(tableNode);
+                                })
+                            }
+                            schemaNode.children?.push(tableTypeNode)
+                        })
+                    }
+                    apiCalciteNode.children?.push(schemaNode)
+                })
+            }
+            const templates: { id: string }[] = await apiClient.get('/sql/forge/api/calcite')
+            templates.forEach(item => {
+                apiCalciteNode.children?.push({
+                    title: item.id,
+                    key: 'ApiCalcite-' + item.id
+                })
             })
+        } catch (e) {
+            console.error(e)
         }
-        const templates: { id: string }[] = await apiClient.get('/sql/forge/api/calcite')
-        templates.forEach(item => {
-            apiCalciteNode.children?.push({
-                title: item.id,
-                key: 'ApiCalcite-' + item.id
-            })
-        })
+
         const orgTreeNode = TreeData.find(item => item.title === 'ApiCalcite')
         if (orgTreeNode) {
             TreeData.splice(TreeData.indexOf(orgTreeNode), 1, apiCalciteNode)
@@ -245,13 +261,19 @@ function App() {
     }
 
     const loadAmisTemplate = async (TreeData: DataNode[]) => {
-        const templates: { id: string }[] = await apiClient.get('/sql/forge/amis/template')
-        const apiTemplateNode: DataNode = {
-            title: 'AmisTemplate', key: 'AmisTemplate', children: templates.map(item => ({
-                title: item.id,
-                key: 'AmisTemplate-' + item.id
-            }))
+        const apiTemplateNode: DataNode = {title: 'AmisTemplate', key: 'AmisTemplate', children: []}
+        try {
+            const templates: { id: string }[] = await apiClient.get('/sql/forge/amis/template')
+            templates.forEach(item => {
+                apiTemplateNode.children?.push({
+                    title: item.id,
+                    key: 'AmisTemplate-' + item.id
+                })
+            })
+        } catch (e) {
+            console.error(e)
         }
+
         const orgTreeNode = TreeData.find(item => item.title === 'AmisTemplate')
         if (orgTreeNode) {
             TreeData.splice(TreeData.indexOf(orgTreeNode), 1, apiTemplateNode)
@@ -372,7 +394,7 @@ function App() {
             newPanes.push({
                 label: newLabel,
                 children: <AmisTemplateCrudTabItem reload={reloadAmisTemplate}
-                                               remove={() => remove(newActiveKey)}/>,
+                                                   remove={() => remove(newActiveKey)}/>,
                 key: newActiveKey,
             })
         } else if (type.startsWith('AmisTemplate-')) {
