@@ -62,13 +62,13 @@ class ExecutorTest {
                 INSERT INTO orders (user_id, product_id, order_date, quantity) VALUES (?,?,?,?)
                 """, params1);
 
-        Object key = executor.executeInsert(sqlScript1);
+        RowMap key = executor.executeInsert(sqlScript1);
         log.info("key: {}", key);
         assertNotNull(key);
 
         ParamMap params2 = new ParamMap();
         params2.put("2025-12-09");
-        params2.put(key);
+        params2.put(key.get("ID"));
         SqlScript sqlScript2 = new SqlScript("""
                 UPDATE orders SET order_date = ? WHERE id = ?
                 """, params2);
@@ -78,7 +78,7 @@ class ExecutorTest {
         assertEquals(1, count);
 
         ParamMap params3 = new ParamMap();
-        params3.put(key);
+        params3.put(key.get("ID"));
         SqlScript sqlScript3 = new SqlScript("""
                 DELETE FROM orders  WHERE id = ?
                 """, params3);
