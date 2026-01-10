@@ -602,6 +602,9 @@ Response:
 #### Configuration
 Disable the **Template API Module** with `sql.forge.api.template.enabled=false`
 
+#### Persisting Templates
+Implement your own template service by extending [IApiTemplateStorage.java](sql-forge-template/src/main/java/cn/wubo/sql/forge/IApiTemplateStorage.java).
+
 ### Calcite API Module
 `SQL` template engine implemented based on `Apache Calcite`, used for executing cross-database federated queries.
 - **Data Source Configuration**: Provides data source configuration functionality
@@ -679,6 +682,9 @@ Response:
 #### Configuration
 Disable the **Calcite API Module** with `sql.forge.api.calcite.enabled=false`
 
+#### Persisting Templates
+Implement your own template service by extending [IApiCalciteStorage.java](sql-forge-calcite/src/main/java/cn/wubo/sql/forge/IApiCalciteStorage.java).
+
 ### Amis Module
 Web pages built quickly using [Amis](https://aisuda.bce.baidu.com/amis/en-US/docs/index) combined with **Json API** module, **Template API** module, and **Calcite API** module.
 
@@ -714,6 +720,9 @@ Open web page:
 
 #### Configuration
 Disable **Amis** with `sql.forge.amis.enabled=false`
+
+#### Persisting Templates
+Implement your own template service by extending [IAmisStorage.java](sql-forge-amis/src/main/java/cn/wubo/sql/forge/IAmisStorage.java).
 
 ### Console
 Provides a simple web interface for debugging and template management:

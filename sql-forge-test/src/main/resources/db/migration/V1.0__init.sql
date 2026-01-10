@@ -26,6 +26,13 @@ CREATE TABLE orders (
                         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
+-- 4. 模板 sql_forge_template 表
+CREATE TABLE sql_forge_template (
+                        id VARCHAR(36) NOT NULL PRIMARY KEY,
+                        template_type VARCHAR(50),
+                        context TEXT
+);
+
 -- 插入测试用户数据（使用预定义 UUID）
 INSERT INTO users (id, username, email) VALUES
                                             ('550e8400-e29b-41d4-a716-446655440000', 'alice', 'alice@example.com'),

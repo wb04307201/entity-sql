@@ -92,7 +92,7 @@ public class SqlForgeConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(name = "sql.forge.api.template.enabled", havingValue = "true", matchIfMissing = true)
-    public ApiTemplateStorage apiTemplateStorage() {
+    public IApiTemplateStorage apiTemplateStorage() {
         return new ApiTemplateStorage();
     }
 
@@ -134,7 +134,7 @@ public class SqlForgeConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(name = "sql.forge.api.calcite.enabled", havingValue = "true", matchIfMissing = true)
-    public ApiCalciteStorage apiCalciteStorage() {
+    public IApiCalciteStorage apiCalciteStorage() {
         return new ApiCalciteStorage();
     }
 
@@ -181,7 +181,7 @@ public class SqlForgeConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(name = "sql.forge.amis.enabled", havingValue = "true", matchIfMissing = true)
-    public AmisStorage amisStorage() {
+    public IAmisStorage amisStorage() {
         return new AmisStorage();
     }
 
