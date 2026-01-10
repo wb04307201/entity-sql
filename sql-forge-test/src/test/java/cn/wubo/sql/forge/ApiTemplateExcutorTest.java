@@ -2,7 +2,6 @@ package cn.wubo.sql.forge;
 
 import cn.wubo.sql.forge.map.RowMap;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,7 @@ import java.util.Map;
 public class ApiTemplateExcutorTest {
 
     @Autowired
-    private ApiTemplateStorage apiTemplateStorage;
+    private CustomApiTemplateStorage apiTemplateStorage;
 
     @Autowired
     private ApiTemplateExcutor apiTemplateExcutor;
