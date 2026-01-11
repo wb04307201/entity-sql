@@ -4,11 +4,11 @@
   <a href="README.md">English</a> | 中文
 </div>
 
-> SQL Forge 是一个ORM框架，提供以下功能：
+> SQL Forge 不只是一个ORM框架，它提供以下功能：
 - **Entity**: 根据实体对象构建`SQL`
-- **Json API**: 通过`JSON`格式描述数据库操作，调用接口执行
-- **Template API**: 提供`SQL`模板引擎功能
-- **Calcite API**: 提供跨数据库联邦查询
+- **Json API**: 调用接口通过`JSON`格式描述数据库操作
+- **Template API**: `SQL`模板引擎
+- **Calcite API**: 跨数据库联邦查询
 - **Amis**: 百度Amis低代码前端框架
 
 [![](https://jitpack.io/v/com.gitee.wb04307201/sql-forge.svg)](https://jitpack.io/#com.gitee.wb04307201/sql-forge)

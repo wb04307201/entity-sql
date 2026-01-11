@@ -4,12 +4,12 @@
   English | <a href="README.zh-CN.md">中文</a>
 </div>
 
-> SQL Forge is a ORM framework, providing the following functions:
+> SQL Forge is more than just an ORM framework, it provides the following features:
 - **Entity**: Build `SQL` based on entity objects
-- **Json API**: Describe database operations in `JSON` format and execute via API calls
-- **Template API**: Provides `SQL` template engine functionality
-- **Calcite API**: Provides cross-database federated queries
-- **Amis**: Baidu Amis low-code frontend framework
+- **Json API**: Call interface to describe database operations in `JSON` format
+- **Template API**: `SQL` template engine
+- **Calcite API**: Cross-database federated query
+- **Amis**: Baidu Amis low-code front-end framework
 
 [![](https://jitpack.io/v/com.gitee.wb04307201/sql-forge.svg)](https://jitpack.io/#com.gitee.wb04307201/sql-forge)
 [![star](https://gitee.com/wb04307201/sql-forge/badge/star.svg?theme=dark)](https://gitee.com/wb04307201/sql-forge)
