@@ -3,35 +3,34 @@
 
 -- 1. 创建 users 表（UUID 主键，应用生成）
 CREATE TABLE users (
-                       id VARCHAR(36) NOT NULL PRIMARY KEY,
-                       username VARCHAR(50) NOT NULL UNIQUE,
-                       email VARCHAR(100)
+                       id VARCHAR(36) NOT NULL PRIMARY KEY COMMENT '用户ID',
+                       username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名，必须唯一',
+                       email VARCHAR(100) COMMENT '用户邮箱地址'
 );
 
 -- 2. 创建 products 表（UUID 主键，应用生成）
 CREATE TABLE products (
-                          id VARCHAR(36) NOT NULL PRIMARY KEY,
-                          name VARCHAR(100) NOT NULL,
-                          price DECIMAL(10, 2)
+                          id VARCHAR(36) NOT NULL PRIMARY KEY COMMENT '产品ID',
+                          name VARCHAR(100) NOT NULL COMMENT '产品名称',
+                          price DECIMAL(10, 2) COMMENT '产品价格，精确到分'
 );
 
 -- 3. 创建 orders 表（自增主键）
 CREATE TABLE orders (
-                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                        user_id VARCHAR(36) NOT NULL,
-                        product_id VARCHAR(36) NOT NULL,
-                        order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        quantity INT NOT NULL DEFAULT 1,
-                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+                        id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '订单ID',
+                        user_id VARCHAR(36) NOT NULL COMMENT '关联的用户ID',
+                        product_id VARCHAR(36) NOT NULL COMMENT '关联的产品ID',
+                        order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '订单创建时间，默认当前时间戳',
+                        quantity INT NOT NULL DEFAULT 1 COMMENT '订购数量，默认为1'
 );
 
 -- 4. 模板 sql_forge_template 表
 CREATE TABLE sql_forge_template (
-                        id VARCHAR(36) NOT NULL PRIMARY KEY,
-                        template_type VARCHAR(50),
-                        context TEXT
+                                    id VARCHAR(36) NOT NULL PRIMARY KEY COMMENT '主键ID',
+                                    template_type VARCHAR(50) COMMENT '模板类型',
+                                    context TEXT COMMENT '模板内容'
 );
+
 
 -- 插入测试用户数据（使用预定义 UUID）
 INSERT INTO users (id, username, email) VALUES
