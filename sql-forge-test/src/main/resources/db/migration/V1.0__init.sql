@@ -16,7 +16,7 @@ ON TABLE users IS '用户表';
 COMMENT
 ON COLUMN users.id IS '用户ID';
 COMMENT
-ON COLUMN users.username IS '用户名，必须唯一';
+ON COLUMN users.username IS '用户名';
 COMMENT
 ON COLUMN users.email IS '用户邮箱地址';
 
@@ -24,7 +24,7 @@ ON COLUMN users.email IS '用户邮箱地址';
 CREATE TABLE products
 (
     id    VARCHAR(36)  NOT NULL PRIMARY KEY,
-    name  VARCHAR(100) NOT NULL,
+    name  VARCHAR(100) NOT NULL UNIQUE,
     price DECIMAL(10, 2)
 );
 
@@ -59,7 +59,7 @@ ON COLUMN orders.quantity IS '订购数量';
 -- 4. 模板 sql_forge_template 表
 CREATE TABLE sql_forge_template
 (
-    id            VARCHAR(36) NOT NULL PRIMARY KEY,
+    id            VARCHAR(64) NOT NULL PRIMARY KEY,
     template_type VARCHAR(50),
     context       TEXT
 );
@@ -77,10 +77,9 @@ ON COLUMN sql_forge_template.id IS '主键ID';
 CREATE TABLE sys_dict
 (
     id          VARCHAR(36)  NOT NULL PRIMARY KEY,
-    dict_code   VARCHAR(64)  NOT NULL,
+    dict_code   VARCHAR(64)  NOT NULL UNIQUE,
     dict_name   VARCHAR(100) NOT NULL,
-    description VARCHAR(255),
-    CONSTRAINT uk_dict_code UNIQUE (dict_code) -- 唯一键约束
+    description VARCHAR(255)
 );
 
 COMMENT
@@ -165,6 +164,16 @@ VALUES ('550e8400-e29b-41d4-a716-446655440000', 'f47ac10b-58cc-4372-a567-0e02b2c
        ('550e8400-e29b-41d4-a716-446655440001', 'f47ac10b-58cc-4372-a567-0e02b2c3d481', 1),
        ('550e8400-e29b-41d4-a716-446655440002', 'f47ac10b-58cc-4372-a567-0e02b2c3d479', 1);
 
+
+-- 插入测试字典数据
+INSERT INTO PUBLIC.SYS_DICT (ID, DICT_CODE, DICT_NAME, DESCRIPTION) VALUES ('0209cdd5-9f94-4000-ad90-6eb5dd8fd800', 'sex', '性别', null);
+
+INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT) VALUES ('0209cdd5-9f94-4000-ad90-6eb5dd8fd801', 'sex', 'male', '男', 1);
+INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT) VALUES ('0209cdd5-9f94-4000-ad90-6eb5dd8fd802', 'sex', 'female', '女', 2);
+
+
+
+
 -- 示例联表查询：查询每个订单的用户、商品信息
 SELECT o.id                   AS order_id,
        u.username,
@@ -175,3 +184,4 @@ SELECT o.id                   AS order_id,
 FROM orders o
          JOIN users u ON o.user_id = u.id
          JOIN products p ON o.product_id = p.id;
+

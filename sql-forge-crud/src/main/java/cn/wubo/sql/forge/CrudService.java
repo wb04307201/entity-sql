@@ -199,7 +199,8 @@ public record CrudService(Executor executor) {
     private void applyWheres(SQL sql, List<Where> wheres, ParamMap params) {
         if (wheres != null && !wheres.isEmpty()) {
             for (Where where : wheres) {
-                sql.WHERE(where.create(params));
+                String whereStr = where.create(params);
+                if (whereStr!= null) sql.WHERE(whereStr);
             }
         }
     }

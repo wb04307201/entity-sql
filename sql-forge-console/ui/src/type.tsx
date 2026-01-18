@@ -38,8 +38,17 @@ export interface AmisTemplateCrudProps {
 }
 
 export interface OptionType {
-    label:string,
-    value:string
+  label: string;
+  value: string;
+}
+
+export interface DataType extends ColumnInfo {
+  isPrimaryKey: boolean;
+  isTableable: boolean;
+  isSearchable: boolean;
+  isShowCheck: boolean;
+  isInsertable: boolean;
+  isUpdatable: boolean;
 }
 
 
