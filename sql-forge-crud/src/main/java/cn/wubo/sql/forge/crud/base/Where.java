@@ -17,6 +17,10 @@ public record Where(
 ) {
 
     public String create(ParamMap params) {
+        if(value == null) {
+            return null;
+        }
+
         if (condition == null) {
             params.put(value);
             return column + ConditionType.EQ.getValue() + QUESTION_MARK;

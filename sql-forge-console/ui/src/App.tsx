@@ -19,7 +19,7 @@ import ApiCalciteConfigTabItem from "./ApiCalciteConfigTabItem.tsx";
 import AmisTemplateTabItem from "./AmisTemplateTabItem.tsx";
 import ApiCalciteSqlTabItem from "./ApiCalciteSqlTabItem.tsx";
 import AmisTemplateCrudTabItem from "./AmisTemplateCrudTabItem.tsx";
-import type {DatabaseInfo} from "./type.tsx";
+import type {DatabaseInfo, SchemaTableTypeTable} from './type.tsx';
 import "./App.css"
 
 const {Content, Sider} = Layout;
@@ -108,27 +108,29 @@ function App() {
                                     const columns = table.columns;
                                     if (columns && columns.length > 0) {
                                         const tableColumnsNode: DataNode = {
-                                            title: `列`,
-                                            key: `ApiCalciteDatabaseSchemaTableTypeTableColumns-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-columns`,
-                                            children: columns.map((column) => ({
-                                                title: column.columnName,
-                                                key: `ApiCalciteDatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-${column.columnName}`,
-                                                isLeaf: true
-                                            }))
-                                        }
+                                          title: `列`,
+                                          key: `ApiCalciteDatabaseSchemaTableTypeTableColumns-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-columns`,
+                                          children: columns.map(column => ({
+                                            title: column.columnName,
+                                            key: `ApiCalciteDatabaseSchemaTableTypeTableColumn-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-columns-${column.columnName}`,
+                                            isLeaf: true
+                                          }))
+                                        };
                                         tableNode.children?.push(tableColumnsNode)
                                     }
                                     const primaryKeys = table.primaryKeys;
                                     if (primaryKeys && primaryKeys.length > 0) {
                                         const tablePrimaryKeysNode: DataNode = {
-                                            title: `主键`,
-                                            key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKeys-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-primaryKeys`,
-                                            children: primaryKeys.map((primaryKey) => ({
-                                                title: primaryKey.columnName,
-                                                key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKey-${schemaTableTypeTable.schema.tableSchema}-${primaryKey.columnName}`,
-                                                isLeaf: true
-                                            }))
-                                        }
+                                          title: `主键`,
+                                          key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKeys-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-primaryKeys`,
+                                          children: primaryKeys.map(
+                                            primaryKey => ({
+                                              title: primaryKey.columnName,
+                                              key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKey-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-primaryKeys-${primaryKey.columnName}`,
+                                              isLeaf: true
+                                            })
+                                          )
+                                        };
                                         tableNode.children?.push(tablePrimaryKeysNode)
                                     }
                                     tableTypeNode.children?.push(tableNode);
@@ -217,19 +219,6 @@ function App() {
                                             }))
                                         }
                                         tableNode.children?.push(tableColumnsNode)
-                                    }
-                                    const primaryKeys = table.primaryKeys;
-                                    if (primaryKeys && primaryKeys.length > 0) {
-                                        const tablePrimaryKeysNode: DataNode = {
-                                            title: `主键`,
-                                            key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKeys-${schemaTableTypeTable.schema.tableSchema}-${tableType.tableType}-${table.table.tableName}-primaryKeys`,
-                                            children: primaryKeys.map((primaryKey) => ({
-                                                title: primaryKey.columnName,
-                                                key: `ApiCalciteDatabaseSchemaTableTypeTablePrimaryKey-${schemaTableTypeTable.schema.tableSchema}-${primaryKey.columnName}`,
-                                                isLeaf: true
-                                            }))
-                                        }
-                                        tableNode.children?.push(tablePrimaryKeysNode)
                                     }
                                     tableTypeNode.children?.push(tableNode);
                                 })
