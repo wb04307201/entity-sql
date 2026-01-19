@@ -732,7 +732,7 @@ Provides a simple web interface for debugging and template management:
 - Calcite API data source maintenance, SQL debugging, template management, debugging
 ![gif1-5.gif](gif1-5.gif)
 - Amis template management, quick template creation, visual editing, preview
-![gif6-9.gif](gif6-9.gif)
+  ![gif6-11.gif](gif6-11.gif)
 
 #### Configuration
 Disable **Console** with `sql.forge.console.enabled=false`

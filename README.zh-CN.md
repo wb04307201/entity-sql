@@ -733,7 +733,7 @@ content-type: application/json
 - Calcite API数据源维护，sql调试，模板管理，调试
 ![gif1-5.gif](gif1-5.gif)
 - Amis模板管理，快速创建模板，可视化编辑，预览
-![gif6-9.gif](gif6-9.gif)
+![gif6-11.gif](gif6-11.gif)
 
 #### 配置
 可通过`sql.forge.console.enabled=false`关闭**控制台**
