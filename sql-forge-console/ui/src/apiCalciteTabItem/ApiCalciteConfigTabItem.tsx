@@ -1,6 +1,6 @@
 import {Button, Col, Flex, Modal, Row} from "antd";
 import {useEffect, useState} from "react";
-import apiClient from "./apiClient.tsx";
+import apiClient from "../apiClient.tsx";
 import Editor from "@monaco-editor/react";
 
 function ApiCalciteConfigTabItem(props: {

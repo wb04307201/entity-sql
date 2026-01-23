@@ -1,6 +1,6 @@
 import {Button, Col, Flex, Modal, Row, Table} from "antd";
 import {useState} from "react";
-import apiClient from "./apiClient.tsx";
+import apiClient from "../apiClient.tsx";
 import Editor from "@monaco-editor/react";
 
 interface ColumnType {

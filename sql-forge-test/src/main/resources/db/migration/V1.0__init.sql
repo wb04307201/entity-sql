@@ -82,7 +82,7 @@ CREATE TABLE sys_dict
     id          VARCHAR(36)  NOT NULL PRIMARY KEY,
     dict_code   VARCHAR(64)  NOT NULL UNIQUE,
     dict_name   VARCHAR(100) NOT NULL,
-    description VARCHAR(255)
+    dict_type   VARCHAR(100) NOT NULL
 );
 
 COMMENT
@@ -94,7 +94,7 @@ ON COLUMN sys_dict.dict_code IS '字典编码';
 COMMENT
 ON COLUMN sys_dict.dict_name IS '字典名称';
 COMMENT
-ON COLUMN sys_dict.description IS '描述';
+ON COLUMN sys_dict.dict_type IS '字典类型';
 
 -- 6.字典子表：存储字典明细项（如：男、女）
 CREATE TABLE sys_dict_item
@@ -169,13 +169,19 @@ VALUES ('550e8400-e29b-41d4-a716-446655440000', 'f47ac10b-58cc-4372-a567-0e02b2c
 
 
 -- 插入测试字典数据
-INSERT INTO PUBLIC.SYS_DICT (ID, DICT_CODE, DICT_NAME, DESCRIPTION)
-VALUES ('0209cdd5-9f94-4000-ad90-6eb5dd8fd800', 'sex', '性别', null);
+INSERT INTO PUBLIC.SYS_DICT (ID, DICT_CODE, DICT_NAME, DICT_TYPE)
+VALUES ('1', 'dict_type', '字典类型', 'system');
+INSERT INTO PUBLIC.SYS_DICT (ID, DICT_CODE, DICT_NAME,DICT_TYPE)
+VALUES ('2', 'sex', '性别', 'system');
 
 INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT)
-VALUES ('0209cdd5-9f94-4000-ad90-6eb5dd8fd801', 'sex', 'male', '男', 1);
+VALUES ('1-1', 'dict_type', 'system', '系统', 1);
 INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT)
-VALUES ('0209cdd5-9f94-4000-ad90-6eb5dd8fd802', 'sex', 'female', '女', 2);
+VALUES ('1-2', 'dict_type', 'business', '业务', 2);
+INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT)
+VALUES ('2-1', 'sex', 'male', '男', 1);
+INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT)
+VALUES ('2-2', 'sex', 'female', '女', 2);
 
 
 -- 示例联表查询：查询每个订单的用户、商品信息
