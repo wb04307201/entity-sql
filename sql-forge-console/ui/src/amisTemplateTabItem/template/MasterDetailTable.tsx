@@ -12,8 +12,13 @@ import type {
 } from '../../type.tsx';
 import apiClient from '../../apiClient.tsx';
 import {Col, Modal, Row, Select, Table, type TableProps} from 'antd';
-import {buildMainDetailTable, isNumberJavaSqlType} from '../utils/CrudBuild';
-import ColumnRenderCheckBox from '../components/ColumnRenderCheckBox';
+import {
+  buildMainDetailTable,
+  getIndex,
+  getPrimaryKey,
+  isNumberJavaSqlType
+} from '../utils/CrudBuild';
+import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
 
 const MasterDetailTable = forwardRef<
   AmisTemplateCrudMethods,
@@ -49,89 +54,13 @@ const MasterDetailTable = forwardRef<
       dataIndex: 'remarks'
     },
     {
-      title: '主键',
+      title: '主 表 查 选 新 改',
       dataIndex: 'isPrimaryKey',
-      render: (value: boolean, _, index: number) => {
+      render: (_, row: DataType, index: number) => {
         return (
-          <ColumnRenderCheckBox
-            value={value}
+          <ColumnRenderMutilCheckBox
+            row={row}
             index={index}
-            dataIndex={'isPrimaryKey'}
-            data={mainData}
-            setData={setMainData}
-          />
-        );
-      }
-    },
-    {
-      title: '表格',
-      dataIndex: 'isTableable',
-      render: (value: boolean, _, index: number) => {
-        return (
-          <ColumnRenderCheckBox
-            value={value}
-            index={index}
-            dataIndex={'isTableable'}
-            data={mainData}
-            setData={setMainData}
-          />
-        );
-      }
-    },
-    {
-      title: '查询',
-      dataIndex: 'isSearchable',
-      render: (value: boolean, _, index: number) => {
-        return (
-          <ColumnRenderCheckBox
-            value={value}
-            index={index}
-            dataIndex={'isSearchable'}
-            data={mainData}
-            setData={setMainData}
-          />
-        );
-      }
-    },
-    {
-      title: '选择',
-      dataIndex: 'isShowCheck',
-      render: (value: boolean, _, index: number) => {
-        return (
-          <ColumnRenderCheckBox
-            value={value}
-            index={index}
-            dataIndex={'isShowCheck'}
-            data={mainData}
-            setData={setMainData}
-          />
-        );
-      }
-    },
-    {
-      title: '新建',
-      dataIndex: 'isInsertable',
-      render: (value: boolean, _, index: number) => {
-        return (
-          <ColumnRenderCheckBox
-            value={value}
-            index={index}
-            dataIndex={'isInsertable'}
-            data={mainData}
-            setData={setMainData}
-          />
-        );
-      }
-    },
-    {
-      title: '编辑',
-      dataIndex: 'isUpdatable',
-      render: (value: boolean, _, index: number) => {
-        return (
-          <ColumnRenderCheckBox
-            value={value}
-            index={index}
-            dataIndex={'isUpdatable'}
             data={mainData}
             setData={setMainData}
           />
@@ -161,76 +90,22 @@ const MasterDetailTable = forwardRef<
       dataIndex: 'remarks'
     },
     {
-      title: '主键',
+      title: '主 表 选 新 改',
       dataIndex: 'isPrimaryKey',
-      render: (value: boolean, _, index: number) => {
+      render: (_, row: DataType, index: number) => {
         return (
-          <ColumnRenderCheckBox
-            value={value}
+          <ColumnRenderMutilCheckBox
+            row={row}
             index={index}
-            dataIndex={'isPrimaryKey'}
             data={detailData}
             setData={setDetailData}
-          />
-        );
-      }
-    },
-    {
-      title: '表格',
-      dataIndex: 'isTableable',
-      render: (value: boolean, _, index: number) => {
-        return (
-          <ColumnRenderCheckBox
-            value={value}
-            index={index}
-            dataIndex={'isTableable'}
-            data={detailData}
-            setData={setDetailData}
-          />
-        );
-      }
-    },
-    {
-      title: '选择',
-      dataIndex: 'isShowCheck',
-      render: (value: boolean, _, index: number) => {
-        return (
-          <ColumnRenderCheckBox
-            value={value}
-            index={index}
-            dataIndex={'isShowCheck'}
-            data={detailData}
-            setData={setDetailData}
-          />
-        );
-      }
-    },
-    {
-      title: '新建',
-      dataIndex: 'isInsertable',
-      render: (value: boolean, _, index: number) => {
-        return (
-          <ColumnRenderCheckBox
-            value={value}
-            index={index}
-            dataIndex={'isInsertable'}
-            data={detailData}
-            setData={setDetailData}
-          />
-        );
-      }
-    },
-    {
-      title: '编辑',
-      dataIndex: 'isUpdatable',
-      render: (value: boolean, _, index: number) => {
-        return (
-          <ColumnRenderCheckBox
-            value={value}
-            index={index}
-            dataIndex={'isUpdatable'}
-            data={detailData}
-            setData={setDetailData}
+            show={[
+              'isPrimaryKey',
+              'isTableable',
+              'isShowCheck',
+              'isInsertable',
+              'isUpdatable'
+            ]}
           />
         );
       }
@@ -291,11 +166,10 @@ const MasterDetailTable = forwardRef<
 
     if (tableColumn) {
       const columns: ColumnInfo[] = tableColumn.columns;
-      const primaryKeys: {columnName: string}[] = tableColumn.primaryKeys;
+      const primaryKey = getPrimaryKey(tableColumn.primaryKeys);
+      const uniqueIndex = getIndex(primaryKey, tableColumn.indexes);
       const data: DataType[] = columns.map(column => {
-        const isPrimaryKey = primaryKeys.some(
-          primaryKey => primaryKey.columnName === column.columnName
-        );
+        const isPrimaryKey = primaryKey === column.columnName;
         return {
           columnName: column.columnName,
           dataType: column.dataType,
@@ -308,7 +182,7 @@ const MasterDetailTable = forwardRef<
           isTableable: !isPrimaryKey,
           isSearchable:
             !isPrimaryKey && !isNumberJavaSqlType(column.javaSqlType),
-          isShowCheck: isPrimaryKey,
+          isShowCheck: uniqueIndex === column.columnName,
           isInsertable: !isPrimaryKey,
           isUpdatable: !isPrimaryKey
         };
@@ -340,11 +214,10 @@ const MasterDetailTable = forwardRef<
 
     if (tableColumn) {
       const columns: ColumnInfo[] = tableColumn.columns;
-      const primaryKeys: {columnName: string}[] = tableColumn.primaryKeys;
+      const primaryKey = getPrimaryKey(tableColumn.primaryKeys);
+      const uniqueIndex = getIndex(primaryKey, tableColumn.indexes);
       const data: DataType[] = columns.map(column => {
-        const isPrimaryKey = primaryKeys.some(
-          primaryKey => primaryKey.columnName === column.columnName
-        );
+        const isPrimaryKey = primaryKey === column.columnName;
         return {
           columnName: column.columnName,
           dataType: column.dataType,
@@ -356,7 +229,7 @@ const MasterDetailTable = forwardRef<
           isPrimaryKey: isPrimaryKey,
           isTableable: !isPrimaryKey,
           isSearchable: false,
-          isShowCheck: isPrimaryKey,
+          isShowCheck: uniqueIndex === column.columnName,
           isInsertable: !isPrimaryKey,
           isUpdatable: !isPrimaryKey
         };

@@ -1,4 +1,4 @@
-import {DataType} from '../../type';
+import {DataType, Index, PrimaryKey} from '../../type';
 import {crudJson} from './json';
 
 export const isNumberJavaSqlType = (javaSqlType: string): boolean => {
@@ -18,6 +18,40 @@ const ITEM_CODE = 'item_code';
 const ITEM_NAME = 'item_name';
 const DICT_CODE = 'dict_code';
 
+export const getPrimaryKey= (primaryKeys: PrimaryKey[]): string|undefined => {
+  if (primaryKeys.length > 0) {
+    return primaryKeys[0].columnName;
+  } else {
+    return undefined;
+  }
+};
+
+export const getIndex = (primaryKey: string|undefined, indexes: Index[]): string|undefined => {
+  const indexNames =
+    indexes
+      .filter(item => !item.nonUnique)
+      .map(item => item.indexName)
+      .filter(
+        (item, index, self) => index === self.findIndex(t => t === item)
+      ) || [];
+  const tempIndexes =
+    indexNames
+      .map(item => {
+        const temp = {indexName: item, columns: []};
+        indexes
+          .filter(index => index.indexName === item)
+          .forEach(index => {
+            temp.columns.push(index.columnName);
+          });
+        return temp;
+      })
+      .filter(item => (item.columns.length = 1)) || [];
+  if (tempIndexes.length > 0) {
+    return tempIndexes[0].columns[0];
+  } else {
+    return primaryKey;
+  }
+};
 
 export const buildSingleTable = (table: string, tableData: DataType[]) => {
   const selectData = {
@@ -116,9 +150,7 @@ export const buildSingleTable = (table: string, tableData: DataType[]) => {
     });
 
   const updateForm = tableData
-    .filter(
-      item => (item.isTableable && item.isUpdatable)
-    )
+    .filter(item => item.isTableable && item.isUpdatable)
     .map(item => {
       if (isNumberJavaSqlType(item.javaSqlType)) {
         return {
@@ -146,7 +178,8 @@ export const buildSingleTable = (table: string, tableData: DataType[]) => {
       }
     });
 
-  const showCheckColumns = tableData.filter(item => item.isTableable && item.isShowCheck) || [];
+  const showCheckColumns =
+    tableData.filter(item => item.isTableable && item.isShowCheck) || [];
   const primaryField = tableData.find(item => item.isPrimaryKey)?.columnName;
   const labelTpl =
     showCheckColumns.length > 0
@@ -163,60 +196,62 @@ export const buildSingleTable = (table: string, tableData: DataType[]) => {
           hidden: true
         };
       } else if (isNumberJavaSqlType(item.javaSqlType)) {
-        let col=  {
+        let col = {
           name: item.columnName,
           label: item.remarks ? item.remarks : item.columnName,
           sortable: true,
           align: 'right',
           searchable: undefined
-        }
-        if (item.isSearchable){
+        };
+        if (item.isSearchable) {
           col.searchable = {
             type: 'input-number',
             name: item.columnName,
             label: item.remarks ? item.remarks : item.columnName,
             precision: item.decimalDigits,
-            placeholder: `输入${
-              item.remarks ? item.remarks : item.columnName
-            }`
+            placeholder: `输入${item.remarks ? item.remarks : item.columnName}`
           };
         }
-        return col
-      }else {
+        return col;
+      } else {
         const col = {
           name: item.columnName,
           label: item.remarks ? item.remarks : item.columnName,
           sortable: true,
           searchable: undefined
         };
-        if (item.isSearchable && item.dict){
+        if (item.isSearchable && item.dict) {
           col.searchable = {
             type: 'select',
             name: item.columnName,
             label: item.remarks ? item.remarks : item.columnName,
             maxLength: item.columnSize,
-            placeholder: `输入${
-              item.remarks ? item.remarks : item.columnName
-            }`,
+            placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
             source: sourceDict[item.dict],
             clearable: true
-          }
-        }else {
+          };
+        } else {
           col.searchable = {
             type: 'input-text',
             name: item.columnName,
             label: item.remarks ? item.remarks : item.columnName,
             maxLength: item.columnSize,
-            placeholder: `输入${
-              item.remarks ? item.remarks : item.columnName
-            }`
-          }
+            placeholder: `输入${item.remarks ? item.remarks : item.columnName}`
+          };
         }
-        return col
+        return col;
       }
     });
 
-  return crudJson(table, selectData, insertForm, labelTpl, primaryField, columns,updateForm)
+  return crudJson(
+    table,
+    selectData,
+    insertForm,
+    labelTpl,
+    primaryField,
+    columns,
+    updateForm
+  );
 };
 
 export const buildMainDetailTable = (

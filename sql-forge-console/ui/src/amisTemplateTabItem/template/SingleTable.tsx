@@ -14,9 +14,10 @@ import apiClient from '../../apiClient.tsx';
 import {Col, Modal, Row, Select, Table, type TableProps} from 'antd';
 import {
   buildSingleTable,
+  getIndex,
+  getPrimaryKey,
   isNumberJavaSqlType
 } from '../utils/CrudBuild';
-import ColumnRenderCheckBox from '../components/ColumnRenderCheckBox';
 import ColumnRenderSelect from '../components/ColumnRenderSelect';
 import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
 
@@ -80,7 +81,7 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
         }
       }
     ];
-    const [dictOptions, setDictOptions] = useState()
+    const [dictOptions, setDictOptions] = useState();
 
     const load = async () => {
       const database: DatabaseInfo = await apiClient.get(
@@ -151,11 +152,11 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
 
       if (tableColumn) {
         const columns: ColumnInfo[] = tableColumn.columns;
-        const primaryKeys: {columnName: string}[] = tableColumn.primaryKeys;
+        const primaryKey = getPrimaryKey(tableColumn.primaryKeys);
+        const uniqueIndex = getIndex(primaryKey, tableColumn.indexes);
+
         const data: DataType[] = columns.map(column => {
-          const isPrimaryKey = primaryKeys.some(
-            primaryKey => primaryKey.columnName === column.columnName
-          );
+          const isPrimaryKey = primaryKey === column.columnName;
           return {
             columnName: column.columnName,
             dataType: column.dataType,
@@ -168,7 +169,7 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
             isTableable: !isPrimaryKey,
             isSearchable:
               !isPrimaryKey && !isNumberJavaSqlType(column.javaSqlType),
-            isShowCheck: isPrimaryKey,
+            isShowCheck: uniqueIndex === column.columnName,
             isInsertable: !isPrimaryKey,
             isUpdatable: !isPrimaryKey
           };
@@ -186,32 +187,14 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
         return;
       }
 
-      const primaryKey: DataType | undefined = data.find(
-        item => item.isPrimaryKey
-      );
-      if (!primaryKey) {
+      if (!data.find(item => item.isPrimaryKey)) {
         Modal.error({title: '错误', content: '需要一个主键'});
         return;
       }
-      const tableColumns: DataType[] =
-        data.filter(item => item.isTableable) || [];
-      const searchableColumns: DataType[] = tableColumns.filter(
-        item => item.isSearchable
-      );
-      const showCheckColumns: DataType[] = data.filter(
-        item => item.isShowCheck
-      );
-      const insertableColumns: DataType[] =
-        data.filter(item => item.isInsertable) || [];
-      const updatableColumns: DataType[] =
-        data.filter(item => item.isUpdatable) || [];
 
       const context = {
         type: 'page',
-        body: buildSingleTable(
-          table,
-          data
-        )
+        body: buildSingleTable(table, data)
       };
 
       return JSON.stringify(context, null, 2);
