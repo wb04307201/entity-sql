@@ -406,10 +406,12 @@ function AmisTemplateTabItem(props: {
           open={showAmisEditor}
           width={'100%'}
         >
-          <AmisEitor
-            value={context ? JSON.parse(context) : {type:'page'}}
-            onChange={(value) => setContext(JSON.stringify(value,null,2))}
-          />
+          {showAmisEditor && (
+            <AmisEitor
+              value={context ? JSON.parse(context) : {type: 'page'}}
+              onChange={value => setContext(JSON.stringify(value, null, 2))}
+            />
+          )}
         </Drawer>
       </>
     );

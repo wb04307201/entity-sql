@@ -9,14 +9,16 @@ import type {
   SchemaTableTypeTable,
   TableColumn,
   TableTypeTable
-} from '../type.tsx';
-import apiClient from '../apiClient.tsx';
-import {Checkbox, Col, Modal, Row, Select, Table, type TableProps} from 'antd';
+} from '../../type.tsx';
+import apiClient from '../../apiClient.tsx';
+import {Col, Modal, Row, Select, Table, type TableProps} from 'antd';
 import {
   buildSingleTable,
   isNumberJavaSqlType
-} from './utils/build';
-import ColumnRenderCheckBox from './components/ColumnRenderCheckBox';
+} from '../utils/CrudBuild';
+import ColumnRenderCheckBox from '../components/ColumnRenderCheckBox';
+import ColumnRenderSelect from '../components/ColumnRenderSelect';
+import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
 
 const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
   (props, ref) => {
@@ -48,14 +50,13 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
         dataIndex: 'remarks'
       },
       {
-        title: '主键',
+        title: '主 表 查 选 新 改',
         dataIndex: 'isPrimaryKey',
-        render: (value: boolean, _, index: number) => {
+        render: (_, row: DataType, index: number) => {
           return (
-            <ColumnRenderCheckBox
-              value={value}
+            <ColumnRenderMutilCheckBox
+              row={row}
               index={index}
-              dataIndex={'isPrimaryKey'}
               data={data}
               setData={setData}
             />
@@ -63,81 +64,23 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
         }
       },
       {
-        title: '表格',
-        dataIndex: 'isTableable',
+        title: '字典',
+        dataIndex: 'dict',
         render: (value: boolean, _, index: number) => {
           return (
-            <ColumnRenderCheckBox
+            <ColumnRenderSelect
               value={value}
               index={index}
-              dataIndex={'isTableable'}
+              dataIndex={'dict'}
               data={data}
               setData={setData}
-            />
-          );
-        }
-      },
-      {
-        title: '查询',
-        dataIndex: 'isSearchable',
-        render: (value: boolean, _, index: number) => {
-          return (
-            <ColumnRenderCheckBox
-              value={value}
-              index={index}
-              dataIndex={'isSearchable'}
-              data={data}
-              setData={setData}
-            />
-          );
-        }
-      },
-      {
-        title: '选择',
-        dataIndex: 'isShowCheck',
-        render: (value: boolean, _, index: number) => {
-          return (
-            <ColumnRenderCheckBox
-              value={value}
-              index={index}
-              dataIndex={'isShowCheck'}
-              data={data}
-              setData={setData}
-            />
-          );
-        }
-      },
-      {
-        title: '新建',
-        dataIndex: 'isInsertable',
-        render: (value: boolean, _, index: number) => {
-          return (
-            <ColumnRenderCheckBox
-              value={value}
-              index={index}
-              dataIndex={'isInsertable'}
-              data={data}
-              setData={setData}
-            />
-          );
-        }
-      },
-      {
-        title: '编辑',
-        dataIndex: 'isUpdatable',
-        render: (value: boolean, _, index: number) => {
-          return (
-            <ColumnRenderCheckBox
-              value={value}
-              index={index}
-              dataIndex={'isUpdatable'}
-              data={data}
-              setData={setData}
+              options={dictOptions}
             />
           );
         }
       }
     ];
+    const [dictOptions, setDictOptions] = useState()
 
     const load = async () => {
       const database: DatabaseInfo = await apiClient.get(
@@ -151,6 +94,20 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
         }))
       );
       setTableOptions([]);
+
+      const result = await apiClient.post(
+        'sql/forge/api/json/select/SYS_DICT',
+        {
+          '@column': ['DICT_CODE', 'DICT_NAME']
+        }
+      );
+
+      setDictOptions(
+        result.map(item => ({
+          value: item.DICT_CODE,
+          label: item.DICT_NAME
+        }))
+      );
     };
 
     useEffect(() => {
@@ -253,12 +210,7 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
         type: 'page',
         body: buildSingleTable(
           table,
-          primaryKey,
-          tableColumns,
-          searchableColumns,
-          showCheckColumns,
-          insertableColumns,
-          updatableColumns
+          data
         )
       };
 

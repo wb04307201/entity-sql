@@ -9,11 +9,11 @@ import type {
   SchemaTableTypeTable,
   TableColumn,
   TableTypeTable
-} from '../type.tsx';
-import apiClient from '../apiClient.tsx';
-import {Checkbox, Col, Modal, Row, Select, Table, type TableProps} from 'antd';
-import {buildMainDetailTable, buildSingleTable, isNumberJavaSqlType} from './utils/build';
-import ColumnRenderCheckBox from './components/ColumnRenderCheckBox';
+} from '../../type.tsx';
+import apiClient from '../../apiClient.tsx';
+import {Col, Modal, Row, Select, Table, type TableProps} from 'antd';
+import {buildMainDetailTable, isNumberJavaSqlType} from '../utils/CrudBuild';
+import ColumnRenderCheckBox from '../components/ColumnRenderCheckBox';
 
 const MasterDetailTable = forwardRef<
   AmisTemplateCrudMethods,

@@ -1,10 +1,10 @@
 import {Button, Col, Flex, Input, Modal, Row, Select} from 'antd';
 import {useRef, useState} from 'react';
-import apiClient from './apiClient.tsx';
-import SingleTable from './amisTemplateCrud/SingleTable.tsx';
-import None from './amisTemplateCrud/None.tsx';
-import type {AmisTemplateCrudMethods} from './type.tsx';
-import MasterDetailTable from './amisTemplateCrud/MasterDetailTable';
+import apiClient from '../apiClient.tsx';
+import SingleTable from './template/SingleTable.tsx';
+import None from './template/None.tsx';
+import type {AmisTemplateCrudMethods} from '../type.tsx';
+import MasterDetailTable from './template/MasterDetailTable';
 
 function AmisTemplateCrudTabItem(props: {
   reload: () => void;

@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle } from 'react';
-import type {AmisTemplateCrudMethods} from "../type.tsx";
+import type {AmisTemplateCrudMethods} from "../../type.tsx";
 
 const None = forwardRef<AmisTemplateCrudMethods>((_, ref) => {
     const getContext = () => {

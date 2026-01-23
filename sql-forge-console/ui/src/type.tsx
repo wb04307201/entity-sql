@@ -49,6 +49,7 @@ export interface DataType extends ColumnInfo {
   isShowCheck: boolean;
   isInsertable: boolean;
   isUpdatable: boolean;
+  dict: string;
 }
 
 

@@ -1,7 +1,9 @@
 import {Button, Col, Flex, Input, Modal, Row, Table} from "antd";
 import {useEffect, useState} from "react";
-import apiClient from "./apiClient.tsx";
+import apiClient from "../apiClient.tsx";
 import Editor from "@monaco-editor/react";
+import {buildTableData} from '../CommonUtils';
+import {exampleTemplate} from './json';
 
 interface ColumnType {
     title: string;
@@ -66,29 +68,13 @@ function ApiTemplateTabItem(props: {
             return;
         }
 
-        apiClient.post(`/sql/forge/api/template/execute/${apiTemplateId}`, params)
-            .then((data) => {
-                if (Array.isArray(data) && data.length > 0) {
-                    const row = data[0];
-                    const columns = []
-                    for (const key in row) {
-                        columns.push({
-                            title: key,
-                            dataIndex: key,
-                            key: key,
-                        });
-                    }
-                    setColumns(columns)
-                    setDataSource(data)
-                } else {
-                    setColumns([{
-                        title: '',
-                        dataIndex: 'key',
-                        key: 'key',
-                    }])
-                    setDataSource([{key: data}])
-                }
-            })
+        apiClient
+          .post(`/sql/forge/api/template/execute/${apiTemplateId}`, params)
+          .then((data: unknown) => {
+            const tableData = buildTableData(data);
+            setColumns(tableData.columns);
+            setDataSource(tableData.rows);
+          });
     }
 
     return (
@@ -124,11 +110,7 @@ function ApiTemplateTabItem(props: {
                 <Button
                   onClick={() => {
                     setApiTemplateId('ApiTemplate-test');
-                    setContext(`SELECT * FROM users WHERE 1=1
-<if test="name != null && name != ''">AND username = #{name}</if>
-<if test="ids != null && !ids.isEmpty()"><foreach collection="ids" item="id" open="AND id IN (" separator="," close=")">#{id}</foreach></if>
-<if test="(name == null || name == '') && (ids == null || ids.isEmpty()) ">AND 0=1</if>
-ORDER BY username DESC`);
+                    setContext(exampleTemplate);
                   }}
                 >
                   示例
