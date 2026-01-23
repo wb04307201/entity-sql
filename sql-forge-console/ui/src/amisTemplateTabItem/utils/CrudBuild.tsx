@@ -51,7 +51,7 @@ export const buildSingleTable = (table: string, tableData: DataType[]) => {
       .filter(item => item.isTableable && item.dict)
       .map(item => {
         return {
-          type: 'INNER_JOIN',
+          type: 'LEFT_OUTER_JOIN',
           joinTable: `${SYS_DICT_ITEM} ${item.dict}`,
           on: `${table}.${item.columnName} = ${item.dict}.${ITEM_CODE} and ${item.dict}.${DICT_CODE} = '${item.dict}'`
         };
