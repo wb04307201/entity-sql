@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import Console from './Console';
+import Console from './console/Console';
 import View from './view/View';
 
 function App() {

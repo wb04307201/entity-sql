@@ -1,5 +1,4 @@
 import {DataType, Index, PrimaryKey} from '../../type';
-import {crudJson} from './json';
 
 export const isNumberJavaSqlType = (javaSqlType: string): boolean => {
   return (
@@ -24,7 +23,7 @@ export const getPrimaryKey = (
   if (primaryKeys.length > 0) {
     return primaryKeys[0].columnName;
   } else {
-    return undefined;
+    return 'ID';
   }
 };
 
@@ -40,7 +39,6 @@ export const getIndex = (
       .filter(
         (item, index, self) => index === self.findIndex(t => t === item)
       ) || [];
-  console.log('indexNames=', indexNames);
   const tempIndexes =
     indexNames
       .map(item => {
@@ -57,53 +55,84 @@ export const getIndex = (
       .map(item => {
         return {indexNames: item.indexName, columnName: item.columns[0]};
       }) || [];
-  return tempIndexes.find(item => item.columnName != primaryKey)?.columnName || primaryKey;
+  return (
+    tempIndexes.find(item => item.columnName != primaryKey)?.columnName ||
+    primaryKey
+  );
 };
 
-export const buildSingleTable = (table: string, tableData: DataType[]) => {
-  const selectData = {
-    '@column': tableData
-      .filter(item => item.isPrimaryKey || item.isTableable)
-      .map(item => {
-        if (item.isTableable && item.dict) {
-          return `${item.dict}.${ITEM_NAME} as ${item.columnName}`;
-        } else {
-          return `${table}.${item.columnName}`;
-        }
-      }),
-    '@where': tableData
-      .filter(item => item.isTableable && item.isSearchable)
-      .map(item => {
-        if (item.dict) {
+export const buildSingleTable = (
+  componentId: string,
+  table: string,
+  tableData: DataType[],
+  customSelectData: any | undefined = undefined,
+  hideColumns: string[] = [],
+  disabledInsert:string[] = [],
+  disabledUpdate:string[] = [],
+) => {
+  let selectData = customSelectData;
+  if (!selectData) {
+    selectData = {
+      '@column': tableData
+        .filter(item => item.isPrimaryKey || item.isTableable)
+        .map(item => {
+          if (
+            item.isTableable &&
+            item.join &&
+            item.join.joinType === 'dict' &&
+            item.join.dict
+          ) {
+            return `${item.join.dict}.${ITEM_NAME} as ${item.columnName}`;
+          } else {
+            return `${table}.${item.columnName}`;
+          }
+        }),
+      '@where': tableData
+        .filter(item => item.isTableable && item.isSearchable)
+        .map(item => {
+          if (item.join && item.join.joinType === 'dict' && item.join.dict) {
+            return {
+              column: item.columnName,
+              condition: 'EQ',
+              value: '${' + item.columnName + ' | default:undefined}'
+            };
+          } else {
+            return {
+              column: item.columnName,
+              condition: 'LIKE',
+              value: '${' + item.columnName + ' | default:undefined}'
+            };
+          }
+        }),
+      '@join': tableData
+        .filter(
+          item =>
+            item.isTableable &&
+            item.join &&
+            item.join.joinType === 'dict' &&
+            item.join.dict
+        )
+        .map(item => {
           return {
-            column: item.columnName,
-            condition: 'EQ',
-            value: '${' + item.columnName + ' | default:undefined}'
+            type: 'LEFT_OUTER_JOIN',
+            joinTable: `${SYS_DICT_ITEM} ${item.join.dict}`,
+            on: `${table}.${item.columnName} = ${item.join.dict}.${ITEM_CODE} and ${item.join.dict}.${DICT_CODE} = '${item.join.dict}'`
           };
-        } else {
-          return {
-            column: item.columnName,
-            condition: 'LIKE',
-            value: '${' + item.columnName + ' | default:undefined}'
-          };
-        }
-      }),
-    '@join': tableData
-      .filter(item => item.isTableable && item.dict)
-      .map(item => {
-        return {
-          type: 'LEFT_OUTER_JOIN',
-          joinTable: `${SYS_DICT_ITEM} ${item.dict}`,
-          on: `${table}.${item.columnName} = ${item.dict}.${ITEM_CODE} and ${item.dict}.${DICT_CODE} = '${item.dict}'`
-        };
-      })
-  };
+        })
+    };
+  }
 
   let sourceDict: {[key: string]: any} = {};
   tableData
-    .filter(item => item.isTableable && item.dict)
+    .filter(
+      item =>
+        item.isTableable &&
+        item.join &&
+        item.join.joinType === 'dict' &&
+        item.join.dict
+    )
     .forEach(item => {
-      sourceDict[item.dict] = {
+      sourceDict[item.join.dict] = {
         method: 'post',
         url: `/sql/forge/api/json/select/${SYS_DICT_ITEM}`,
         data: {
@@ -112,7 +141,7 @@ export const buildSingleTable = (table: string, tableData: DataType[]) => {
             {
               column: DICT_CODE,
               condition: 'EQ',
-              value: item.dict
+              value: item.join.dict
             }
           ]
         },
@@ -135,23 +164,26 @@ export const buildSingleTable = (table: string, tableData: DataType[]) => {
           type: 'input-number',
           name: `${item.columnName}`,
           label: `${item.remarks ? item.remarks : item.columnName}`,
-          precision: item.decimalDigits
+          precision: item.decimalDigits,
+          disabled: disabledInsert.includes(item.columnName)
         };
-      } else if (item.dict) {
+      } else if (item.join && item.join.joinType === 'dict' && item.join.dict) {
         return {
           type: 'select',
           name: `${item.columnName}`,
           label: `${item.remarks ? item.remarks : item.columnName}`,
           maxLength: item.columnSize,
-          source: sourceDict[item.dict],
-          clearable: true
+          source: sourceDict[item.join.dict],
+          clearable: true,
+          disabled: disabledInsert.includes(item.columnName)
         };
       } else {
         return {
           type: 'input-text',
           name: `${item.columnName}`,
           label: `${item.remarks ? item.remarks : item.columnName}`,
-          maxLength: item.columnSize
+          maxLength: item.columnSize,
+          disabled: disabledInsert.includes(item.columnName)
         };
       }
     });
@@ -164,23 +196,26 @@ export const buildSingleTable = (table: string, tableData: DataType[]) => {
           type: 'input-number',
           name: `${item.columnName}`,
           label: `${item.remarks ? item.remarks : item.columnName}`,
-          precision: item.decimalDigits
+          precision: item.decimalDigits,
+          disabled: disabledUpdate.includes(item.columnName)
         };
-      } else if (item.dict) {
+      } else if (item.join && item.join.joinType === 'dict' && item.join.dict) {
         return {
           type: 'select',
           name: `${item.columnName}`,
           label: `${item.remarks ? item.remarks : item.columnName}`,
           maxLength: item.columnSize,
-          source: sourceDict[item.dict],
-          clearable: true
+          source: sourceDict[item.join.dict],
+          clearable: true,
+          disabled: disabledUpdate.includes(item.columnName)
         };
       } else {
         return {
           type: 'input-text',
           name: `${item.columnName}`,
           label: `${item.remarks ? item.remarks : item.columnName}`,
-          maxLength: item.columnSize
+          maxLength: item.columnSize,
+          disabled: disabledUpdate.includes(item.columnName)
         };
       }
     });
@@ -208,6 +243,7 @@ export const buildSingleTable = (table: string, tableData: DataType[]) => {
           label: item.remarks ? item.remarks : item.columnName,
           sortable: true,
           align: 'right',
+          hidden:hideColumns.includes(item.columnName),
           searchable: undefined
         };
         if (item.isSearchable) {
@@ -225,16 +261,22 @@ export const buildSingleTable = (table: string, tableData: DataType[]) => {
           name: item.columnName,
           label: item.remarks ? item.remarks : item.columnName,
           sortable: true,
+          hidden: hideColumns.includes(item.columnName),
           searchable: undefined
         };
-        if (item.isSearchable && item.dict) {
+        if (
+          item.isSearchable &&
+          item.join &&
+          item.join.joinType === 'dict' &&
+          item.join.dict
+        ) {
           col.searchable = {
             type: 'select',
             name: item.columnName,
             label: item.remarks ? item.remarks : item.columnName,
             maxLength: item.columnSize,
             placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
-            source: sourceDict[item.dict],
+            source: sourceDict[item.join.dict],
             clearable: true
           };
         } else {
@@ -250,303 +292,272 @@ export const buildSingleTable = (table: string, tableData: DataType[]) => {
       }
     });
 
-  return crudJson(
-    table,
-    selectData,
-    insertForm,
-    labelTpl,
-    primaryField,
-    columns,
-    updateForm
-  );
+  return {
+    type: 'crud',
+    id: `${componentId}`,
+    api: {
+      method: 'post',
+      url: `/sql/forge/api/json/selectPage/${table}`,
+      data: {
+        ...selectData,
+        '@order': [
+          "${default(orderBy && orderDir ? (orderBy + ' ' + orderDir):'',undefined)}"
+        ],
+        '@page': {
+          pageIndex: '${page - 1}',
+          pageSize: '${perPage}'
+        }
+      }
+    },
+    headerToolbar: [
+      {
+        label: '新增',
+        type: 'button',
+        icon: 'fa fa-plus',
+        level: 'primary',
+        actionType: 'drawer',
+        drawer: {
+          title: '新增表单',
+          body: {
+            type: 'form',
+            api: {
+              method: 'post',
+              url: `/sql/forge/api/json/insert/${table}`,
+              data: {
+                '@set': '$$'
+              }
+            },
+            onEvent: {
+              submitSucc: {
+                actions: [
+                  {
+                    actionType: 'reload',
+                    componentId: `${componentId}`
+                  }
+                ]
+              }
+            },
+            body: insertForm
+          }
+        }
+      },
+      'bulkActions',
+      {
+        type: 'columns-toggler',
+        align: 'right'
+      },
+      {
+        type: 'drag-toggler',
+        align: 'right'
+      },
+      {
+        type: 'export-excel',
+        label: '导出',
+        icon: 'fa fa-file-excel',
+        api: {
+          method: 'post',
+          url: `/sql/forge/api/json/insert/${table}`,
+          data: selectData
+        },
+        align: 'right'
+      }
+    ],
+    footerToolbar: [
+      'statistics',
+      {
+        type: 'pagination',
+        layout: 'total,perPage,pager,go'
+      }
+    ],
+    bulkActions: [
+      {
+        label: '批量删除',
+        icon: 'fa fa-trash',
+        actionType: 'ajax',
+        api: {
+          method: 'post',
+          url: `/sql/forge/api/json/delete/${table}`,
+          data: {
+            '@where': [
+              {
+                column: primaryField,
+                condition: 'IN',
+                value: '${ids | split}'
+              }
+            ]
+          }
+        },
+        confirmText: '确定要批量删除?'
+      }
+    ],
+    keepItemSelectionOnPageChange: true,
+    labelTpl: labelTpl,
+    autoFillHeight: true,
+    autoGenerateFilter: true,
+    showIndex: true,
+    primaryField: primaryField,
+    columns: [
+      ...columns,
+      {
+        type: 'operation',
+        label: '操作',
+        buttons: [
+          {
+            label: '修改',
+            type: 'button',
+            icon: 'fa fa-pen-to-square',
+            actionType: 'drawer',
+            drawer: {
+              title: '新增表单',
+              body: {
+                type: 'form',
+                initApi: {
+                  method: 'post',
+                  url: `/sql/forge/api/json/select/${table}`,
+                  data: {
+                    '@where': [
+                      {
+                        column: primaryField,
+                        condition: 'EQ',
+                        value: '${ID}'
+                      }
+                    ]
+                  },
+                  responseData: {
+                    '&': '${items | first}'
+                  }
+                },
+                api: {
+                  method: 'post',
+                  url: `/sql/forge/api/json/update/${table}`,
+                  data: {
+                    '@set': '$$',
+                    '@where': [
+                      {
+                        column: primaryField,
+                        condition: 'EQ',
+                        value: '${ID}'
+                      }
+                    ]
+                  }
+                },
+                onEvent: {
+                  submitSucc: {
+                    actions: [
+                      {
+                        actionType: 'reload',
+                        componentId: `${componentId}`
+                      }
+                    ]
+                  }
+                },
+                body: updateForm
+              }
+            }
+          },
+          {
+            label: '删除',
+            type: 'button',
+            icon: 'fa fa-minus',
+            actionType: 'ajax',
+            level: 'danger',
+            confirmText: '确认要删除？',
+            api: {
+              method: 'post',
+              url: `/sql/forge/api/json/delete/${table}`,
+              data: {
+                '@where': [
+                  {
+                    column: primaryField,
+                    condition: 'EQ',
+                    value: '${ID}'
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        fixed: 'right'
+      }
+    ]
+  };
 };
 
 export const buildMainDetailTable = (
+  componentId: string,
   table: string,
   column: string,
-  primaryKey: DataType,
-  tableColumns: DataType[],
-  searchableColumns: DataType[],
-  showCheckColumns: DataType[],
-  insertableColumns: DataType[],
-  updatableColumns: DataType[],
+  tableData: DataType[],
+  detailComponentId: string,
   detailTable: string,
   detailColumn: string,
-  detailTablePrimaryKey: DataType,
-  detailTableColumns: DataType[],
-  detailShowCheckColumns: DataType[],
-  detailInsertableColumns: DataType[],
-  detailUpdatableColumns: DataType[]
+  detailTableData: DataType[]
 ) => {
-  const where = searchableColumns.map(item => {
-    return {
-      column: item.columnName,
-      condition: 'LIKE',
-      value: '${' + item.columnName + ' | default:undefined}'
-    };
-  });
-
-  const columns = [
-    {
-      name: primaryKey.columnName,
-      label: primaryKey.columnName,
-      hidden: true
-    },
-    ...tableColumns.map(item => {
-      if (item.isSearchable) {
-        if (isNumberJavaSqlType(item.javaSqlType)) {
-          return {
-            name: item.columnName,
-            label: item.remarks ? item.remarks : item.columnName,
-            searchable: {
-              type: 'input-number',
-              name: item.columnName,
-              label: item.remarks ? item.remarks : item.columnName,
-              precision: item.decimalDigits,
-              placeholder: `输入${
-                item.remarks ? item.remarks : item.columnName
-              }`
-            },
-            sortable: true,
-            align: 'right'
-          };
-        } else {
-          return {
-            name: item.columnName,
-            label: item.remarks ? item.remarks : item.columnName,
-            searchable: {
-              type: 'input-text',
-              name: item.columnName,
-              label: item.remarks ? item.remarks : item.columnName,
-              maxLength: item.columnSize,
-              placeholder: `输入${
-                item.remarks ? item.remarks : item.columnName
-              }`
-            },
-            sortable: true
-          };
-        }
-      } else {
-        return {
-          name: item.columnName,
-          label: item.remarks ? item.remarks : item.columnName,
-          sortable: true
-        };
+  const mainCrudTable = {
+    ...buildSingleTable(componentId, table, tableData),
+    onEvent: {
+      rowClick: {
+        actions: [
+          {
+            actionType: 'reload',
+            componentId: `${detailComponentId}`,
+            data: {
+              [detailColumn]: `$\{event.data.item.${column}\}`
+            }
+          }
+        ]
       }
-    }),
-    {
-      type: 'operation',
-      label: '操作',
-      buttons: [
-        {
-          label: '修改',
-          type: 'button',
-          icon: 'fa fa-pen-to-square',
-          actionType: 'drawer',
-          drawer: {
-            title: '新增表单',
-            body: {
-              type: 'form',
-              initApi: {
-                method: 'post',
-                url: `/sql/forge/api/json/select/${table}`,
-                data: {
-                  '@where': [
-                    {
-                      column: primaryKey.columnName,
-                      condition: 'EQ',
-                      value: '${ID}'
-                    }
-                  ]
-                },
-                responseData: {
-                  '&': '${items | first}'
-                }
-              },
-              api: {
-                method: 'post',
-                url: `/sql/forge/api/json/update/${table}`,
-                data: {
-                  '@set': '$$',
-                  '@where': [
-                    {
-                      column: primaryKey.columnName,
-                      condition: 'EQ',
-                      value: '${ID}'
-                    }
-                  ]
-                }
-              },
-              onEvent: {
-                submitSucc: {
-                  actions: [
-                    {
-                      actionType: 'reload',
-                      componentId: 'crud_table'
-                    }
-                  ]
-                }
-              },
-              body: updatableColumns.map(item => {
-                if (isNumberJavaSqlType(item.javaSqlType)) {
-                  return {
-                    type: 'input-number',
-                    name: `${item.columnName}`,
-                    label: `${item.remarks ? item.remarks : item.columnName}`,
-                    precision: item.decimalDigits
-                  };
-                } else {
-                  return {
-                    type: 'input-text',
-                    name: `${item.columnName}`,
-                    label: `${item.remarks ? item.remarks : item.columnName}`,
-                    maxLength: item.columnSize
-                  };
-                }
-              })
-            }
-          }
-        },
-        {
-          label: '删除',
-          type: 'button',
-          icon: 'fa fa-minus',
-          actionType: 'ajax',
-          level: 'danger',
-          confirmText: '确认要删除？',
-          api: {
-            method: 'post',
-            url: `/sql/forge/api/json/delete/${table}`,
-            data: {
-              '@where': [
-                {
-                  column: primaryKey.columnName,
-                  condition: 'EQ',
-                  value: '${ID}'
-                }
-              ]
-            }
-          }
-        }
-      ],
-      fixed: 'right'
     }
-  ];
+  };
 
-  const detailColumns = [
-    {
-      name: detailTablePrimaryKey.columnName,
-      label: detailTablePrimaryKey.columnName,
-      hidden: true
-    },
-    ...detailTableColumns.map(item => {
-      return {
-        name: item.columnName,
-        label: item.remarks ? item.remarks : item.columnName,
-        hidden: item.columnName === detailColumn,
-        sortable: true
-      };
-    }),
-    {
-      type: 'operation',
-      label: '操作',
-      buttons: [
-        {
-          label: '修改',
-          type: 'button',
-          icon: 'fa fa-pen-to-square',
-          actionType: 'drawer',
-          drawer: {
-            title: '新增表单',
-            body: {
-              type: 'form',
-              initApi: {
-                method: 'post',
-                url: `/sql/forge/api/json/select/${detailTable}`,
-                data: {
-                  '@where': [
-                    {
-                      column: detailTablePrimaryKey.columnName,
-                      condition: 'EQ',
-                      value: '${ID}'
-                    }
-                  ]
-                },
-                responseData: {
-                  '&': '${items | first}'
-                }
-              },
-              api: {
-                method: 'post',
-                url: `/sql/forge/api/json/update/${detailTable}`,
-                data: {
-                  '@set': '$$',
-                  '@where': [
-                    {
-                      column: primaryKey.columnName,
-                      condition: 'EQ',
-                      value: '${ID}'
-                    }
-                  ]
-                }
-              },
-              onEvent: {
-                submitSucc: {
-                  actions: [
-                    {
-                      actionType: 'reload',
-                      componentId: 'detail_table'
-                    }
-                  ]
-                }
-              },
-              body: detailUpdatableColumns.map(item => {
-                if (isNumberJavaSqlType(item.javaSqlType)) {
-                  return {
-                    type: 'input-number',
-                    name: `${item.columnName}`,
-                    label: `${item.remarks ? item.remarks : item.columnName}`,
-                    disabled: item.columnName == detailColumn,
-                    precision: item.decimalDigits
-                  };
-                } else {
-                  return {
-                    type: 'input-text',
-                    name: `${item.columnName}`,
-                    label: `${item.remarks ? item.remarks : item.columnName}`,
-                    disabled: item.columnName == detailColumn,
-                    maxLength: item.columnSize
-                  };
-                }
-              })
-            }
-          }
-        },
-        {
-          label: '删除',
-          type: 'button',
-          icon: 'fa fa-minus',
-          actionType: 'ajax',
-          level: 'danger',
-          confirmText: '确认要删除？',
-          api: {
-            method: 'post',
-            url: `/sql/forge/api/json/delete/${detailTable}`,
-            data: {
-              '@where': [
-                {
-                  column: detailTablePrimaryKey.columnName,
-                  condition: 'EQ',
-                  value: '${ID}'
-                }
-              ]
-            }
-          }
+  const detailCustomSelectData = {
+    '@column': detailTableData
+      .filter(item => item.isPrimaryKey || item.isTableable)
+      .map(item => {
+        if (
+          item.isTableable &&
+          item.join &&
+          item.join.joinType === 'dict' &&
+          item.join.dict
+        ) {
+          return `${item.join.dict}.${ITEM_NAME} as ${item.columnName}`;
+        } else {
+          return `${detailTable}.${item.columnName}`;
         }
-      ],
-      fixed: 'right'
-    }
-  ];
+      }),
+    '@where': [
+      {
+        column: `${detailColumn}`,
+        condition: 'EQ',
+        value: `$\{${column} | default:\"\"\}`
+      }
+    ],
+    '@join': detailTableData
+      .filter(
+        item =>
+          item.isTableable &&
+          item.join &&
+          item.join.joinType === 'dict' &&
+          item.join.dict
+      )
+      .map(item => {
+        return {
+          type: 'LEFT_OUTER_JOIN',
+          joinTable: `${SYS_DICT_ITEM} ${item.join.dict}`,
+          on: `${table}.${item.columnName} = ${item.join.dict}.${ITEM_CODE} and ${item.join.dict}.${DICT_CODE} = '${item.join.dict}'`
+        };
+      })
+  };
+
+  const detailCrudTable = buildSingleTable(
+    detailComponentId,
+    detailTable,
+    detailTableData,
+    detailCustomSelectData,
+    [detailColumn],
+    [detailColumn],
+    [detailColumn]
+  );
 
   return {
     type: 'flex',
@@ -561,158 +572,7 @@ export const buildMainDetailTable = (
           height: '100%'
         },
         type: 'wrapper',
-        body: {
-          type: 'crud',
-          id: 'crud_table',
-          api: {
-            method: 'post',
-            url: `/sql/forge/api/json/selectPage/${table}`,
-            data: {
-              '@where': where,
-              '@order': [
-                "${default(orderBy && orderDir ? (orderBy + ' ' + orderDir):'',undefined)}"
-              ],
-              '@page': {
-                pageIndex: '${page - 1}',
-                pageSize: '${perPage}'
-              }
-            }
-          },
-          headerToolbar: [
-            {
-              label: '新增',
-              type: 'button',
-              icon: 'fa fa-plus',
-              level: 'primary',
-              actionType: 'drawer',
-              drawer: {
-                title: '新增表单',
-                body: {
-                  type: 'form',
-                  api: {
-                    method: 'post',
-                    url: `/sql/forge/api/json/insert/${table}`,
-                    data: {
-                      '@set': '$$'
-                    }
-                  },
-                  onEvent: {
-                    submitSucc: {
-                      actions: [
-                        {
-                          actionType: 'reload',
-                          componentId: 'crud_table'
-                        }
-                      ]
-                    }
-                  },
-                  body: [
-                    {
-                      type: 'uuid',
-                      name: `${primaryKey.columnName}`
-                    },
-                    ...insertableColumns.map(item => {
-                      if (isNumberJavaSqlType(item.javaSqlType)) {
-                        return {
-                          type: 'input-number',
-                          name: `${item.columnName}`,
-                          label: `${
-                            item.remarks ? item.remarks : item.columnName
-                          }`,
-                          precision: item.decimalDigits
-                        };
-                      } else {
-                        return {
-                          type: 'input-text',
-                          name: `${item.columnName}`,
-                          label: `${
-                            item.remarks ? item.remarks : item.columnName
-                          }`,
-                          maxLength: item.columnSize
-                        };
-                      }
-                    })
-                  ]
-                }
-              }
-            },
-            'bulkActions',
-            {
-              type: 'columns-toggler',
-              align: 'right'
-            },
-            {
-              type: 'drag-toggler',
-              align: 'right'
-            },
-            {
-              type: 'export-excel',
-              label: '导出',
-              icon: 'fa fa-file-excel',
-              api: {
-                method: 'post',
-                url: `/sql/forge/api/json/select/${table}`,
-                data: {
-                  '@where': where
-                }
-              },
-              align: 'right'
-            }
-          ],
-          footerToolbar: [
-            'statistics',
-            {
-              type: 'pagination',
-              layout: 'total,perPage,pager,go'
-            }
-          ],
-          bulkActions: [
-            {
-              label: '批量删除',
-              icon: 'fa fa-trash',
-              actionType: 'ajax',
-              api: {
-                method: 'post',
-                url: `/sql/forge/api/json/delete/${table}`,
-                data: {
-                  '@where': [
-                    {
-                      column: primaryKey.columnName,
-                      condition: 'IN',
-                      value: '${ids | split}'
-                    }
-                  ]
-                }
-              },
-              confirmText: '确定要批量删除?'
-            }
-          ],
-          keepItemSelectionOnPageChange: true,
-          labelTpl:
-            showCheckColumns != null && showCheckColumns.length > 0
-              ? `$\{${showCheckColumns
-                  .map(item => item.columnName)
-                  .join(' - ')}\}`
-              : `$\{${primaryKey.columnName}\}`,
-          autoFillHeight: true,
-          autoGenerateFilter: true,
-          showIndex: true,
-          primaryField: primaryKey.columnName,
-          onEvent: {
-            rowClick: {
-              actions: [
-                {
-                  actionType: 'reload',
-                  componentId: 'detail_table',
-                  data: {
-                    [`${detailColumn}`]: `$\{event.data.item.${column}\}`
-                  }
-                }
-              ]
-            }
-          },
-          columns: columns
-        }
+        body: mainCrudTable
       },
       {
         style: {
@@ -720,153 +580,7 @@ export const buildMainDetailTable = (
           height: '100%'
         },
         type: 'wrapper',
-        body: {
-          type: 'crud',
-          id: 'detail_table',
-          api: {
-            method: 'post',
-            url: `/sql/forge/api/json/selectPage/${detailTable}`,
-            data: {
-              '@where': [
-                {
-                  column: detailColumn,
-                  condition: 'EQ',
-                  value: `$\{${detailColumn} | default:""\}`
-                }
-              ],
-              '@order': [
-                "${default(orderBy && orderDir ? (orderBy + ' ' + orderDir):'',undefined)}"
-              ],
-              '@page': {
-                pageIndex: '${page - 1}',
-                pageSize: '${perPage}'
-              }
-            }
-          },
-          headerToolbar: [
-            {
-              label: '新增',
-              type: 'button',
-              icon: 'fa fa-plus',
-              level: 'primary',
-              actionType: 'drawer',
-              drawer: {
-                title: '新增表单',
-                body: {
-                  type: 'form',
-                  api: {
-                    method: 'post',
-                    url: `/sql/forge/api/json/insert/${detailTable}`,
-                    data: {
-                      '@set': '$$'
-                    }
-                  },
-                  onEvent: {
-                    submitSucc: {
-                      actions: [
-                        {
-                          actionType: 'reload',
-                          componentId: 'detail_table'
-                        }
-                      ]
-                    }
-                  },
-                  body: [
-                    {
-                      type: 'uuid',
-                      name: `${primaryKey.columnName}`
-                    },
-                    ...detailInsertableColumns.map(item => {
-                      if (isNumberJavaSqlType(item.javaSqlType)) {
-                        return {
-                          type: 'input-number',
-                          name: `${item.columnName}`,
-                          label: `${
-                            item.remarks ? item.remarks : item.columnName
-                          }`,
-                          disabled: item.columnName == detailColumn,
-                          precision: item.decimalDigits
-                        };
-                      } else {
-                        return {
-                          type: 'input-text',
-                          name: `${item.columnName}`,
-                          label: `${
-                            item.remarks ? item.remarks : item.columnName
-                          }`,
-                          disabled: item.columnName == detailColumn,
-                          maxLength: item.columnSize
-                        };
-                      }
-                    })
-                  ]
-                }
-              }
-            },
-            'bulkActions',
-            {
-              type: 'columns-toggler',
-              align: 'right'
-            },
-            {
-              type: 'drag-toggler',
-              align: 'right'
-            },
-            {
-              type: 'export-excel',
-              label: '导出',
-              icon: 'fa fa-file-excel',
-              api: {
-                method: 'post',
-                url: `/sql/forge/api/json/select/${detailTable}`,
-                data: {
-                  '@where': where
-                }
-              },
-              align: 'right'
-            }
-          ],
-          footerToolbar: [
-            'statistics',
-            {
-              type: 'pagination',
-              layout: 'total,perPage,pager,go'
-            }
-          ],
-          bulkActions: [
-            {
-              label: '批量删除',
-              icon: 'fa fa-trash',
-              actionType: 'ajax',
-              api: {
-                method: 'post',
-                url: `/sql/forge/api/json/delete/${detailTable}`,
-                data: {
-                  '@where': [
-                    {
-                      column: detailTablePrimaryKey.columnName,
-                      condition: 'IN',
-                      value: '${ids | split}'
-                    }
-                  ]
-                }
-              },
-              confirmText: '确定要批量删除?'
-            }
-          ],
-          keepItemSelectionOnPageChange: true,
-          labelTpl:
-            detailShowCheckColumns != null && detailShowCheckColumns.length > 0
-              ? `$\{${detailShowCheckColumns
-                  .map(item => item.columnName)
-                  .join(' - ')}\}`
-              : `$\{${detailTablePrimaryKey.columnName}\}`,
-          autoFillHeight: true,
-          autoGenerateFilter: true,
-          showIndex: true,
-          primaryField: detailTablePrimaryKey.columnName,
-          columns: detailColumns
-        }
+        body: detailCrudTable
       }
     ]
   };

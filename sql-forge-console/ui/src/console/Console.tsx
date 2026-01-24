@@ -11,16 +11,16 @@ import {
   ApiOutlined,
   TableOutlined
 } from '@ant-design/icons';
-import ApiJsonTabItem from './apiJsonTabItem/ApiJsonTabItem.tsx';
-import apiClient from './apiClient.tsx';
-import ApiTemplateTabItem from './apiTemplateTabItem/ApiTemplateTabItem.tsx';
-import ApiCalciteTabItem from './apiCalciteTabItem/ApiCalciteTabItem.tsx';
-import ApiCalciteConfigTabItem from './apiCalciteTabItem/ApiCalciteConfigTabItem.tsx';
-import AmisTemplateTabItem from './amisTemplateTabItem/AmisTemplateTabItem.tsx';
-import ApiCalciteSqlTabItem from './apiCalciteTabItem/ApiCalciteSqlTabItem.tsx';
-import AmisTemplateCrudTabItem from './amisTemplateTabItem/AmisTemplateCrudTabItem.tsx';
-import type {DatabaseInfo, DataType} from './type.tsx';
-import DatabaseTabItem from './databaseTabItem/DatabaseTabItem';
+import ApiJsonTabItem from '../apiJsonTabItem/ApiJsonTabItem.tsx';
+import apiClient from '../apiClient.tsx';
+import ApiTemplateTabItem from '../apiTemplateTabItem/ApiTemplateTabItem.tsx';
+import ApiCalciteTabItem from '../apiCalciteTabItem/ApiCalciteTabItem.tsx';
+import ApiCalciteConfigTabItem from '../apiCalciteTabItem/ApiCalciteConfigTabItem.tsx';
+import AmisTemplateTabItem from '../amisTemplateTabItem/AmisTemplateTabItem.tsx';
+import ApiCalciteSqlTabItem from '../apiCalciteTabItem/ApiCalciteSqlTabItem.tsx';
+import AmisTemplateCrudTabItem from '../amisTemplateTabItem/AmisTemplateCrudTabItem.tsx';
+import type {DatabaseInfo, DataType} from '../type.tsx';
+import DatabaseTabItem from '../databaseTabItem/DatabaseTabItem';
 
 const {Content, Sider} = Layout;
 

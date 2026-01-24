@@ -1,10 +1,16 @@
-import {forwardRef, useEffect, useImperativeHandle, useState} from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState
+} from 'react';
 import type {
   AmisTemplateCrudMethods,
   AmisTemplateCrudProps,
   ColumnInfo,
   DatabaseInfo,
   DataType,
+  JoinInfo,
   OptionType,
   SchemaTableTypeTable,
   TableColumn,
@@ -20,6 +26,7 @@ import {
 } from '../utils/CrudBuild';
 import ColumnRenderSelect from '../components/ColumnRenderSelect';
 import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
+import ColumnRenderJoin from '../components/ColumnRenderJoin';
 
 const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
   (props, ref) => {
@@ -65,23 +72,20 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
         }
       },
       {
-        title: '字典',
-        dataIndex: 'dict',
-        render: (value: boolean, _, index: number) => {
+        title: '关联',
+        dataIndex: 'join',
+        render: (value: JoinInfo, _, index: number) => {
           return (
-            <ColumnRenderSelect
+            <ColumnRenderJoin
               value={value}
               index={index}
-              dataIndex={'dict'}
               data={data}
               setData={setData}
-              options={dictOptions}
             />
           );
         }
       }
     ];
-    const [dictOptions, setDictOptions] = useState();
 
     const load = async () => {
       const database: DatabaseInfo = await apiClient.get(
@@ -95,20 +99,6 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
         }))
       );
       setTableOptions([]);
-
-      const result = await apiClient.post(
-        'sql/forge/api/json/select/SYS_DICT',
-        {
-          '@column': ['DICT_CODE', 'DICT_NAME']
-        }
-      );
-
-      setDictOptions(
-        result.map(item => ({
-          value: item.DICT_CODE,
-          label: item.DICT_NAME
-        }))
-      );
     };
 
     useEffect(() => {
@@ -194,7 +184,7 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
 
       const context = {
         type: 'page',
-        body: buildSingleTable(table, data)
+        body: buildSingleTable("crud_table",table, data)
       };
 
       return JSON.stringify(context, null, 2);

@@ -12,7 +12,6 @@ interface AMISComponentProps {
 }
 
 function AMISComponent(props: AMISComponentProps) {
-    console.log(props.page, props.props, props.options);
     return render(
         props.page,
         props.props,

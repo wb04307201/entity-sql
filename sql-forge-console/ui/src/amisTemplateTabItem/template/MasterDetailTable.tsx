@@ -1,10 +1,16 @@
-import {forwardRef, useEffect, useImperativeHandle, useState} from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState
+} from 'react';
 import type {
   AmisTemplateCrudMethods,
   AmisTemplateCrudProps,
   ColumnInfo,
   DatabaseInfo,
   DataType,
+  JoinInfo,
   OptionType,
   SchemaTableTypeTable,
   TableColumn,
@@ -20,6 +26,7 @@ import {
 } from '../utils/CrudBuild';
 import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
 import ColumnRenderSelect from '../components/ColumnRenderSelect';
+import ColumnRenderJoin from '../components/ColumnRenderJoin';
 
 const MasterDetailTable = forwardRef<
   AmisTemplateCrudMethods,
@@ -69,17 +76,15 @@ const MasterDetailTable = forwardRef<
       }
     },
     {
-      title: '字典',
-      dataIndex: 'dict',
-      render: (value: boolean, _, index: number) => {
+      title: '关联',
+      dataIndex: 'join',
+      render: (value: JoinInfo, _, index: number) => {
         return (
-          <ColumnRenderSelect
+          <ColumnRenderJoin
             value={value}
             index={index}
-            dataIndex={'dict'}
             data={mainData}
             setData={setMainData}
-            options={dictOptions}
           />
         );
       }
@@ -128,17 +133,15 @@ const MasterDetailTable = forwardRef<
       }
     },
     {
-      title: '字典',
-      dataIndex: 'dict',
-      render: (value: boolean, _, index: number) => {
+      title: '关联',
+      dataIndex: 'join',
+      render: (value: JoinInfo, _, index: number) => {
         return (
-          <ColumnRenderSelect
+          <ColumnRenderJoin
             value={value}
             index={index}
-            dataIndex={'dict'}
             data={detailData}
             setData={setDetailData}
-            options={dictOptions}
           />
         );
       }
@@ -147,7 +150,9 @@ const MasterDetailTable = forwardRef<
   const [mainColumn, setMainColumn] = useState<string>();
   const [detailColumn, setDetailColumn] = useState<string>();
   const [mainColumnOptions, setMainColumnOptions] = useState<OptionType[]>([]);
-  const [detailColumnOptions, setDetailColumnOptions] = useState<OptionType[]>([]);
+  const [detailColumnOptions, setDetailColumnOptions] = useState<OptionType[]>(
+    []
+  );
   const [dictOptions, setDictOptions] = useState();
 
   const load = async () => {
@@ -217,7 +222,7 @@ const MasterDetailTable = forwardRef<
           };
         })
       );
-    }else {
+    } else {
       setMainColumnOptions([]);
     }
     setMainColumn(undefined);
@@ -302,7 +307,9 @@ const MasterDetailTable = forwardRef<
           item.tableType === 'BASE TABLE' ||
           item.tableType === 'table'
       )
-      ?.tables.find((item: TableColumn) => item.table.tableName === detailTable);
+      ?.tables.find(
+        (item: TableColumn) => item.table.tableName === detailTable
+      );
 
     if (tableColumn) {
       const columns: ColumnInfo[] = tableColumn.columns;
@@ -346,19 +353,6 @@ const MasterDetailTable = forwardRef<
       Modal.error({title: '错误', content: '主表需要一个主键'});
       return;
     }
-    const tableColumns: DataType[] =
-      mainData.filter(item => item.isTableable) || [];
-    const searchableColumns: DataType[] = tableColumns.filter(
-      item => item.isSearchable
-    );
-    const showCheckColumns: DataType[] = mainData.filter(
-      item => item.isShowCheck
-    );
-    const insertableColumns: DataType[] =
-      mainData.filter(item => item.isInsertable) || [];
-    const updatableColumns: DataType[] =
-      mainData.filter(item => item.isUpdatable) || [];
-
     const detailTablePrimaryKey: DataType | undefined = detailData.find(
       item => item.isPrimaryKey
     );
@@ -366,17 +360,6 @@ const MasterDetailTable = forwardRef<
       Modal.error({title: '错误', content: '子表需要一个主键'});
       return;
     }
-    const detailTableColumns: DataType[] =
-      detailData.filter(item => item.isTableable) || [];
-    const detailShowCheckColumns: DataType[] = detailData.filter(
-      item => item.isShowCheck
-    );
-    const detailInsertableColumns: DataType[] = detailData.filter(
-      item => item.isInsertable
-    );
-    const detailUpdatableColumns: DataType[] = detailData.filter(
-      item => item.isUpdatable
-    );
 
     const context = {
       type: 'page',
@@ -385,21 +368,14 @@ const MasterDetailTable = forwardRef<
         height: '100vh'
       },
       body: buildMainDetailTable(
+        'crud_table',
         mainTable,
         mainColumn,
-        primaryKey,
-        tableColumns,
-        searchableColumns,
-        showCheckColumns,
-        insertableColumns,
-        updatableColumns,
+        mainData,
+        "detail_table",
         detailTable,
         detailColumn,
-        detailTablePrimaryKey,
-        detailTableColumns,
-        detailShowCheckColumns,
-        detailInsertableColumns,
-        detailUpdatableColumns
+        detailData
       )
     };
 
