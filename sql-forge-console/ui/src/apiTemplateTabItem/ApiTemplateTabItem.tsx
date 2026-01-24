@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import apiClient from "../apiClient.tsx";
 import Editor from "@monaco-editor/react";
 import {buildTableData} from '../CommonUtils';
-import {exampleTemplate} from './json';
+import {exampleTemplate} from './template';
 
 interface ColumnType {
     title: string;

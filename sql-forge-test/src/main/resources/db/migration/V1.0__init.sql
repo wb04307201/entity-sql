@@ -170,7 +170,7 @@ VALUES ('550e8400-e29b-41d4-a716-446655440000', 'f47ac10b-58cc-4372-a567-0e02b2c
 
 -- 插入测试字典数据
 INSERT INTO PUBLIC.SYS_DICT (ID, DICT_CODE, DICT_NAME, DICT_TYPE)
-VALUES ('1', 'dict_type', '字典类型', 'system');
+VALUES ('1', 'dict_type', '数据类型', 'system');
 INSERT INTO PUBLIC.SYS_DICT (ID, DICT_CODE, DICT_NAME,DICT_TYPE)
 VALUES ('2', 'sex', '性别', 'system');
 

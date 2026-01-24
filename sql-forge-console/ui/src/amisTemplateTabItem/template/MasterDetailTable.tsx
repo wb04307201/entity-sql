@@ -19,6 +19,7 @@ import {
   isNumberJavaSqlType
 } from '../utils/CrudBuild';
 import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
+import ColumnRenderSelect from '../components/ColumnRenderSelect';
 
 const MasterDetailTable = forwardRef<
   AmisTemplateCrudMethods,
@@ -66,6 +67,22 @@ const MasterDetailTable = forwardRef<
           />
         );
       }
+    },
+    {
+      title: '字典',
+      dataIndex: 'dict',
+      render: (value: boolean, _, index: number) => {
+        return (
+          <ColumnRenderSelect
+            value={value}
+            index={index}
+            dataIndex={'dict'}
+            data={mainData}
+            setData={setMainData}
+            options={dictOptions}
+          />
+        );
+      }
     }
   ];
   const detailColumns: TableProps<DataType>['columns'] = [
@@ -109,12 +126,29 @@ const MasterDetailTable = forwardRef<
           />
         );
       }
+    },
+    {
+      title: '字典',
+      dataIndex: 'dict',
+      render: (value: boolean, _, index: number) => {
+        return (
+          <ColumnRenderSelect
+            value={value}
+            index={index}
+            dataIndex={'dict'}
+            data={detailData}
+            setData={setDetailData}
+            options={dictOptions}
+          />
+        );
+      }
     }
   ];
   const [mainColumn, setMainColumn] = useState<string>();
   const [detailColumn, setDetailColumn] = useState<string>();
   const [mainColumnOptions, setMainColumnOptions] = useState<OptionType[]>([]);
   const [detailColumnOptions, setDetailColumnOptions] = useState<OptionType[]>([]);
+  const [dictOptions, setDictOptions] = useState();
 
   const load = async () => {
     const database: DatabaseInfo = await apiClient.get(
@@ -128,6 +162,17 @@ const MasterDetailTable = forwardRef<
       }))
     );
     setTableOptions([]);
+
+    const result = await apiClient.post('sql/forge/api/json/select/SYS_DICT', {
+      '@column': ['DICT_CODE', 'DICT_NAME']
+    });
+
+    setDictOptions(
+      result.map(item => ({
+        value: item.DICT_CODE,
+        label: item.DICT_NAME
+      }))
+    );
   };
 
   useEffect(() => {
@@ -163,6 +208,32 @@ const MasterDetailTable = forwardRef<
           item.tableType === 'table'
       )
       ?.tables.find((item: TableColumn) => item.table.tableName === value);
+    if (tableColumn) {
+      setMainColumnOptions(
+        tableColumn.columns.map((item: TableColumn) => {
+          return {
+            value: item.columnName,
+            label: item.columnName
+          };
+        })
+      );
+    }else {
+      setMainColumnOptions([]);
+    }
+    setMainColumn(undefined);
+  };
+
+  const onMainTableColumnChange = (value: string) => {
+    setMainColumn(value);
+    const tableColumn: TableColumn | undefined = database?.schemaTableTypeTables
+      .find((item: SchemaTableTypeTable) => item.schema.tableSchema === schema)
+      ?.tableTypeTables.find(
+        (item: TableTypeTable) =>
+          item.tableType === 'TABLE' ||
+          item.tableType === 'BASE TABLE' ||
+          item.tableType === 'table'
+      )
+      ?.tables.find((item: TableColumn) => item.table.tableName === mainTable);
 
     if (tableColumn) {
       const columns: ColumnInfo[] = tableColumn.columns;
@@ -188,13 +259,7 @@ const MasterDetailTable = forwardRef<
         };
       });
       setMainData(data);
-      setMainColumnOptions(tableColumn.columns.map((item) => {
-        return {
-          value: item.columnName,
-          label: item.columnName
-        };
-      }));
-      props.setapiTemplateId(`MainDetailTable-${value}-${detailTable}`);
+      props.setapiTemplateId(`MainDetailTable-${mainTable}-${detailTable}`);
     } else {
       setMainData([]);
     }
@@ -213,9 +278,36 @@ const MasterDetailTable = forwardRef<
       ?.tables.find((item: TableColumn) => item.table.tableName === value);
 
     if (tableColumn) {
+      setDetailColumnOptions(
+        tableColumn.columns.map((item: TableColumn) => {
+          return {
+            value: item.columnName,
+            label: item.columnName
+          };
+        })
+      );
+    } else {
+      setDetailColumnOptions([]);
+    }
+    setDetailColumn(undefined);
+  };
+
+  const onDetailTableColumnChange = (value: string) => {
+    setDetailColumn(value);
+    const tableColumn: TableColumn | undefined = database?.schemaTableTypeTables
+      .find((item: SchemaTableTypeTable) => item.schema.tableSchema === schema)
+      ?.tableTypeTables.find(
+        (item: TableTypeTable) =>
+          item.tableType === 'TABLE' ||
+          item.tableType === 'BASE TABLE' ||
+          item.tableType === 'table'
+      )
+      ?.tables.find((item: TableColumn) => item.table.tableName === detailTable);
+
+    if (tableColumn) {
       const columns: ColumnInfo[] = tableColumn.columns;
       const primaryKey = getPrimaryKey(tableColumn.primaryKeys);
-      const uniqueIndex = getIndex(primaryKey, tableColumn.indexes);
+      const uniqueIndex = getIndex(primaryKey, tableColumn.indexes, [value]);
       const data: DataType[] = columns.map(column => {
         const isPrimaryKey = primaryKey === column.columnName;
         return {
@@ -235,13 +327,7 @@ const MasterDetailTable = forwardRef<
         };
       });
       setDetailData(data);
-      setDetailColumnOptions(tableColumn.columns.map((item) => {
-        return {
-          value: item.columnName,
-          label: item.columnName
-        };
-      }));
-      props.setapiTemplateId(`MainDetailTable-${mainTable}-${value}`);
+      props.setapiTemplateId(`MainDetailTable-${mainTable}-${detailTable}`);
     } else {
       setDetailData([]);
     }
@@ -276,7 +362,7 @@ const MasterDetailTable = forwardRef<
     const detailTablePrimaryKey: DataType | undefined = detailData.find(
       item => item.isPrimaryKey
     );
-    if (!detailTablePrimaryKey){
+    if (!detailTablePrimaryKey) {
       Modal.error({title: '错误', content: '子表需要一个主键'});
       return;
     }
@@ -343,7 +429,7 @@ const MasterDetailTable = forwardRef<
           <Select
             placeholder="请选择关联主列"
             value={mainColumn}
-            onChange={value => setMainColumn(value)}
+            onChange={onMainTableColumnChange}
             options={mainColumnOptions}
           />
           <Select
@@ -355,7 +441,7 @@ const MasterDetailTable = forwardRef<
           <Select
             placeholder="请选择关联子列"
             value={detailColumn}
-            onChange={value => setDetailColumn(value)}
+            onChange={onDetailTableColumnChange}
             options={detailColumnOptions}
           />
         </Col>

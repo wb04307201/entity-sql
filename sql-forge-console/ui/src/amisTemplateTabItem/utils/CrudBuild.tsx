@@ -18,7 +18,9 @@ const ITEM_CODE = 'item_code';
 const ITEM_NAME = 'item_name';
 const DICT_CODE = 'dict_code';
 
-export const getPrimaryKey= (primaryKeys: PrimaryKey[]): string|undefined => {
+export const getPrimaryKey = (
+  primaryKeys: PrimaryKey[]
+): string | undefined => {
   if (primaryKeys.length > 0) {
     return primaryKeys[0].columnName;
   } else {
@@ -26,7 +28,11 @@ export const getPrimaryKey= (primaryKeys: PrimaryKey[]): string|undefined => {
   }
 };
 
-export const getIndex = (primaryKey: string|undefined, indexes: Index[]): string|undefined => {
+export const getIndex = (
+  primaryKey: string | undefined,
+  indexes: Index[],
+  excludeColumnName: string[] = []
+): string | undefined => {
   const indexNames =
     indexes
       .filter(item => !item.nonUnique)
@@ -34,6 +40,7 @@ export const getIndex = (primaryKey: string|undefined, indexes: Index[]): string
       .filter(
         (item, index, self) => index === self.findIndex(t => t === item)
       ) || [];
+  console.log('indexNames=', indexNames);
   const tempIndexes =
     indexNames
       .map(item => {
@@ -41,16 +48,16 @@ export const getIndex = (primaryKey: string|undefined, indexes: Index[]): string
         indexes
           .filter(index => index.indexName === item)
           .forEach(index => {
-            temp.columns.push(index.columnName);
+            if (!excludeColumnName.includes(index.columnName))
+              temp.columns.push(index.columnName);
           });
         return temp;
       })
-      .filter(item => (item.columns.length = 1)) || [];
-  if (tempIndexes.length > 0) {
-    return tempIndexes[0].columns[0];
-  } else {
-    return primaryKey;
-  }
+      .filter(item => (item.columns.length = 1))
+      .map(item => {
+        return {indexNames: item.indexName, columnName: item.columns[0]};
+      }) || [];
+  return tempIndexes.find(item => item.columnName != primaryKey)?.columnName || primaryKey;
 };
 
 export const buildSingleTable = (table: string, tableData: DataType[]) => {
