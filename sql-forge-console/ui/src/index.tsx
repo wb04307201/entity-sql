@@ -11,6 +11,7 @@ import 'amis-editor-core/lib/style.css';
 import {setDefaultTheme} from 'amis';
 import {setThemeConfig} from 'amis-editor-core';
 import themeConfig from 'amis-theme-editor-helper/lib/systemTheme/cxd';
+import './index.css';
 
 setDefaultTheme('cxd');
 setThemeConfig(themeConfig);
