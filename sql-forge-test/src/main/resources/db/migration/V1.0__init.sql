@@ -156,9 +156,9 @@ VALUES ('550e8400-e29b-41d4-a716-446655440000', 'alice', 'female', 'alice@exampl
 
 -- 插入测试商品数据
 INSERT INTO products (id, name, price)
-VALUES ('f47ac10b-58cc-4372-a567-0e02b2c3d479', 'Laptop', 999.99),
-       ('f47ac10b-58cc-4372-a567-0e02b2c3d480', 'Mouse', 25.50),
-       ('f47ac10b-58cc-4372-a567-0e02b2c3d481', 'Keyboard', 75.00);
+VALUES ('f47ac10b-58cc-4372-a567-0e02b2c3d479', '笔记本电脑', 999.99),
+       ('f47ac10b-58cc-4372-a567-0e02b2c3d480', '鼠标', 25.50),
+       ('f47ac10b-58cc-4372-a567-0e02b2c3d481', '键盘', 75.00);
 
 -- 插入测试订单数据（自增 id）
 INSERT INTO orders (user_id, product_id, quantity)
