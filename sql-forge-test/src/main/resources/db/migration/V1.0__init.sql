@@ -6,6 +6,7 @@ CREATE TABLE users
 (
     id       VARCHAR(36) NOT NULL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
+    sex      VARCHAR(100),
     email    VARCHAR(100),
     CONSTRAINT uk_username UNIQUE (username)
 
@@ -17,6 +18,8 @@ COMMENT
 ON COLUMN users.id IS '用户ID';
 COMMENT
 ON COLUMN users.username IS '用户名';
+COMMENT
+ON COLUMN users.sex IS '性别';
 COMMENT
 ON COLUMN users.email IS '用户邮箱地址';
 
@@ -79,7 +82,7 @@ CREATE TABLE sys_dict
     id          VARCHAR(36)  NOT NULL PRIMARY KEY,
     dict_code   VARCHAR(64)  NOT NULL UNIQUE,
     dict_name   VARCHAR(100) NOT NULL,
-    description VARCHAR(255)
+    dict_type   VARCHAR(100) NOT NULL
 );
 
 COMMENT
@@ -91,7 +94,7 @@ ON COLUMN sys_dict.dict_code IS '字典编码';
 COMMENT
 ON COLUMN sys_dict.dict_name IS '字典名称';
 COMMENT
-ON COLUMN sys_dict.description IS '描述';
+ON COLUMN sys_dict.dict_type IS '字典类型';
 
 -- 6.字典子表：存储字典明细项（如：男、女）
 CREATE TABLE sys_dict_item
@@ -103,15 +106,15 @@ CREATE TABLE sys_dict_item
     sort      INT DEFAULT 0,
 
     -- 联合唯一约束：同一字典下编码唯一
-    CONSTRAINT uk_dict_item UNIQUE (dict_code,item_code),
+    CONSTRAINT uk_dict_item UNIQUE (dict_code, item_code),
     -- 外键约束
     CONSTRAINT fk_dict_item_dict_code
-        FOREIGN KEY (dict_code) REFERENCES sys_dict(dict_code)
+        FOREIGN KEY (dict_code) REFERENCES sys_dict (dict_code)
             ON DELETE CASCADE -- 主表删除时自动清理子项
 );
 
 -- 创建索引
-CREATE INDEX idx_dict_code ON sys_dict_item(dict_code);
+CREATE INDEX idx_dict_code ON sys_dict_item (dict_code);
 COMMENT
 ON TABLE sys_dict_item IS '数据字典子表（字典项）';
 COMMENT
@@ -126,30 +129,30 @@ COMMENT
 ON COLUMN sys_dict_item.sort IS '排序值';
 
 -- 插入测试用户数据（使用预定义 UUID）
-INSERT INTO users (id, username, email)
-VALUES ('550e8400-e29b-41d4-a716-446655440000', 'alice', 'alice@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440001', 'bob', 'bob@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440002', 'charlie', 'charlie@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440003', 'wubo01', 'wubo01@@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440004', 'wubo02', 'wubo02@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440005', 'wubo03', 'wubo03@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440006', 'wubo04', 'wubo04@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440007', 'wubo05', 'wubo05@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440008', 'wubo06', 'wubo06@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440009', 'wubo07', 'wubo07@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440010', 'wubo08', 'wubo08@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440011', 'wubo09', 'wubo09@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440012', 'wubo10', 'wubo10@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440013', 'wubo11', 'wubo11@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440014', 'wubo12', 'wubo12@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440015', 'wubo13', 'wubo13@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440016', 'wubo14', 'wubo14@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440017', 'wubo15', 'wubo15@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440018', 'wubo16', 'wubo16@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440019', 'wubo17', 'wubo17@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440020', 'wubo18', 'wubo18@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440021', 'wubo19', 'wubo19@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440022', 'wubo20', 'wubo20@example.com');
+INSERT INTO users (id, username, sex, email)
+VALUES ('550e8400-e29b-41d4-a716-446655440000', 'alice', 'female', 'alice@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440001', 'bob', 'male', 'bob@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440002', 'charlie', 'male', 'charlie@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440003', 'wubo01', 'male', 'wubo01@@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440004', 'wubo02', 'male', 'wubo02@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440005', 'wubo03', 'male', 'wubo03@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440006', 'wubo04', 'male', 'wubo04@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440007', 'wubo05', 'male', 'wubo05@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440008', 'wubo06', 'male', 'wubo06@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440009', 'wubo07', 'male', 'wubo07@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440010', 'wubo08', 'male', 'wubo08@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440011', 'wubo09', 'male', 'wubo09@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440012', 'wubo10', 'male', 'wubo10@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440013', 'wubo11', 'male', 'wubo11@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440014', 'wubo12', 'male', 'wubo12@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440015', 'wubo13', 'male', 'wubo13@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440016', 'wubo14', 'male', 'wubo14@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440017', 'wubo15', 'male', 'wubo15@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440018', 'wubo16', 'male', 'wubo16@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440019', 'wubo17', 'male', 'wubo17@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440020', 'wubo18', 'male', 'wubo18@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440021', 'wubo19', 'male', 'wubo19@example.com'),
+       ('550e8400-e29b-41d4-a716-446655440022', 'wubo20', 'male', 'wubo20@example.com');
 
 -- 插入测试商品数据
 INSERT INTO products (id, name, price)
@@ -166,12 +169,19 @@ VALUES ('550e8400-e29b-41d4-a716-446655440000', 'f47ac10b-58cc-4372-a567-0e02b2c
 
 
 -- 插入测试字典数据
-INSERT INTO PUBLIC.SYS_DICT (ID, DICT_CODE, DICT_NAME, DESCRIPTION) VALUES ('0209cdd5-9f94-4000-ad90-6eb5dd8fd800', 'sex', '性别', null);
+INSERT INTO PUBLIC.SYS_DICT (ID, DICT_CODE, DICT_NAME, DICT_TYPE)
+VALUES ('1', 'dict_type', '数据类型', 'system');
+INSERT INTO PUBLIC.SYS_DICT (ID, DICT_CODE, DICT_NAME,DICT_TYPE)
+VALUES ('2', 'sex', '性别', 'system');
 
-INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT) VALUES ('0209cdd5-9f94-4000-ad90-6eb5dd8fd801', 'sex', 'male', '男', 1);
-INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT) VALUES ('0209cdd5-9f94-4000-ad90-6eb5dd8fd802', 'sex', 'female', '女', 2);
-
-
+INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT)
+VALUES ('1-1', 'dict_type', 'system', '系统', 1);
+INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT)
+VALUES ('1-2', 'dict_type', 'business', '业务', 2);
+INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT)
+VALUES ('2-1', 'sex', 'male', '男', 1);
+INSERT INTO PUBLIC.SYS_DICT_ITEM (ID, DICT_CODE, ITEM_CODE, ITEM_NAME, SORT)
+VALUES ('2-2', 'sex', 'female', '女', 2);
 
 
 -- 示例联表查询：查询每个订单的用户、商品信息

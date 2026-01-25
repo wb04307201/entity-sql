@@ -191,13 +191,6 @@ public class SqlForgeConfiguration {
     public RouterFunction<ServerResponse> sqlForgeAmisRouter(FunctionalState functionalState, IAmisStorage amisStorage) {
         functionalState.setAmis(true);
         RouterFunctions.Builder builder = RouterFunctions.route();
-        builder.GET("sql/forge/amis", request -> {
-            String redirectUrl = UriComponentsBuilder.fromPath("/sql/forge/amis/index.html")
-                    .queryParams(request.params())
-                    .build()
-                    .toUriString();
-            return ServerResponse.temporaryRedirect(URI.create(redirectUrl)).build();
-        });
         builder.POST("sql/forge/amis/template", accept(MediaType.APPLICATION_JSON), request -> {
             ApiTemplate apiTemplate = request.body(ApiTemplate.class);
             amisStorage.save(apiTemplate);
@@ -263,7 +256,13 @@ public class SqlForgeConfiguration {
     @ConditionalOnProperty(name = "sql.forge.console.enabled", havingValue = "true", matchIfMissing = true)
     public RouterFunction<ServerResponse> sqlForgeConsoleRouter(FunctionalState functionalState) {
         RouterFunctions.Builder builder = RouterFunctions.route();
-        builder.GET("sql/forge/console", request -> ServerResponse.temporaryRedirect(URI.create("/sql/forge/console/index.html")).build());
+        builder.GET("sql/forge/console", request -> {
+            String redirectUrl = UriComponentsBuilder.fromPath("/sql/forge/console/index.html")
+                    .queryParams(request.params())
+                    .build()
+                    .toUriString();
+            return ServerResponse.temporaryRedirect(URI.create(redirectUrl)).build();
+        });
         builder.GET("sql/forge/console/functionalState", request -> ServerResponse.ok().body(functionalState.getFunctionalState()));
         return builder.build();
     }
