@@ -34,7 +34,7 @@ Add JitPack repository
 <dependency>
     <groupId>com.gitee.wb04307201.sql-forge</groupId>
     <artifactId>sql-forge-spring-boot-starter</artifactId>
-    <version>1.5.2</version>
+    <version>1.5.3</version>
 </dependency>
 ```
 
@@ -732,7 +732,10 @@ Provides a simple web interface for debugging and template management:
 - Calcite API data source maintenance, SQL debugging, template management, debugging
 ![gif1-5.gif](gif1-5.gif)
 - Amis template management, quick template creation, visual editing, preview
-  ![gif6-11.gif](gif6-11.gif)
+  - Template editing
+    ![gif6-8.gif](gif6-8.gif)
+  - Visual editing
+    ![gif9-11.gif](gif9-11.gif)
 
 #### Configuration
 Disable **Console** with `sql.forge.console.enabled=false`
