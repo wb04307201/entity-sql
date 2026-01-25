@@ -1,6 +1,4 @@
-export function DictJoinType() {
-}
-
+export function DictJoinType() {}
 
 export interface DatabaseInfo {
   databaseInfo: unknown;
@@ -46,11 +44,10 @@ export interface ColumnInfo {
 
 export interface AmisTemplateCrudMethods {
   getContext: () => string | undefined;
+  getApiTemplateId: () => string | undefined;
 }
 
-export interface AmisTemplateCrudProps {
-  setapiTemplateId: (value: string) => void;
-}
+export interface AmisTemplateCrudProps {}
 
 export interface OptionType {
   label: string;

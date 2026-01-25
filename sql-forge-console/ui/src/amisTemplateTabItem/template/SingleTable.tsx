@@ -165,7 +165,6 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
           };
         });
         setData(data);
-        props.setapiTemplateId(`SingleTable-${value}`);
       } else {
         setData([]);
       }
@@ -191,7 +190,8 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
     };
 
     useImperativeHandle(ref, () => ({
-      getContext
+      getContext,
+      getApiTemplateId: () => `SingleTable-${table}`
     }));
 
     return (

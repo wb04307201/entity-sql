@@ -1,8 +1,10 @@
 import {Button, Col, Drawer, Flex, Input, Modal, Row} from 'antd';
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import apiClient from "../apiClient.tsx";
 import Editor from '@monaco-editor/react';
 import {Editor as AmisEitor} from 'amis-editor';
+import {chartJson, crudJson} from './json';
+import AmisTemplateCrud from './AmisTemplateCrud';
 
 function AmisTemplateTabItem(props: {
     isCreate: boolean,
@@ -14,6 +16,7 @@ function AmisTemplateTabItem(props: {
     const [isCreate] = useState(props.isCreate);
     const [apiTemplateId, setApiTemplateId] = useState(props.apiTemplateId);
     const [context, setContext] = useState<string | undefined>(undefined);
+    const [showCrudEditor, setShowCrudEditor] = useState(false);
     const [showAmisEditor, setShowAmisEditor] = useState(false);
 
     useEffect(() => {
@@ -76,272 +79,7 @@ function AmisTemplateTabItem(props: {
                   <Button
                     onClick={() => {
                       setApiTemplateId('AmisTemplate-crud-test');
-                      setContext(`{
-\t"type": "page",
-\t"body": {
-\t\t"type": "crud",
-\t\t"id": "crud_users",
-\t\t"api": {
-\t\t\t"method": "post",
-\t\t\t"url": "/sql/forge/api/json/selectPage/users",
-\t\t\t"data": {
-\t\t\t\t"@where": [{
-\t\t\t\t\t\t"column": "USERNAME",
-\t\t\t\t\t\t"condition": "LIKE",
-\t\t\t\t\t\t"value": "$\{USERNAME\}"
-\t\t\t\t\t},
-\t\t\t\t\t{
-\t\t\t\t\t\t"column": "EMAIL",
-\t\t\t\t\t\t"condition": "LIKE",
-\t\t\t\t\t\t"value": "$\{EMAIL\}"
-\t\t\t\t\t}
-\t\t\t\t],
-\t\t\t\t"@order": [
-\t\t\t\t\t"$\{default(orderBy && orderDir ? (orderBy + ' ' + orderDir):'',undefined)\}"
-\t\t\t\t],
-\t\t\t\t"@page": {
-\t\t\t\t\t"pageIndex": "$\{page - 1\}",
-\t\t\t\t\t"pageSize": "$\{perPage\}"
-\t\t\t\t}
-\t\t\t}
-\t\t},
-\t\t"headerToolbar": [{
-\t\t\t\t"label": "新增",
-\t\t\t\t"type": "button",
-\t\t\t\t"icon": "fa fa-plus",
-\t\t\t\t"level": "primary",
-\t\t\t\t"actionType": "drawer",
-\t\t\t\t"drawer": {
-\t\t\t\t\t"title": "新增表单",
-\t\t\t\t\t"body": {
-\t\t\t\t\t\t"type": "form",
-\t\t\t\t\t\t"api": {
-\t\t\t\t\t\t\t"method": "post",
-\t\t\t\t\t\t\t"url": "/sql/forge/api/json/insert/users",
-\t\t\t\t\t\t\t"data": {
-\t\t\t\t\t\t\t\t"@set": "$$"
-\t\t\t\t\t\t\t}
-\t\t\t\t\t\t},
-\t\t\t\t\t\t"onEvent": {
-\t\t\t\t\t\t\t"submitSucc": {
-\t\t\t\t\t\t\t\t"actions": [{
-\t\t\t\t\t\t\t\t\t"actionType": "reload",
-\t\t\t\t\t\t\t\t\t"componentId": "crud_users"
-\t\t\t\t\t\t\t\t}]
-\t\t\t\t\t\t\t}
-\t\t\t\t\t\t},
-\t\t\t\t\t\t"body": [{
-\t\t\t\t\t\t\t\t"type": "uuid",
-\t\t\t\t\t\t\t\t"name": "ID"
-\t\t\t\t\t\t\t},
-\t\t\t\t\t\t\t{
-\t\t\t\t\t\t\t\t"type": "input-text",
-\t\t\t\t\t\t\t\t"name": "USERNAME",
-\t\t\t\t\t\t\t\t"label": "用户名"
-\t\t\t\t\t\t\t},
-\t\t\t\t\t\t\t{
-\t\t\t\t\t\t\t\t"type": "input-text",
-\t\t\t\t\t\t\t\t"name": "EMAIL",
-\t\t\t\t\t\t\t\t"label": "邮箱"
-\t\t\t\t\t\t\t}
-\t\t\t\t\t\t]
-\t\t\t\t\t}
-\t\t\t\t},
-\t\t\t\t"id": "u:abd69a3d5f2f"
-\t\t\t},
-\t\t\t"bulkActions",
-\t\t\t{
-\t\t\t\t"type": "columns-toggler",
-\t\t\t\t"align": "right"
-\t\t\t},
-\t\t\t{
-\t\t\t\t"type": "drag-toggler",
-\t\t\t\t"align": "right"
-\t\t\t},
-\t\t\t{
-\t\t\t\t"type": "export-excel",
-\t\t\t\t"label": "导出",
-\t\t\t\t"icon": "fa fa-file-excel",
-\t\t\t\t"api": {
-\t\t\t\t\t"method": "post",
-\t\t\t\t\t"url": "/sql/forge/api/json/select/users",
-\t\t\t\t\t"data": {
-\t\t\t\t\t\t"@where": [{
-\t\t\t\t\t\t\t\t"column": "USERNAME",
-\t\t\t\t\t\t\t\t"condition": "LIKE",
-\t\t\t\t\t\t\t\t"value": "$\{USERNAME\}"
-\t\t\t\t\t\t\t},
-\t\t\t\t\t\t\t{
-\t\t\t\t\t\t\t\t"column": "EMAIL",
-\t\t\t\t\t\t\t\t"condition": "LIKE",
-\t\t\t\t\t\t\t\t"value": "$\{EMAIL\}"
-\t\t\t\t\t\t\t}
-\t\t\t\t\t\t]
-\t\t\t\t\t}
-\t\t\t\t},
-\t\t\t\t"align": "right",
-\t\t\t\t"id": "u:23fd1bd3eed6"
-\t\t\t}
-\t\t],
-\t\t"footerToolbar": [
-\t\t\t"statistics",
-\t\t\t{
-\t\t\t\t"type": "pagination",
-\t\t\t\t"layout": "total,perPage,pager,go"
-\t\t\t}
-\t\t],
-\t\t"bulkActions": [{
-\t\t\t"label": "批量删除",
-\t\t\t"icon": "fa fa-trash",
-\t\t\t"actionType": "ajax",
-\t\t\t"api": {
-\t\t\t\t"method": "post",
-\t\t\t\t"url": "/sql/forge/api/json/delete/users",
-\t\t\t\t"data": {
-\t\t\t\t\t"@where": [{
-\t\t\t\t\t\t"column": "ID",
-\t\t\t\t\t\t"condition": "IN",
-\t\t\t\t\t\t"value": "$\{ids | split\}"
-\t\t\t\t\t}]
-\t\t\t\t}
-\t\t\t},
-\t\t\t"confirmText": "确定要批量删除?",
-\t\t\t"id": "u:260c8b61b2eb"
-\t\t}],
-\t\t"keepItemSelectionOnPageChange": true,
-\t\t"labelTpl": "$\{USERNAME\}",
-\t\t"autoFillHeight": true,
-\t\t"autoGenerateFilter": true,
-\t\t"showIndex": true,
-\t\t"primaryField": "ID",
-\t\t"columns": [{
-\t\t\t\t"name": "ID",
-\t\t\t\t"label": "ID",
-\t\t\t\t"hidden": true,
-\t\t\t\t"id": "u:34a08d89bc9f"
-\t\t\t},
-\t\t\t{
-\t\t\t\t"name": "USERNAME",
-\t\t\t\t"label": "用户名",
-\t\t\t\t"searchable": {
-\t\t\t\t\t"type": "input-text",
-\t\t\t\t\t"name": "USERNAME",
-\t\t\t\t\t"label": "用户名",
-\t\t\t\t\t"placeholder": "输入用户名",
-\t\t\t\t\t"id": "u:f708e3b20d46"
-\t\t\t\t},
-\t\t\t\t"sortable": true,
-\t\t\t\t"id": "u:50c01bf8113d"
-\t\t\t},
-\t\t\t{
-\t\t\t\t"name": "EMAIL",
-\t\t\t\t"label": "邮箱",
-\t\t\t\t"searchable": {
-\t\t\t\t\t"type": "input-text",
-\t\t\t\t\t"name": "EMAIL",
-\t\t\t\t\t"label": "邮箱",
-\t\t\t\t\t"placeholder": "输入邮箱",
-\t\t\t\t\t"id": "u:d9cc8b6e4365"
-\t\t\t\t},
-\t\t\t\t"sortable": true,
-\t\t\t\t"id": "u:a5c3414c4e35"
-\t\t\t},
-\t\t\t{
-\t\t\t\t"type": "operation",
-\t\t\t\t"label": "操作",
-\t\t\t\t"buttons": [{
-\t\t\t\t\t\t"label": "修改",
-\t\t\t\t\t\t"type": "button",
-\t\t\t\t\t\t"icon": "fa fa-pen-to-square",
-\t\t\t\t\t\t"actionType": "drawer",
-\t\t\t\t\t\t"drawer": {
-\t\t\t\t\t\t\t"title": "新增表单",
-\t\t\t\t\t\t\t"body": {
-\t\t\t\t\t\t\t\t"type": "form",
-\t\t\t\t\t\t\t\t"initApi": {
-\t\t\t\t\t\t\t\t\t"method": "post",
-\t\t\t\t\t\t\t\t\t"url": "/sql/forge/api/json/select/users",
-\t\t\t\t\t\t\t\t\t"data": {
-\t\t\t\t\t\t\t\t\t\t"@where": [{
-\t\t\t\t\t\t\t\t\t\t\t"column": "ID",
-\t\t\t\t\t\t\t\t\t\t\t"condition": "EQ",
-\t\t\t\t\t\t\t\t\t\t\t"value": "$\{ID\}"
-\t\t\t\t\t\t\t\t\t\t}]
-\t\t\t\t\t\t\t\t\t},
-\t\t\t\t\t\t\t\t\t"responseData": {
-\t\t\t\t\t\t\t\t\t\t"&": "$\{items | first\}"
-\t\t\t\t\t\t\t\t\t}
-\t\t\t\t\t\t\t\t},
-\t\t\t\t\t\t\t\t"api": {
-\t\t\t\t\t\t\t\t\t"method": "post",
-\t\t\t\t\t\t\t\t\t"url": "/sql/forge/api/json/update/users",
-\t\t\t\t\t\t\t\t\t"data": {
-\t\t\t\t\t\t\t\t\t\t"@set": "$$",
-\t\t\t\t\t\t\t\t\t\t"@where": [{
-\t\t\t\t\t\t\t\t\t\t\t"column": "ID",
-\t\t\t\t\t\t\t\t\t\t\t"condition": "EQ",
-\t\t\t\t\t\t\t\t\t\t\t"value": "$\{ID\}"
-\t\t\t\t\t\t\t\t\t\t}]
-\t\t\t\t\t\t\t\t\t}
-\t\t\t\t\t\t\t\t},
-\t\t\t\t\t\t\t\t"onEvent": {
-\t\t\t\t\t\t\t\t\t"submitSucc": {
-\t\t\t\t\t\t\t\t\t\t"actions": [{
-\t\t\t\t\t\t\t\t\t\t\t"actionType": "reload",
-\t\t\t\t\t\t\t\t\t\t\t"componentId": "crud_users"
-\t\t\t\t\t\t\t\t\t\t}]
-\t\t\t\t\t\t\t\t\t}
-\t\t\t\t\t\t\t\t},
-\t\t\t\t\t\t\t\t"body": [{
-\t\t\t\t\t\t\t\t\t\t"type": "input-text",
-\t\t\t\t\t\t\t\t\t\t"name": "USERNAME",
-\t\t\t\t\t\t\t\t\t\t"label": "用户名"
-\t\t\t\t\t\t\t\t\t},
-\t\t\t\t\t\t\t\t\t{
-\t\t\t\t\t\t\t\t\t\t"type": "input-text",
-\t\t\t\t\t\t\t\t\t\t"name": "EMAIL",
-\t\t\t\t\t\t\t\t\t\t"label": "邮箱"
-\t\t\t\t\t\t\t\t\t}
-\t\t\t\t\t\t\t\t]
-\t\t\t\t\t\t\t}
-\t\t\t\t\t\t},
-\t\t\t\t\t\t"id": "u:5d5445ebe2c2"
-\t\t\t\t\t},
-\t\t\t\t\t{
-\t\t\t\t\t\t"label": "删除",
-\t\t\t\t\t\t"type": "button",
-\t\t\t\t\t\t"icon": "fa fa-minus",
-\t\t\t\t\t\t"actionType": "ajax",
-\t\t\t\t\t\t"level": "danger",
-\t\t\t\t\t\t"confirmText": "确认要删除？",
-\t\t\t\t\t\t"api": {
-\t\t\t\t\t\t\t"method": "post",
-\t\t\t\t\t\t\t"url": "/sql/forge/api/json/delete/users",
-\t\t\t\t\t\t\t"data": {
-\t\t\t\t\t\t\t\t"@where": [{
-\t\t\t\t\t\t\t\t\t"column": "ID",
-\t\t\t\t\t\t\t\t\t"condition": "EQ",
-\t\t\t\t\t\t\t\t\t"value": "$\{ID\}"
-\t\t\t\t\t\t\t\t}]
-\t\t\t\t\t\t\t}
-\t\t\t\t\t\t},
-\t\t\t\t\t\t"id": "u:f51bf9877ae6"
-\t\t\t\t\t}
-\t\t\t\t],
-\t\t\t\t"fixed": "right",
-\t\t\t\t"id": "u:f4eaa2b25ecb"
-\t\t\t}
-\t\t],
-\t\t"perPageAvailable": [
-\t\t\t5,
-\t\t\t10,
-\t\t\t20,
-\t\t\t50,
-\t\t\t100
-\t\t],
-\t\t"messages": {}
-\t}
-}`);
+                      setContext(JSON.stringify(crudJson, null, 2));
                     }}
                   >
                     CRUD示例
@@ -349,47 +87,16 @@ function AmisTemplateTabItem(props: {
                   <Button
                     onClick={() => {
                       setApiTemplateId('AmisTemplate-chart-test');
-                      setContext(`{
-\t"type": "page",
-\t"body": {
-\t\t"type": "chart",
-\t\t"api": {
-\t\t\t"method": "post",
-\t\t\t"url": "/sql/forge/api/calcite/execute/ApiCalciteTemplate-test",
-\t\t\t"data": {
-\t\t\t\t"ids": [
-\t\t\t\t\t1,
-\t\t\t\t\t2,
-\t\t\t\t\t3,
-\t\t\t\t\t4,
-\t\t\t\t\t5,
-\t\t\t\t\t6,
-\t\t\t\t\t7
-\t\t\t\t]
-\t\t\t}
-\t\t},
-\t\t"height": "100vh",
-\t\t"config": {
-\t\t\t"xAxis": {
-\t\t\t\t"type": "category",
-\t\t\t\t"data": "$\{items | pick:name\}"
-\t\t\t},
-\t\t\t"yAxis": {
-\t\t\t\t"type": "value"
-\t\t\t},
-\t\t\t"series": [{
-\t\t\t\t"data": "$\{items | pick:grade\}",
-\t\t\t\t"type": "bar"
-\t\t\t}]
-\t\t}
-\t}
-}`);
+                      setContext(JSON.stringify(chartJson, null, 2));
                     }}
                   >
                     图表示例
                   </Button>
                 </>
               )}
+              <Button onClick={() => setShowCrudEditor(true)}>
+                模板化编辑
+              </Button>
               <Button onClick={() => setShowAmisEditor(true)}>
                 可视化编辑
               </Button>
@@ -400,8 +107,17 @@ function AmisTemplateTabItem(props: {
           </Col>
         </Row>
         <Drawer
+          title="模板可视化编辑"
+          onClose={() => setShowCrudEditor(false)}
+          open={showCrudEditor}
+          width={'100%'}
+        >
+          {showCrudEditor && (
+            <AmisTemplateCrud setApiTemplateId={setApiTemplateId} setContext={setContext} close={() => setShowCrudEditor(false)}/>
+          )}
+        </Drawer>
+        <Drawer
           title="Amis可视化编辑"
-          closable={{'aria-label': 'Close Button'}}
           onClose={() => setShowAmisEditor(false)}
           open={showAmisEditor}
           width={'100%'}

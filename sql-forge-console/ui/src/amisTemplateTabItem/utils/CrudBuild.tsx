@@ -67,8 +67,8 @@ export const buildSingleTable = (
   tableData: DataType[],
   customSelectData: any | undefined = undefined,
   hideColumns: string[] = [],
-  disabledInsert:string[] = [],
-  disabledUpdate:string[] = [],
+  disabledInsert: string[] = [],
+  disabledUpdate: string[] = []
 ) => {
   let selectData = customSelectData;
   if (!selectData) {
@@ -92,13 +92,13 @@ export const buildSingleTable = (
         .map(item => {
           if (item.join && item.join.joinType === 'dict' && item.join.dict) {
             return {
-              column: item.columnName,
+              column: `${table}.${item.columnName}`,
               condition: 'EQ',
               value: '${' + item.columnName + ' | default:undefined}'
             };
           } else {
             return {
-              column: item.columnName,
+              column: `${table}.${item.columnName}`,
               condition: 'LIKE',
               value: '${' + item.columnName + ' | default:undefined}'
             };
@@ -243,7 +243,7 @@ export const buildSingleTable = (
           label: item.remarks ? item.remarks : item.columnName,
           sortable: true,
           align: 'right',
-          hidden:hideColumns.includes(item.columnName),
+          hidden: hideColumns.includes(item.columnName),
           searchable: undefined
         };
         if (item.isSearchable) {

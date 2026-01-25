@@ -6,17 +6,15 @@ import None from './template/None.tsx';
 import type {AmisTemplateCrudMethods} from '../type.tsx';
 import MasterDetailTable from './template/MasterDetailTable';
 
-function AmisTemplateCrudTabItem(props: {
-  reload: () => void;
-  remove?: () => void;
+function AmisTemplateCrud(props: {
+  setApiTemplateId: (value: string | undefined) => void;
+  setContext: (value: string | undefined) => void;
+  close: () => void;
 }) {
   const [templateType, setTemplateType] = useState<string | undefined>(
     undefined
   );
   const childRef = useRef<AmisTemplateCrudMethods>(null);
-  const [apiTemplateId, setApiTemplateId] = useState<string | undefined>(
-    undefined
-  );
 
   const executeSave = () => {
     if (!childRef.current) {
@@ -24,50 +22,24 @@ function AmisTemplateCrudTabItem(props: {
       return;
     }
 
-    const context = childRef.current.getContext();
-
-    if (!apiTemplateId) {
-      Modal.error({title: '错误', content: '请输入模板标识'});
-      return;
-    }
-    if (!context) {
-      Modal.error({title: '错误', content: '请输入模板内容'});
-      return;
-    }
-
-    try {
-      JSON.parse(context);
-    } catch (error) {
-      const typedError = error as {message: string};
-      Modal.error({title: '错误', content: typedError.message});
-      return;
-    }
-
-    apiClient
-      .post('/sql/forge/amis/template', {id: apiTemplateId, context: context})
-      .then(_ => {
-        props.reload && props.reload();
-        props.remove && props.remove();
-      });
+    props.setApiTemplateId(childRef.current.getApiTemplateId());
+    props.setContext(childRef.current.getContext());
+    props.close();
   };
 
   const renderTemplateContent = () => {
     switch (templateType) {
       case 'single-table':
-        return (
-          <SingleTable ref={childRef} setapiTemplateId={setApiTemplateId}/>
-        );
+        return <SingleTable ref={childRef} />;
       case 'master-detail':
-        return (
-          <MasterDetailTable ref={childRef} setapiTemplateId={setApiTemplateId}/>
-        );
+        return <MasterDetailTable ref={childRef} />;
       default:
         return <None ref={childRef} />;
     }
   };
 
   return (
-    <>
+    <div style={{height: '100%'}}>
       <Row style={{height: '33px'}}>
         <Col span={24}>
           <Select
@@ -88,19 +60,14 @@ function AmisTemplateCrudTabItem(props: {
       <Row style={{height: '33px'}}>
         <Col span={24}>
           <Flex gap={'small'} style={{float: 'right'}}>
-            <Input
-              placeholder="模板标识"
-              value={apiTemplateId}
-              onChange={e => setApiTemplateId(e.target.value)}
-            />
             <Button type="primary" onClick={executeSave}>
-              保存
+              确定
             </Button>
           </Flex>
         </Col>
       </Row>
-    </>
+    </div>
   );
 }
 
-export default AmisTemplateCrudTabItem;
+export default AmisTemplateCrud;

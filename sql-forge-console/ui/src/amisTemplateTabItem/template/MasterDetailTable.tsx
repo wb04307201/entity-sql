@@ -264,7 +264,6 @@ const MasterDetailTable = forwardRef<
         };
       });
       setMainData(data);
-      props.setapiTemplateId(`MainDetailTable-${mainTable}-${detailTable}`);
     } else {
       setMainData([]);
     }
@@ -334,7 +333,6 @@ const MasterDetailTable = forwardRef<
         };
       });
       setDetailData(data);
-      props.setapiTemplateId(`MainDetailTable-${mainTable}-${detailTable}`);
     } else {
       setDetailData([]);
     }
@@ -383,7 +381,8 @@ const MasterDetailTable = forwardRef<
   };
 
   useImperativeHandle(ref, () => ({
-    getContext
+    getContext,
+    getApiTemplateId: () => `MainDetailTable-${mainTable}-${detailTable}`
   }));
 
   return (

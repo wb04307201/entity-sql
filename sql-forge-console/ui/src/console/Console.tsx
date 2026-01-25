@@ -18,7 +18,6 @@ import ApiCalciteTabItem from '../apiCalciteTabItem/ApiCalciteTabItem.tsx';
 import ApiCalciteConfigTabItem from '../apiCalciteTabItem/ApiCalciteConfigTabItem.tsx';
 import AmisTemplateTabItem from '../amisTemplateTabItem/AmisTemplateTabItem.tsx';
 import ApiCalciteSqlTabItem from '../apiCalciteTabItem/ApiCalciteSqlTabItem.tsx';
-import AmisTemplateCrudTabItem from '../amisTemplateTabItem/AmisTemplateCrudTabItem.tsx';
 import type {DatabaseInfo, DataType} from '../type.tsx';
 import DatabaseTabItem from '../databaseTabItem/DatabaseTabItem';
 
@@ -467,17 +466,6 @@ function Console() {
         ),
         key: newActiveKey
       });
-    } else if (type === 'AmisTemplateCrud') {
-      newPanes.push({
-        label: newLabel,
-        children: (
-          <AmisTemplateCrudTabItem
-            reload={reloadAmisTemplate}
-            remove={() => remove(newActiveKey)}
-          />
-        ),
-        key: newActiveKey
-      });
     } else if (type.startsWith('AmisTemplate-')) {
       newPanes.push({
         label: newLabel,
@@ -812,15 +800,6 @@ function Console() {
                       style={{marginLeft: '8px', border: 'none'}}
                       onClick={() => {
                         add(nodeData.key);
-                      }}
-                    />
-                    <Button
-                      shape="circle"
-                      icon={<TableOutlined />}
-                      size="small"
-                      style={{marginLeft: '8px', border: 'none'}}
-                      onClick={() => {
-                        add(`${nodeData.key}Crud`);
                       }}
                     />
                   </div>
