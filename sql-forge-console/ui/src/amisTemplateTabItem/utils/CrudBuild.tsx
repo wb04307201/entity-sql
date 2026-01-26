@@ -154,7 +154,12 @@ export const buildSingleTable = (
               joinTable: `${SYS_DICT_ITEM} ${item.join.dict}`,
               on: `${table}.${item.columnName} = ${item.join.dict}.${ITEM_CODE} and ${item.join.dict}.${DICT_CODE} = '${item.join.dict}'`
             };
-          } else if (item.join.joinType === 'table' && item.join.table && item.join.onColumn && item.join.selectColumn) {
+          } else if (
+            item.join.joinType === 'table' &&
+            item.join.table &&
+            item.join.onColumn &&
+            item.join.selectColumn
+          ) {
             return {
               type: 'LEFT_OUTER_JOIN',
               joinTable: `${item.join.table} ${item.join.table}`,
@@ -167,10 +172,9 @@ export const buildSingleTable = (
 
   let sourceDict: {[key: string]: any} = {};
   tableData
-    .filter(
-      item => item.isTableable && item.join)
+    .filter(item => item.isTableable && item.join)
     .forEach(item => {
-      if (item.join.joinType === 'dict' && item.join.dict){
+      if (item.join.joinType === 'dict' && item.join.dict) {
         sourceDict[item.join.dict] = {
           method: 'post',
           url: `/sql/forge/api/json/select/${SYS_DICT_ITEM}`,
@@ -186,7 +190,12 @@ export const buildSingleTable = (
           },
           adaptor: `return {\n  options: payload.map(item => ({\n    value: item.${ITEM_CODE.toLowerCase()} || item.${ITEM_CODE.toUpperCase()},\n    label: item.${ITEM_NAME.toLowerCase()} ||  item.${ITEM_NAME.toUpperCase()}\n  }))\n};`
         };
-      } else if (item.join.joinType === 'table' && item.join.table && item.join.onColumn && item.join.selectColumn){
+      } else if (
+        item.join.joinType === 'table' &&
+        item.join.table &&
+        item.join.onColumn &&
+        item.join.selectColumn
+      ) {
         sourceDict[item.join.table] = {
           method: 'post',
           url: `/sql/forge/api/json/select/${item.join.table}`,
@@ -251,6 +260,22 @@ export const buildSingleTable = (
           clearable: true,
           disabled: disabledInsert.includes(item.columnName)
         };
+      } else if (
+        item.join &&
+        item.join.joinType === 'table' &&
+        item.join.table &&
+        item.join.onColumn &&
+        item.join.selectColumn
+      ) {
+        return {
+          type: 'select',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          maxLength: item.columnSize,
+          source: sourceDict[item.join.table],
+          clearable: true,
+          disabled: disabledInsert.includes(item.columnName)
+        };
       } else {
         return {
           type: 'input-text',
@@ -303,6 +328,22 @@ export const buildSingleTable = (
           source: sourceDict[item.join.dict],
           clearable: true,
           disabled: disabledUpdate.includes(item.columnName)
+        };
+      } else if (
+        item.join &&
+        item.join.joinType === 'table' &&
+        item.join.table &&
+        item.join.onColumn &&
+        item.join.selectColumn
+      ) {
+        return {
+          type: 'select',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          maxLength: item.columnSize,
+          source: sourceDict[item.join.table],
+          clearable: true,
+          disabled: disabledInsert.includes(item.columnName)
         };
       } else {
         return {
@@ -418,7 +459,7 @@ export const buildSingleTable = (
             source: sourceDict[item.join.dict],
             clearable: true
           };
-        }else if (
+        } else if (
           item.isSearchable &&
           item.join &&
           item.join.joinType === 'table' &&
@@ -433,8 +474,8 @@ export const buildSingleTable = (
             maxLength: item.columnSize,
             placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
             multiple: true,
-            source: sourceDict[item.join.table],
-          }
+            source: sourceDict[item.join.table]
+          };
         } else if (item.isSearchable) {
           col.searchable = {
             type: 'input-text',
