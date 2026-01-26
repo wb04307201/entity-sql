@@ -60,7 +60,7 @@ const MasterDetailTable = forwardRef<
     {
       title: '备注',
       dataIndex: 'remarks',
-      render:(value,_,index: number)=>{
+      render: (value, _, index: number) => {
         return (
           <ColumnRenderInput
             value={value}
@@ -392,7 +392,7 @@ const MasterDetailTable = forwardRef<
         mainTable,
         mainColumn,
         mainData,
-        "detail_table",
+        'detail_table',
         detailTable,
         detailColumn,
         detailData
@@ -408,7 +408,7 @@ const MasterDetailTable = forwardRef<
   }));
 
   return (
-    <div style={{height: '100%'}}>
+    <>
       <Row style={{height: '33px'}}>
         <Col span={24}>
           <Select
@@ -443,27 +443,27 @@ const MasterDetailTable = forwardRef<
           />
         </Col>
       </Row>
-      <Row style={{height: 'calc(50% - 17px)'}}>
+      <Row style={{height: 'calc(50% - 50px)'}}>
         <Col span={24}>
           <Table
             columns={mainColumns}
             dataSource={mainData}
             pagination={false}
-            scroll={{y: 'calc(50vh - 135px)'}}
+            scroll={{y: 'calc(50vh - 165px)'}}
           />
         </Col>
       </Row>
-      <Row style={{height: 'calc(50% - 17px)'}}>
+      <Row style={{height: 'calc(50% - 50px)'}}>
         <Col span={24}>
           <Table
             columns={detailColumns}
             dataSource={detailData}
             pagination={false}
-            scroll={{y: 'calc(50vh - 135px)'}}
+            scroll={{y: 'calc(50vh - 165px)'}}
           />
         </Col>
       </Row>
-    </div>
+    </>
   );
 });
 
