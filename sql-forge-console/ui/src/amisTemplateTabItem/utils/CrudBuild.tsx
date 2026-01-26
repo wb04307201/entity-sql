@@ -1,9 +1,12 @@
 import {DataType, Index, PrimaryKey} from '../../type';
+import exp from 'node:constants';
 
-const SYS_DICT_ITEM = 'sys_dict_item';
-const ITEM_CODE = 'item_code';
-const ITEM_NAME = 'item_name';
-const DICT_CODE = 'dict_code';
+export const SYS_DICT = 'sys_dict';
+export const DICT_CODE = 'dict_code';
+export const DICT_NAME = 'dict_name';
+export const SYS_DICT_ITEM = 'sys_dict_item';
+export const ITEM_CODE = 'item_code';
+export const ITEM_NAME = 'item_name';
 
 export const isNumberJavaSqlType = (javaSqlType: string): boolean => {
   return (
@@ -84,6 +87,15 @@ export const buildSingleTable = (
             item.join.dict
           ) {
             return `${item.join.dict}.${ITEM_NAME} as ${item.columnName}`;
+          } else if (
+            item.isTableable &&
+            item.join &&
+            item.join.joinType === 'table' &&
+            item.join.table &&
+            item.join.onColumn &&
+            item.join.selectColumn
+          ) {
+            return `${item.join.table}.${item.join.selectColumn} as ${item.columnName}`;
           } else {
             return `${table}.${item.columnName}`;
           }
@@ -113,6 +125,18 @@ export const buildSingleTable = (
               condition: 'IN',
               value: `$\{${item.columnName} | default:undefined | split\}`
             };
+          } else if (
+            item.join &&
+            item.join.joinType === 'table' &&
+            item.join.table &&
+            item.join.onColumn &&
+            item.join.selectColumn
+          ) {
+            return {
+              column: `${table}.${item.columnName}`,
+              condition: 'IN',
+              value: `$\{${item.columnName} | default:undefined | split\}`
+            };
           } else {
             return {
               column: `${table}.${item.columnName}`,
@@ -122,19 +146,21 @@ export const buildSingleTable = (
           }
         }),
       '@join': tableData
-        .filter(
-          item =>
-            item.isTableable &&
-            item.join &&
-            item.join.joinType === 'dict' &&
-            item.join.dict
-        )
+        .filter(item => item.isTableable && item.join)
         .map(item => {
-          return {
-            type: 'LEFT_OUTER_JOIN',
-            joinTable: `${SYS_DICT_ITEM} ${item.join.dict}`,
-            on: `${table}.${item.columnName} = ${item.join.dict}.${ITEM_CODE} and ${item.join.dict}.${DICT_CODE} = '${item.join.dict}'`
-          };
+          if (item.join.joinType === 'dict' && item.join.dict) {
+            return {
+              type: 'LEFT_OUTER_JOIN',
+              joinTable: `${SYS_DICT_ITEM} ${item.join.dict}`,
+              on: `${table}.${item.columnName} = ${item.join.dict}.${ITEM_CODE} and ${item.join.dict}.${DICT_CODE} = '${item.join.dict}'`
+            };
+          } else if (item.join.joinType === 'table' && item.join.table && item.join.onColumn && item.join.selectColumn) {
+            return {
+              type: 'LEFT_OUTER_JOIN',
+              joinTable: `${item.join.table} ${item.join.table}`,
+              on: `${table}.${item.columnName} = ${item.join.table}.${item.join.onColumn}`
+            };
+          }
         })
     };
   }
@@ -142,28 +168,34 @@ export const buildSingleTable = (
   let sourceDict: {[key: string]: any} = {};
   tableData
     .filter(
-      item =>
-        item.isTableable &&
-        item.join &&
-        item.join.joinType === 'dict' &&
-        item.join.dict
-    )
+      item => item.isTableable && item.join)
     .forEach(item => {
-      sourceDict[item.join.dict] = {
-        method: 'post',
-        url: `/sql/forge/api/json/select/${SYS_DICT_ITEM}`,
-        data: {
-          '@column': [ITEM_CODE, ITEM_NAME],
-          '@where': [
-            {
-              column: DICT_CODE,
-              condition: 'EQ',
-              value: item.join.dict
-            }
-          ]
-        },
-        adaptor: `return {\n  options: payload.map(item => ({\n    value: item.${ITEM_CODE.toLowerCase()} || item.${ITEM_CODE.toUpperCase()},\n    label: item.${ITEM_NAME.toLowerCase()} ||  item.${ITEM_NAME.toUpperCase()}\n  }))\n};`
-      };
+      if (item.join.joinType === 'dict' && item.join.dict){
+        sourceDict[item.join.dict] = {
+          method: 'post',
+          url: `/sql/forge/api/json/select/${SYS_DICT_ITEM}`,
+          data: {
+            '@column': [ITEM_CODE, ITEM_NAME],
+            '@where': [
+              {
+                column: DICT_CODE,
+                condition: 'EQ',
+                value: item.join.dict
+              }
+            ]
+          },
+          adaptor: `return {\n  options: payload.map(item => ({\n    value: item.${ITEM_CODE.toLowerCase()} || item.${ITEM_CODE.toUpperCase()},\n    label: item.${ITEM_NAME.toLowerCase()} ||  item.${ITEM_NAME.toUpperCase()}\n  }))\n};`
+        };
+      } else if (item.join.joinType === 'table' && item.join.table && item.join.onColumn && item.join.selectColumn){
+        sourceDict[item.join.table] = {
+          method: 'post',
+          url: `/sql/forge/api/json/select/${item.join.table}`,
+          data: {
+            '@column': [item.join.onColumn, item.join.selectColumn]
+          },
+          adaptor: `const temp = payload.map(item => ({\n    value: item.${item.join.onColumn},\n    label: item.${item.join.selectColumn}\n  }))\n console.log('temp',temp)\n  return {\n  options: temp\n};`
+        };
+      }
     });
 
   const insertForm = tableData
@@ -171,10 +203,10 @@ export const buildSingleTable = (
       item => item.isPrimaryKey || (item.isTableable && item.isInsertable)
     )
     .map(item => {
-      if (item.isPrimaryKey ) {
-        if (isNumberJavaSqlType(item.javaSqlType)){
+      if (item.isPrimaryKey) {
+        if (isNumberJavaSqlType(item.javaSqlType)) {
           return;
-        }else {
+        } else {
           return {
             type: 'uuid',
             name: `${item.columnName}`
@@ -382,10 +414,27 @@ export const buildSingleTable = (
             label: item.remarks ? item.remarks : item.columnName,
             maxLength: item.columnSize,
             placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
-            multiple:true,
+            multiple: true,
             source: sourceDict[item.join.dict],
             clearable: true
           };
+        }else if (
+          item.isSearchable &&
+          item.join &&
+          item.join.joinType === 'table' &&
+          item.join.table &&
+          item.join.onColumn &&
+          item.join.selectColumn
+        ) {
+          col.searchable = {
+            type: 'select',
+            name: item.columnName,
+            label: item.remarks ? item.remarks : item.columnName,
+            maxLength: item.columnSize,
+            placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
+            multiple: true,
+            source: sourceDict[item.join.table],
+          }
         } else if (item.isSearchable) {
           col.searchable = {
             type: 'input-text',

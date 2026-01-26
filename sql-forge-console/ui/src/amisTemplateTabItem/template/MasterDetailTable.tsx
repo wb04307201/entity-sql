@@ -237,7 +237,7 @@ const MasterDetailTable = forwardRef<
       ?.tables.find((item: TableColumn) => item.table.tableName === value);
     if (tableColumn) {
       setMainColumnOptions(
-        tableColumn.columns.map((item: TableColumn) => {
+        tableColumn.columns.map((item: ColumnInfo) => {
           return {
             value: item.columnName,
             label: item.columnName
@@ -305,7 +305,7 @@ const MasterDetailTable = forwardRef<
 
     if (tableColumn) {
       setDetailColumnOptions(
-        tableColumn.columns.map((item: TableColumn) => {
+        tableColumn.columns.map((item: ColumnInfo) => {
           return {
             value: item.columnName,
             label: item.columnName
