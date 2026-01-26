@@ -25,8 +25,8 @@ import {
   isNumberJavaSqlType
 } from '../utils/CrudBuild';
 import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
-import ColumnRenderSelect from '../components/ColumnRenderSelect';
 import ColumnRenderJoin from '../components/ColumnRenderJoin';
+import ColumnRenderInput from '../components/ColumnRenderInput';
 
 const MasterDetailTable = forwardRef<
   AmisTemplateCrudMethods,
@@ -59,7 +59,18 @@ const MasterDetailTable = forwardRef<
     },
     {
       title: '备注',
-      dataIndex: 'remarks'
+      dataIndex: 'remarks',
+      render:(value,_,index: number)=>{
+        return (
+          <ColumnRenderInput
+            value={value}
+            index={index}
+            dataIndex={'remarks'}
+            data={mainData}
+            setData={setMainData}
+          />
+        );
+      }
     },
     {
       title: '主 表 查 选 新 改',
@@ -109,7 +120,18 @@ const MasterDetailTable = forwardRef<
     },
     {
       title: '备注',
-      dataIndex: 'remarks'
+      dataIndex: 'remarks',
+      render: (value, _, index: number) => {
+        return (
+          <ColumnRenderInput
+            value={value}
+            index={index}
+            dataIndex={'remarks'}
+            data={detailData}
+            setData={setDetailData}
+          />
+        );
+      }
     },
     {
       title: '主 表 选 新 改',

@@ -24,9 +24,9 @@ import {
   getPrimaryKey,
   isNumberJavaSqlType
 } from '../utils/CrudBuild';
-import ColumnRenderSelect from '../components/ColumnRenderSelect';
 import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
 import ColumnRenderJoin from '../components/ColumnRenderJoin';
+import ColumnRenderInput from '../components/ColumnRenderInput';
 
 const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
   (props, ref) => {
@@ -55,7 +55,18 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
       },
       {
         title: '备注',
-        dataIndex: 'remarks'
+        dataIndex: 'remarks',
+        render:(value,_,index: number)=>{
+          return (
+            <ColumnRenderInput
+              value={value}
+              index={index}
+              dataIndex={'remarks'}
+              data={data}
+              setData={setData}
+            />
+          );
+        }
       },
       {
         title: '主 表 查 选 新 改',

@@ -40,8 +40,16 @@ public record Where(
             case RIGHT_LIKE:
                 params.put(value + PERCENT);
                 yield UPPER + OPERN_PAREN + column + CLOSE_PAREN + condition.getValue() + UPPER_QUESTION_MARK;
-            case BETWEEN, NOT_BETWEEN, IN, NOT_IN:
-                if (value instanceof List<?> list) {
+            case BETWEEN, NOT_BETWEEN:
+                if (value instanceof List<?> list && list.size() == 2) {
+                    params.put(list.get(0));
+                    params.put(list.get(1));
+                    yield column + condition.getValue() + QUESTION_MARK + BAND + QUESTION_MARK;
+                } else {
+                    throw new IllegalArgumentException("Invalid condition,  value must be a List");
+                }
+            case IN, NOT_IN:
+                if (value instanceof List<?> list && !list.isEmpty()) {
                     yield column + condition.getValue() + OPERN_PAREN + getListValueStr(list, params) + CLOSE_PAREN;
                 } else {
                     throw new IllegalArgumentException("Invalid condition,  value must be a List");

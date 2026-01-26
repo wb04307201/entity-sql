@@ -1,5 +1,10 @@
 import {DataType, Index, PrimaryKey} from '../../type';
 
+const SYS_DICT_ITEM = 'sys_dict_item';
+const ITEM_CODE = 'item_code';
+const ITEM_NAME = 'item_name';
+const DICT_CODE = 'dict_code';
+
 export const isNumberJavaSqlType = (javaSqlType: string): boolean => {
   return (
     javaSqlType === 'INTEGER' ||
@@ -12,10 +17,6 @@ export const isNumberJavaSqlType = (javaSqlType: string): boolean => {
     javaSqlType === 'DOUBLE'
   );
 };
-const SYS_DICT_ITEM = 'sys_dict_item';
-const ITEM_CODE = 'item_code';
-const ITEM_NAME = 'item_name';
-const DICT_CODE = 'dict_code';
 
 export const getPrimaryKey = (
   primaryKeys: PrimaryKey[]
@@ -90,17 +91,33 @@ export const buildSingleTable = (
       '@where': tableData
         .filter(item => item.isTableable && item.isSearchable)
         .map(item => {
-          if (item.join && item.join.joinType === 'dict' && item.join.dict) {
+          if (
+            item.javaSqlType == 'DATE' ||
+            item.javaSqlType == 'TIME' ||
+            item.javaSqlType == 'TIMESTAMP' ||
+            item.javaSqlType == 'TIME_WITH_TIMEZONE' ||
+            item.javaSqlType == 'TIMESTAMP_WITH_TIMEZONE'
+          ) {
             return {
               column: `${table}.${item.columnName}`,
-              condition: 'EQ',
-              value: '${' + item.columnName + ' | default:undefined}'
+              condition: 'BETWEEN',
+              value: `$\{${item.columnName} | default:undefined | split\}`
+            };
+          } else if (
+            item.join &&
+            item.join.joinType === 'dict' &&
+            item.join.dict
+          ) {
+            return {
+              column: `${table}.${item.columnName}`,
+              condition: 'IN',
+              value: `$\{${item.columnName} | default:undefined | split\}`
             };
           } else {
             return {
               column: `${table}.${item.columnName}`,
               condition: 'LIKE',
-              value: '${' + item.columnName + ' | default:undefined}'
+              value: `$\{${item.columnName} | default:undefined\}`
             };
           }
         }),
@@ -154,11 +171,15 @@ export const buildSingleTable = (
       item => item.isPrimaryKey || (item.isTableable && item.isInsertable)
     )
     .map(item => {
-      if (item.isPrimaryKey) {
-        return {
-          type: 'uuid',
-          name: `${item.columnName}`
-        };
+      if (item.isPrimaryKey ) {
+        if (isNumberJavaSqlType(item.javaSqlType)){
+          return;
+        }else {
+          return {
+            type: 'uuid',
+            name: `${item.columnName}`
+          };
+        }
       } else if (isNumberJavaSqlType(item.javaSqlType)) {
         return {
           type: 'input-number',
@@ -166,6 +187,27 @@ export const buildSingleTable = (
           label: `${item.remarks ? item.remarks : item.columnName}`,
           precision: item.decimalDigits,
           disabled: disabledInsert.includes(item.columnName)
+        };
+      } else if (item.javaSqlType == 'DATE') {
+        return {
+          type: 'input-date',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          valueFormat: 'YYYY-MM-DD',
+          disabled: disabledUpdate.includes(item.columnName)
+        };
+      } else if (
+        item.javaSqlType == 'TIME' ||
+        item.javaSqlType == 'TIME_WITH_TIMEZONE' ||
+        item.javaSqlType == 'TIMESTAMP' ||
+        item.javaSqlType == 'TIMESTAMP_WITH_TIMEZONE'
+      ) {
+        return {
+          type: 'input-datetime',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          valueFormat: 'YYYY-MM-DDTHH\\:mm\\:ss',
+          disabled: disabledUpdate.includes(item.columnName)
         };
       } else if (item.join && item.join.joinType === 'dict' && item.join.dict) {
         return {
@@ -197,6 +239,27 @@ export const buildSingleTable = (
           name: `${item.columnName}`,
           label: `${item.remarks ? item.remarks : item.columnName}`,
           precision: item.decimalDigits,
+          disabled: disabledUpdate.includes(item.columnName)
+        };
+      } else if (item.javaSqlType == 'DATE') {
+        return {
+          type: 'input-date',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          valueFormat: 'YYYY-MM-DD',
+          disabled: disabledUpdate.includes(item.columnName)
+        };
+      } else if (
+        item.javaSqlType == 'TIME' ||
+        item.javaSqlType == 'TIME_WITH_TIMEZONE' ||
+        item.javaSqlType == 'TIMESTAMP' ||
+        item.javaSqlType == 'TIMESTAMP_WITH_TIMEZONE'
+      ) {
+        return {
+          type: 'input-datetime',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          valueFormat: 'YYYY-MM-DDTHH\\:mm\\:ss',
           disabled: disabledUpdate.includes(item.columnName)
         };
       } else if (item.join && item.join.joinType === 'dict' && item.join.dict) {
@@ -256,6 +319,49 @@ export const buildSingleTable = (
           };
         }
         return col;
+      } else if (item.javaSqlType == 'DATE') {
+        const col = {
+          name: item.columnName,
+          label: item.remarks ? item.remarks : item.columnName,
+          sortable: true,
+          align: 'center',
+          hidden: hideColumns.includes(item.columnName),
+          searchable: undefined
+        };
+        if (item.isSearchable) {
+          col.searchable = {
+            type: 'input-date-range',
+            name: item.columnName,
+            label: item.remarks ? item.remarks : item.columnName,
+            placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
+            valueFormat: 'YYYY-MM-DD'
+          };
+        }
+        return col;
+      } else if (
+        item.javaSqlType == 'TIME' ||
+        item.javaSqlType == 'TIME_WITH_TIMEZONE' ||
+        item.javaSqlType == 'TIMESTAMP' ||
+        item.javaSqlType == 'TIME_WITH_TIMEZONE'
+      ) {
+        const col = {
+          name: item.columnName,
+          label: item.remarks ? item.remarks : item.columnName,
+          sortable: true,
+          align: 'center',
+          hidden: hideColumns.includes(item.columnName),
+          searchable: undefined
+        };
+        if (item.isSearchable) {
+          col.searchable = {
+            type: 'input-datetime-range',
+            name: item.columnName,
+            label: item.remarks ? item.remarks : item.columnName,
+            placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
+            valueFormat: 'YYYY-MM-DDTHH\\:mm\\:ss'
+          };
+        }
+        return col;
       } else {
         const col = {
           name: item.columnName,
@@ -276,10 +382,11 @@ export const buildSingleTable = (
             label: item.remarks ? item.remarks : item.columnName,
             maxLength: item.columnSize,
             placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
+            multiple:true,
             source: sourceDict[item.join.dict],
             clearable: true
           };
-        } else {
+        } else if (item.isSearchable) {
           col.searchable = {
             type: 'input-text',
             name: item.columnName,
