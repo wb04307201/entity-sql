@@ -95,20 +95,7 @@ public record CrudService(Executor executor) {
         else
             sql.SELECT(columns);
 
-        // 处理JOIN子句
-        if (select.joins() != null && !select.joins().isEmpty()) {
-            for (Join join : select.joins()) {
-                switch (join.type()) {
-                    case INNER_JOIN -> sql.INNER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case LEFT_OUTER_JOIN ->
-                            sql.LEFT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case RIGHT_OUTER_JOIN ->
-                            sql.RIGHT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case OUTER_JOIN -> sql.OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    default -> sql.JOIN(join.on());
-                }
-            }
-        }
+        applyJoins(sql, select.joins());
 
         applyWheres(sql, select.wheres(), params);
 
@@ -132,20 +119,7 @@ public record CrudService(Executor executor) {
         else
             sql.SELECT(columns);
 
-        // 处理JOIN子句
-        if (select.joins() != null && !select.joins().isEmpty()) {
-            for (Join join : select.joins()) {
-                switch (join.type()) {
-                    case INNER_JOIN -> sql.INNER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case LEFT_OUTER_JOIN ->
-                            sql.LEFT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case RIGHT_OUTER_JOIN ->
-                            sql.RIGHT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case OUTER_JOIN -> sql.OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    default -> sql.JOIN(join.on());
-                }
-            }
-        }
+        applyJoins(sql, select.joins());
 
         applyWheres(sql, select.wheres(), params);
 
@@ -194,12 +168,28 @@ public record CrudService(Executor executor) {
             return count;
     }
 
+    private void applyJoins(SQL sql, List<Join> joins) {
+        if (joins != null && !joins.isEmpty()) {
+            for (Join join : joins) {
+                switch (join.type()) {
+                    case INNER_JOIN -> sql.INNER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case LEFT_OUTER_JOIN ->
+                            sql.LEFT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case RIGHT_OUTER_JOIN ->
+                            sql.RIGHT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case OUTER_JOIN -> sql.OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    default -> sql.JOIN(join.on());
+                }
+            }
+        }
+    }
+
 
     private void applyWheres(SQL sql, List<Where> wheres, ParamMap params) {
         if (wheres != null && !wheres.isEmpty()) {
             for (Where where : wheres) {
                 String whereStr = where.create(params);
-                if (whereStr!= null) sql.WHERE(whereStr);
+                if (whereStr != null) sql.WHERE(whereStr);
             }
         }
     }
