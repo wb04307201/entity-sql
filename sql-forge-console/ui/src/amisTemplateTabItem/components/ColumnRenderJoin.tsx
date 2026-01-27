@@ -31,20 +31,14 @@ const ColumnRenderJoin = (props: {
 
   const renderTitle = () => {
     return (
-      <div>
+      <>
         {props.value?.joinType === 'dict' && (
-          <div>字典：{props.value?.dict}</div>
+          <div>字典</div>
         )}
-        {
-          props.value?.joinType === 'table' && (
-            <div>
-              关联表：{props.value?.table}
-              关联列：{props.value?.onColumn}
-              显示列：{props.value?.selectColumn}
-            </div>
-          )
-        }
-      </div>
+        {props.value?.joinType === 'table' && (
+            <div>表</div>
+        )}
+      </>
     );
   };
 
@@ -130,8 +124,7 @@ const ColumnRenderJoin = (props: {
   };
 
   return (
-    <div>
-      {renderTitle()}
+    <div style={{display: 'flex'}}>
       <Button
         shape="circle"
         icon={<SettingOutlined />}
@@ -140,6 +133,7 @@ const ColumnRenderJoin = (props: {
           setShow(true);
         }}
       />
+      {renderTitle()}
       <Modal
         title="关联信息"
         open={show}
@@ -201,7 +195,9 @@ const ColumnRenderJoin = (props: {
             <Select
               placeholder="请选择显示列"
               value={joinInfo?.selectColumn}
-              onChange={value => setJoinInfo({...joinInfo, selectColumn: value})}
+              onChange={value =>
+                setJoinInfo({...joinInfo, selectColumn: value})
+              }
               options={columnOptions}
             />
           </>
