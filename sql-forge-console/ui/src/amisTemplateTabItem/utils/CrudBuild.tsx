@@ -100,7 +100,29 @@ export const buildSingleTable = (
             return `${table}.${item.columnName}`;
           }
         }),
-      '@where': tableData
+      '@join': tableData
+        .filter(item => item.isTableable && item.join)
+        .map(item => {
+          if (item.join.joinType === 'dict' && item.join.dict) {
+            return {
+              type: 'LEFT_OUTER_JOIN',
+              joinTable: `${SYS_DICT_ITEM} ${item.join.dict}`,
+              on: `${table}.${item.columnName} = ${item.join.dict}.${ITEM_CODE}`
+            };
+          } else if (
+            item.join.joinType === 'table' &&
+            item.join.table &&
+            item.join.onColumn &&
+            item.join.selectColumn
+          ) {
+            return {
+              type: 'LEFT_OUTER_JOIN',
+              joinTable: `${item.join.table} ${item.join.table}`,
+              on: `${table}.${item.columnName} = ${item.join.table}.${item.join.onColumn}`
+            };
+          }
+        }),
+      '@where': [...tableData
         .filter(item => item.isTableable && item.isSearchable)
         .map(item => {
           if (
@@ -145,28 +167,16 @@ export const buildSingleTable = (
             };
           }
         }),
-      '@join': tableData
-        .filter(item => item.isTableable && item.join)
-        .map(item => {
-          if (item.join.joinType === 'dict' && item.join.dict) {
+        ...tableData
+          .filter(item => item.isTableable && item.isSearchable && item.join && item.join.joinType === 'dict' && item.join.dict)
+          .map(item => {
             return {
-              type: 'LEFT_OUTER_JOIN',
-              joinTable: `${SYS_DICT_ITEM} ${item.join.dict}`,
-              on: `${table}.${item.columnName} = ${item.join.dict}.${ITEM_CODE} and ${item.join.dict}.${DICT_CODE} = '${item.join.dict}'`
+              column: `${item.join.dict}.${DICT_CODE}`,
+              condition: 'EQ',
+              value: `${item.join.dict}`
             };
-          } else if (
-            item.join.joinType === 'table' &&
-            item.join.table &&
-            item.join.onColumn &&
-            item.join.selectColumn
-          ) {
-            return {
-              type: 'LEFT_OUTER_JOIN',
-              joinTable: `${item.join.table} ${item.join.table}`,
-              on: `${table}.${item.columnName} = ${item.join.table}.${item.join.onColumn}`
-            };
-          }
-        })
+          })
+      ]
     };
   }
 
