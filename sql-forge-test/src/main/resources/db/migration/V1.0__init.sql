@@ -23,6 +23,8 @@ COMMENT
 ON COLUMN users.sex IS '性别';
 COMMENT
 ON COLUMN users.email IS '用户邮箱地址';
+COMMENT
+ON COLUMN users.password IS '密码';
 
 -- 2. 创建 products 表（UUID 主键，应用生成）
 CREATE TABLE products
