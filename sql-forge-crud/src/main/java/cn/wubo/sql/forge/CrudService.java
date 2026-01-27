@@ -16,11 +16,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import static cn.wubo.sql.forge.constant.Constant.ON_TEMPLATE;
 import static cn.wubo.sql.forge.constant.Constant.QUESTION_MARK;
 
 public record CrudService(Executor executor) {
-
-    public static final String ON_TEMPLATE = "%s ON %s";
 
     /**
      * 删除指定表中的记录

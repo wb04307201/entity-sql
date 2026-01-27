@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public record SelectPage(
@@ -31,9 +30,7 @@ public record SelectPage(
 
         public Select selectCount(){
                 return new Select(
-                        new ArrayList<>() {{
-                            add("count(1) AS total");
-                        }},
+                        List.of("count(1) AS total"),
                         wheres,
                         joins,
                         null,

@@ -44,7 +44,7 @@ public record Where(
                 if (value instanceof List<?> list && list.size() == 2) {
                     params.put(list.get(0));
                     params.put(list.get(1));
-                    yield column + condition.getValue() + QUESTION_MARK + BAND + QUESTION_MARK;
+                    yield column + condition.getValue() + QUESTION_MARK + AND + QUESTION_MARK;
                 } else {
                     throw new IllegalArgumentException("Invalid condition,  value must be a List");
                 }

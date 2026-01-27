@@ -6,8 +6,8 @@ import cn.wubo.sql.forge.enums.StatementType;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cn.wubo.sql.forge.constant.Constant.AND;
-import static cn.wubo.sql.forge.constant.Constant.OR;
+import static cn.wubo.sql.forge.constant.Constant.PAREN_AND;
+import static cn.wubo.sql.forge.constant.Constant.PAREN_OR;
 
 public class SQLStatement {
 
@@ -48,7 +48,7 @@ public class SQLStatement {
             String last = "________";
             for (int i = 0, n = parts.size(); i < n; i++) {
                 String part = parts.get(i);
-                if (i > 0 && !AND.equals(part) && !OR.equals(part) && !AND.equals(last) && !OR.equals(last)) {
+                if (i > 0 && !PAREN_AND.equals(part) && !PAREN_OR.equals(part) && !PAREN_AND.equals(last) && !PAREN_OR.equals(last)) {
                     builder.append(conjunction);
                 }
                 builder.append(part);
