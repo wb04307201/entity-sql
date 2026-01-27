@@ -17,13 +17,12 @@ public record Where(
 ) {
 
     public String create(ParamMap params) {
-
         if (condition == null && value != null) {
             params.put(value);
             return column + ConditionType.EQ.getValue() + QUESTION_MARK;
         }
 
-        if(value == null && condition != ConditionType.IS_NULL && condition != ConditionType.IS_NOT_NULL) {
+        if (value == null && condition != ConditionType.IS_NULL && condition != ConditionType.IS_NOT_NULL) {
             return null;
         }
 
