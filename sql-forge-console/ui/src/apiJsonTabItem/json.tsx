@@ -69,9 +69,10 @@ export const selectPageJson = {
 
 export const insertJson = {
   '@set': {
-    id: '26a05ba3-913d-4085-a505-36d40021c8d1',
-    username: 'wb04307201',
-    email: 'wb04307201@gitee.com'
+    'id': '26a05ba3-913d-4085-a505-36d40021c8d1',
+    'username': 'wb04307201',
+    'email': 'wb04307201@gitee.com',
+    '@password|argon2': '123456'
   },
   '@with_select': {
     '@column': null,

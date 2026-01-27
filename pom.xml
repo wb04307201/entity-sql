@@ -49,6 +49,7 @@
         <enjoy.version>5.2.5</enjoy.version>
         <mvel2.version>2.5.2.Final</mvel2.version>
         <calcite.version>1.41.0</calcite.version>
+        <argon2.version>2.12</argon2.version>
     </properties>
 
     <dependencyManagement>
@@ -84,6 +85,11 @@
                 <groupId>org.apache.calcite</groupId>
                 <artifactId>calcite-core</artifactId>
                 <version>${calcite.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.mkammerer</groupId>
+                <artifactId>argon2-jvm</artifactId>
+                <version>${argon2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

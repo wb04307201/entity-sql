@@ -13,13 +13,14 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static cn.wubo.sql.forge.constant.Constant.ON_TEMPLATE;
 import static cn.wubo.sql.forge.constant.Constant.QUESTION_MARK;
 
-public record CrudService(Executor executor) {
+public record CrudService(Executor executor, List<IFunctionValue> functionValues) {
 
     /**
      * 删除指定表中的记录
@@ -63,8 +64,9 @@ public record CrudService(Executor executor) {
 
         // 遍历插入字段和值，构建VALUES子句
         for (Map.Entry<String, Object> set : insert.sets().entrySet()) {
-            params.put(set.getValue());
-            sql.VALUES(set.getKey(), QUESTION_MARK);
+            Object setValue = transValue(set.getKey(), set.getValue());
+            params.put(setValue);
+            sql.VALUES(getKey(set.getKey()), QUESTION_MARK);
         }
 
         // 执行插入操作并获取主键值
@@ -153,8 +155,9 @@ public record CrudService(Executor executor) {
 
         // 构建SET子句，遍历更新字段和值的映射关系
         for (Map.Entry<String, Object> set : update.sets().entrySet()) {
-            params.put(set.getValue());
-            sql.SET(set.getKey() + ConditionType.EQ.getValue() + QUESTION_MARK);
+            Object setValue = transValue(set.getKey(), set.getValue());
+            params.put(setValue);
+            sql.SET(getKey(set.getKey()) + ConditionType.EQ.getValue() + QUESTION_MARK);
         }
 
         applyWheres(sql, update.wheres(), params);
@@ -184,7 +187,6 @@ public record CrudService(Executor executor) {
         }
     }
 
-
     private void applyWheres(SQL sql, List<Where> wheres, ParamMap params) {
         if (wheres != null && !wheres.isEmpty()) {
             for (Where where : wheres) {
@@ -193,4 +195,41 @@ public record CrudService(Executor executor) {
             }
         }
     }
+
+    private String getKey(String column) {
+        if (!column.startsWith("@")) {
+            return column;
+        }else {
+            return column.split("\\|")[0].replace("@", "");
+        }
+    }
+
+
+    private Object transValue(String column, Object value) {
+        if (!column.startsWith("@")) {
+            return value;
+        }
+
+        String[] parts = column.split("\\|");
+        if (parts.length <= 1) {
+            return value;
+        }
+
+        Object result = value;
+        for (int i = 1; i < parts.length; i++) {
+            final String fn = parts[i];
+            IFunctionValue functionValue = functionValues.stream()
+                    .filter(fv -> fv.support(fn))
+                    .findAny()
+                    .orElse(null);
+
+            if (functionValue != null) {
+                result = functionValue.transValue(fn, result);
+            }
+        }
+
+        return result;
+    }
+
+
 }

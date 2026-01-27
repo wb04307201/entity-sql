@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 
 import java.net.URI;
 import java.sql.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -43,8 +44,14 @@ public class SqlForgeConfiguration {
     }
 
     @Bean
-    public CrudService crudService(Executor executor) {
-        return new CrudService(executor);
+    public IFunctionValue argon2FuntionValue() {
+        return new Argon2FuntionValue();
+    }
+
+
+    @Bean
+    public CrudService crudService(Executor executor, List<IFunctionValue> functionValueList) {
+        return new CrudService(executor, functionValueList);
     }
 
     @Bean

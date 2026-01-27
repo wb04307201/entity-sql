@@ -8,6 +8,7 @@ CREATE TABLE users
     username VARCHAR(50) NOT NULL UNIQUE,
     sex      VARCHAR(100),
     email    VARCHAR(100),
+    password VARCHAR(100) NOT NULL,
     CONSTRAINT uk_username UNIQUE (username)
 
 );
@@ -129,30 +130,30 @@ COMMENT
 ON COLUMN sys_dict_item.sort IS '排序值';
 
 -- 插入测试用户数据（使用预定义 UUID）
-INSERT INTO users (id, username, sex, email)
-VALUES ('550e8400-e29b-41d4-a716-446655440000', 'alice', 'female', 'alice@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440001', 'bob', 'male', 'bob@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440002', 'charlie', 'male', 'charlie@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440003', 'wubo01', 'male', 'wubo01@@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440004', 'wubo02', 'male', 'wubo02@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440005', 'wubo03', 'male', 'wubo03@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440006', 'wubo04', 'male', 'wubo04@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440007', 'wubo05', 'male', 'wubo05@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440008', 'wubo06', 'male', 'wubo06@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440009', 'wubo07', 'male', 'wubo07@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440010', 'wubo08', 'male', 'wubo08@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440011', 'wubo09', 'male', 'wubo09@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440012', 'wubo10', 'male', 'wubo10@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440013', 'wubo11', 'male', 'wubo11@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440014', 'wubo12', 'male', 'wubo12@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440015', 'wubo13', 'male', 'wubo13@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440016', 'wubo14', 'male', 'wubo14@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440017', 'wubo15', 'male', 'wubo15@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440018', 'wubo16', 'male', 'wubo16@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440019', 'wubo17', 'male', 'wubo17@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440020', 'wubo18', 'male', 'wubo18@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440021', 'wubo19', 'male', 'wubo19@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440022', 'wubo20', 'male', 'wubo20@example.com');
+INSERT INTO users (id, username, sex, email, password)
+VALUES ('550e8400-e29b-41d4-a716-446655440000', 'alice', 'female', 'alice@example.com','$argon2i$v=19$m=65536,t=10,p=1$m+vkvMIzPjFUDCQc0X2AdQ$4LrnP44n8SpdCwzCKy2gpu6syCzh7DKTiGhvv4VYyOQ'),
+       ('550e8400-e29b-41d4-a716-446655440001', 'bob', 'male', 'bob@example.com','$argon2i$v=19$m=65536,t=10,p=1$m+vkvMIzPjFUDCQc0X2AdQ$4LrnP44n8SpdCwzCKy2gpu6syCzh7DKTiGhvv4VYyOQ'),
+       ('550e8400-e29b-41d4-a716-446655440002', 'charlie', 'male', 'charlie@example.com','$argon2i$v=19$m=65536,t=10,p=1$m+vkvMIzPjFUDCQc0X2AdQ$4LrnP44n8SpdCwzCKy2gpu6syCzh7DKTiGhvv4VYyOQ'),
+       ('550e8400-e29b-41d4-a716-446655440003', 'wubo01', 'male', 'wubo01@@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440004', 'wubo02', 'male', 'wubo02@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440005', 'wubo03', 'male', 'wubo03@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440006', 'wubo04', 'male', 'wubo04@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440007', 'wubo05', 'male', 'wubo05@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440008', 'wubo06', 'male', 'wubo06@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440009', 'wubo07', 'male', 'wubo07@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440010', 'wubo08', 'male', 'wubo08@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440011', 'wubo09', 'male', 'wubo09@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440012', 'wubo10', 'male', 'wubo10@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440013', 'wubo11', 'male', 'wubo11@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440014', 'wubo12', 'male', 'wubo12@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440015', 'wubo13', 'male', 'wubo13@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440016', 'wubo14', 'male', 'wubo14@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440017', 'wubo15', 'male', 'wubo15@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440018', 'wubo16', 'male', 'wubo16@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440019', 'wubo17', 'male', 'wubo17@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440020', 'wubo18', 'male', 'wubo18@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440021', 'wubo19', 'male', 'wubo19@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440022', 'wubo20', 'male', 'wubo20@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g');
 
 -- 插入测试商品数据
 INSERT INTO products (id, name, price)
