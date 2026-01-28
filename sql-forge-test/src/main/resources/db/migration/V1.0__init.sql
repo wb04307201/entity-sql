@@ -9,8 +9,9 @@ CREATE TABLE users
     sex      VARCHAR(100),
     email    VARCHAR(100),
     password VARCHAR(100) NOT NULL,
-    CONSTRAINT uk_username UNIQUE (username)
-
+    CONSTRAINT uk_username UNIQUE (username),
+    create TIMESTAMP,
+    update TIMESTAMP
 );
 
 COMMENT
@@ -25,13 +26,19 @@ COMMENT
 ON COLUMN users.email IS '用户邮箱地址';
 COMMENT
 ON COLUMN users.password IS '密码';
+COMMENT
+ON COLUMN users.create IS '创建时间';
+COMMENT
+ON COLUMN users.update IS '更新时间';
 
 -- 2. 创建 products 表（UUID 主键，应用生成）
 CREATE TABLE products
 (
     id    VARCHAR(36)  NOT NULL PRIMARY KEY,
     name  VARCHAR(100) NOT NULL UNIQUE,
-    price DECIMAL(10, 2)
+    price DECIMAL(10, 2),
+    create TIMESTAMP,
+    update TIMESTAMP
 );
 
 COMMENT
@@ -40,6 +47,10 @@ COMMENT
 ON COLUMN products.name IS '产品名称';
 COMMENT
 ON COLUMN products.price IS '产品价格';
+COMMENT
+ON COLUMN products.create IS '创建时间';
+COMMENT
+ON COLUMN products.update IS '更新时间';
 
 -- 3. 创建 orders 表（自增主键）
 CREATE TABLE orders
@@ -48,7 +59,9 @@ CREATE TABLE orders
     user_id    VARCHAR(36) NOT NULL,
     product_id VARCHAR(36) NOT NULL,
     order_date TIMESTAMP            DEFAULT CURRENT_TIMESTAMP,
-    quantity   INT         NOT NULL DEFAULT 1
+    quantity   INT         NOT NULL DEFAULT 1,
+    create TIMESTAMP,
+    update TIMESTAMP
 );
 
 COMMENT
@@ -61,23 +74,33 @@ COMMENT
 ON COLUMN orders.order_date IS '订单创建时间';
 COMMENT
 ON COLUMN orders.quantity IS '订购数量';
+COMMENT
+ON COLUMN orders.create IS '创建时间';
+COMMENT
+ON COLUMN orders.update IS '更新时间';
 
 -- 4. 模板 sql_forge_template 表
 CREATE TABLE sql_forge_template
 (
     id            VARCHAR(64) NOT NULL PRIMARY KEY,
     template_type VARCHAR(50),
-    context       TEXT
+    context       TEXT,
+    create TIMESTAMP,
+    update TIMESTAMP
 );
 
 COMMENT
 ON TABLE sql_forge_template IS '模板表';
 COMMENT
+ON COLUMN sql_forge_template.id IS '主键ID';
+COMMENT
 ON COLUMN sql_forge_template.template_type IS '模板类型';
 COMMENT
 ON COLUMN sql_forge_template.context IS '模板内容';
 COMMENT
-ON COLUMN sql_forge_template.id IS '主键ID';
+ON COLUMN sql_forge_template.create IS '创建时间';
+COMMENT
+ON COLUMN sql_forge_template.update IS '更新时间';
 
 -- 5.字典主表：存储字典类型（如：性别、状态）
 CREATE TABLE sys_dict
@@ -85,7 +108,9 @@ CREATE TABLE sys_dict
     id          VARCHAR(36)  NOT NULL PRIMARY KEY,
     dict_code   VARCHAR(64)  NOT NULL UNIQUE,
     dict_name   VARCHAR(100) NOT NULL,
-    dict_type   VARCHAR(100) NOT NULL
+    dict_type   VARCHAR(100) NOT NULL,
+    create TIMESTAMP,
+    update TIMESTAMP
 );
 
 COMMENT
@@ -98,6 +123,10 @@ COMMENT
 ON COLUMN sys_dict.dict_name IS '字典名称';
 COMMENT
 ON COLUMN sys_dict.dict_type IS '字典类型';
+COMMENT
+ON COLUMN sys_dict.create IS '创建时间';
+COMMENT
+ON COLUMN sys_dict.update IS '更新时间';
 
 -- 6.字典子表：存储字典明细项（如：男、女）
 CREATE TABLE sys_dict_item
@@ -107,6 +136,8 @@ CREATE TABLE sys_dict_item
     item_code VARCHAR(64)  NOT NULL,
     item_name VARCHAR(100) NOT NULL,
     sort      INT DEFAULT 0,
+    create TIMESTAMP,
+    update TIMESTAMP,
 
     -- 联合唯一约束：同一字典下编码唯一
     CONSTRAINT uk_dict_item UNIQUE (dict_code, item_code),
@@ -130,6 +161,10 @@ COMMENT
 ON COLUMN sys_dict_item.item_name IS '字典项名称';
 COMMENT
 ON COLUMN sys_dict_item.sort IS '排序值';
+COMMENT
+ON COLUMN sys_dict_item.create IS '创建时间';
+COMMENT
+ON COLUMN sys_dict_item.update IS '更新时间';
 
 -- 插入测试用户数据（使用预定义 UUID）
 INSERT INTO users (id, username, sex, email, password)

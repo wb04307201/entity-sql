@@ -13,12 +13,12 @@ public record Update(
         @JsonProperty("@set")
         @NotNull
         @Size(min = 1)
-        Map<String,Object> sets,
+        Map<String, Object> sets,
         @JsonProperty("@where")
         @Valid
         List<Where> wheres,
         @JsonProperty("@with_select")
         @Valid
         Select select
-) {
+) implements IAllowedRecord {
 }

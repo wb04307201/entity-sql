@@ -26,16 +26,16 @@ public record SelectPage(
         List<String> orders,
         @JsonProperty("@distince")
         boolean distinct
-) {
+) implements IAllowedRecord {
 
-        public Select selectCount(){
-                return new Select(
-                        List.of("count(1) AS total"),
-                        wheres,
-                        joins,
-                        null,
-                        null,
-                        false
-                );
-        }
+    public Select selectCount() {
+        return new Select(
+                List.of("count(1) AS total"),
+                wheres,
+                joins,
+                null,
+                null,
+                false
+        );
+    }
 }

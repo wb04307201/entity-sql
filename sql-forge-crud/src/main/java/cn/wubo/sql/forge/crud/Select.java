@@ -22,5 +22,5 @@ public record Select(
         List<String> groups,
         @JsonProperty("@distince")
         boolean distinct
-) {
+) implements IAllowedRecord {
 }

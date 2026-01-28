@@ -122,53 +122,61 @@ export const buildSingleTable = (
             };
           }
         }),
-      '@where': [...tableData
-        .filter(item => item.isTableable && item.isSearchable)
-        .map(item => {
-          if (
-            item.javaSqlType == 'DATE' ||
-            item.javaSqlType == 'TIME' ||
-            item.javaSqlType == 'TIMESTAMP' ||
-            item.javaSqlType == 'TIME_WITH_TIMEZONE' ||
-            item.javaSqlType == 'TIMESTAMP_WITH_TIMEZONE'
-          ) {
-            return {
-              column: `${table}.${item.columnName}`,
-              condition: 'BETWEEN',
-              value: `$\{${item.columnName} | default:undefined | split\}`
-            };
-          } else if (
-            item.join &&
-            item.join.joinType === 'dict' &&
-            item.join.dict
-          ) {
-            return {
-              column: `${table}.${item.columnName}`,
-              condition: 'IN',
-              value: `$\{${item.columnName} | default:undefined | split\}`
-            };
-          } else if (
-            item.join &&
-            item.join.joinType === 'table' &&
-            item.join.table &&
-            item.join.onColumn &&
-            item.join.selectColumn
-          ) {
-            return {
-              column: `${table}.${item.columnName}`,
-              condition: 'IN',
-              value: `$\{${item.columnName} | default:undefined | split\}`
-            };
-          } else {
-            return {
-              column: `${table}.${item.columnName}`,
-              condition: 'LIKE',
-              value: `$\{${item.columnName} | default:undefined\}`
-            };
-          }
-        }),
+      '@where': [
         ...tableData
-          .filter(item => item.isTableable && item.isSearchable && item.join && item.join.joinType === 'dict' && item.join.dict)
+          .filter(item => item.isTableable && item.isSearchable)
+          .map(item => {
+            if (
+              item.javaSqlType == 'DATE' ||
+              item.javaSqlType == 'TIME' ||
+              item.javaSqlType == 'TIMESTAMP' ||
+              item.javaSqlType == 'TIME_WITH_TIMEZONE' ||
+              item.javaSqlType == 'TIMESTAMP_WITH_TIMEZONE'
+            ) {
+              return {
+                column: `${table}.${item.columnName}`,
+                condition: 'BETWEEN',
+                value: `$\{${item.columnName} | default:undefined | split\}`
+              };
+            } else if (
+              item.join &&
+              item.join.joinType === 'dict' &&
+              item.join.dict
+            ) {
+              return {
+                column: `${table}.${item.columnName}`,
+                condition: 'IN',
+                value: `$\{${item.columnName} | default:undefined | split\}`
+              };
+            } else if (
+              item.join &&
+              item.join.joinType === 'table' &&
+              item.join.table &&
+              item.join.onColumn &&
+              item.join.selectColumn
+            ) {
+              return {
+                column: `${table}.${item.columnName}`,
+                condition: 'IN',
+                value: `$\{${item.columnName} | default:undefined | split\}`
+              };
+            } else {
+              return {
+                column: `${table}.${item.columnName}`,
+                condition: 'LIKE',
+                value: `$\{${item.columnName} | default:undefined\}`
+              };
+            }
+          }),
+        ...tableData
+          .filter(
+            item =>
+              item.isTableable &&
+              item.isSearchable &&
+              item.join &&
+              item.join.joinType === 'dict' &&
+              item.join.dict
+          )
           .map(item => {
             return {
               column: `${item.join.dict}.${DICT_CODE}`,
@@ -218,9 +226,7 @@ export const buildSingleTable = (
     });
 
   const insertForm = tableData
-    .filter(
-      item => item.isPrimaryKey || (item.isTableable && item.isInsertable)
-    )
+    .filter(item => item.isPrimaryKey || item.isInsertable)
     .map(item => {
       if (item.isPrimaryKey) {
         if (isNumberJavaSqlType(item.javaSqlType)) {
@@ -298,7 +304,7 @@ export const buildSingleTable = (
     });
 
   const updateForm = tableData
-    .filter(item => item.isTableable && item.isUpdatable)
+    .filter(item => item.isUpdatable)
     .map(item => {
       if (isNumberJavaSqlType(item.javaSqlType)) {
         return {
