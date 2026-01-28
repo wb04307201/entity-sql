@@ -11,9 +11,9 @@ public record Insert(
         @JsonProperty("@set")
         @NotNull
         @Size(min = 1)
-        Map<String,Object> sets,
+        Map<String, Object> sets,
         @JsonProperty("@with_select")
         @Valid
         Select select
-) {
+) implements IAllowedRecord {
 }

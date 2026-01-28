@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public record SelectPage(
@@ -27,18 +26,16 @@ public record SelectPage(
         List<String> orders,
         @JsonProperty("@distince")
         boolean distinct
-) {
+) implements IAllowedRecord {
 
-        public Select selectCount(){
-                return new Select(
-                        new ArrayList<>() {{
-                            add("count(1) AS total");
-                        }},
-                        wheres,
-                        joins,
-                        null,
-                        null,
-                        false
-                );
-        }
+    public Select selectCount() {
+        return new Select(
+                List.of("count(1) AS total"),
+                wheres,
+                joins,
+                null,
+                null,
+                false
+        );
+    }
 }

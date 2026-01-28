@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
-import static cn.wubo.sql.forge.constant.Constant.AND;
-import static cn.wubo.sql.forge.constant.Constant.OR;
+import static cn.wubo.sql.forge.constant.Constant.*;
 import static cn.wubo.sql.forge.enums.LimitingRowsStrategy.ISO;
 import static cn.wubo.sql.forge.enums.LimitingRowsStrategy.OFFSET_LIMIT;
 import static cn.wubo.sql.forge.enums.StatementType.*;
@@ -161,12 +160,12 @@ public abstract class AbstractSQL<T> {
     }
 
     public T OR() {
-        sql().lastList.add(OR);
+        sql().lastList.add(PAREN_OR);
         return getSelf();
     }
 
     public T AND() {
-        sql().lastList.add(AND);
+        sql().lastList.add(PAREN_AND);
         return getSelf();
     }
 

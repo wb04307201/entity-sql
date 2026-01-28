@@ -1,4 +1,12 @@
 import {DataType, Index, PrimaryKey} from '../../type';
+import exp from 'node:constants';
+
+export const SYS_DICT = 'sys_dict';
+export const DICT_CODE = 'dict_code';
+export const DICT_NAME = 'dict_name';
+export const SYS_DICT_ITEM = 'sys_dict_item';
+export const ITEM_CODE = 'item_code';
+export const ITEM_NAME = 'item_name';
 
 export const isNumberJavaSqlType = (javaSqlType: string): boolean => {
   return (
@@ -12,10 +20,6 @@ export const isNumberJavaSqlType = (javaSqlType: string): boolean => {
     javaSqlType === 'DOUBLE'
   );
 };
-const SYS_DICT_ITEM = 'sys_dict_item';
-const ITEM_CODE = 'item_code';
-const ITEM_NAME = 'item_name';
-const DICT_CODE = 'dict_code';
 
 export const getPrimaryKey = (
   primaryKeys: PrimaryKey[]
@@ -83,82 +87,156 @@ export const buildSingleTable = (
             item.join.dict
           ) {
             return `${item.join.dict}.${ITEM_NAME} as ${item.columnName}`;
+          } else if (
+            item.isTableable &&
+            item.join &&
+            item.join.joinType === 'table' &&
+            item.join.table &&
+            item.join.onColumn &&
+            item.join.selectColumn
+          ) {
+            return `${item.join.table}.${item.join.selectColumn} as ${item.columnName}`;
           } else {
             return `${table}.${item.columnName}`;
           }
         }),
-      '@where': tableData
-        .filter(item => item.isTableable && item.isSearchable)
+      '@join': tableData
+        .filter(item => item.isTableable && item.join)
         .map(item => {
-          if (item.join && item.join.joinType === 'dict' && item.join.dict) {
+          if (item.join.joinType === 'dict' && item.join.dict) {
             return {
-              column: `${table}.${item.columnName}`,
-              condition: 'EQ',
-              value: '${' + item.columnName + ' | default:undefined}'
+              type: 'LEFT_OUTER_JOIN',
+              joinTable: `${SYS_DICT_ITEM} ${item.join.dict}`,
+              on: `${table}.${item.columnName} = ${item.join.dict}.${ITEM_CODE}`
             };
-          } else {
+          } else if (
+            item.join.joinType === 'table' &&
+            item.join.table &&
+            item.join.onColumn &&
+            item.join.selectColumn
+          ) {
             return {
-              column: `${table}.${item.columnName}`,
-              condition: 'LIKE',
-              value: '${' + item.columnName + ' | default:undefined}'
+              type: 'LEFT_OUTER_JOIN',
+              joinTable: `${item.join.table} ${item.join.table}`,
+              on: `${table}.${item.columnName} = ${item.join.table}.${item.join.onColumn}`
             };
           }
         }),
-      '@join': tableData
-        .filter(
-          item =>
-            item.isTableable &&
-            item.join &&
-            item.join.joinType === 'dict' &&
-            item.join.dict
-        )
-        .map(item => {
-          return {
-            type: 'LEFT_OUTER_JOIN',
-            joinTable: `${SYS_DICT_ITEM} ${item.join.dict}`,
-            on: `${table}.${item.columnName} = ${item.join.dict}.${ITEM_CODE} and ${item.join.dict}.${DICT_CODE} = '${item.join.dict}'`
-          };
-        })
+      '@where': [
+        ...tableData
+          .filter(item => item.isTableable && item.isSearchable)
+          .map(item => {
+            if (
+              item.javaSqlType == 'DATE' ||
+              item.javaSqlType == 'TIME' ||
+              item.javaSqlType == 'TIMESTAMP' ||
+              item.javaSqlType == 'TIME_WITH_TIMEZONE' ||
+              item.javaSqlType == 'TIMESTAMP_WITH_TIMEZONE'
+            ) {
+              return {
+                column: `${table}.${item.columnName}`,
+                condition: 'BETWEEN',
+                value: `$\{${item.columnName} | default:undefined | split\}`
+              };
+            } else if (
+              item.join &&
+              item.join.joinType === 'dict' &&
+              item.join.dict
+            ) {
+              return {
+                column: `${table}.${item.columnName}`,
+                condition: 'IN',
+                value: `$\{${item.columnName} | default:undefined | split\}`
+              };
+            } else if (
+              item.join &&
+              item.join.joinType === 'table' &&
+              item.join.table &&
+              item.join.onColumn &&
+              item.join.selectColumn
+            ) {
+              return {
+                column: `${table}.${item.columnName}`,
+                condition: 'IN',
+                value: `$\{${item.columnName} | default:undefined | split\}`
+              };
+            } else {
+              return {
+                column: `${table}.${item.columnName}`,
+                condition: 'LIKE',
+                value: `$\{${item.columnName} | default:undefined\}`
+              };
+            }
+          }),
+        ...tableData
+          .filter(
+            item =>
+              item.isTableable &&
+              item.isSearchable &&
+              item.join &&
+              item.join.joinType === 'dict' &&
+              item.join.dict
+          )
+          .map(item => {
+            return {
+              column: `${item.join.dict}.${DICT_CODE}`,
+              condition: 'EQ',
+              value: `${item.join.dict}`
+            };
+          })
+      ]
     };
   }
 
   let sourceDict: {[key: string]: any} = {};
   tableData
-    .filter(
-      item =>
-        item.isTableable &&
-        item.join &&
-        item.join.joinType === 'dict' &&
-        item.join.dict
-    )
+    .filter(item => item.isTableable && item.join)
     .forEach(item => {
-      sourceDict[item.join.dict] = {
-        method: 'post',
-        url: `/sql/forge/api/json/select/${SYS_DICT_ITEM}`,
-        data: {
-          '@column': [ITEM_CODE, ITEM_NAME],
-          '@where': [
-            {
-              column: DICT_CODE,
-              condition: 'EQ',
-              value: item.join.dict
-            }
-          ]
-        },
-        adaptor: `return {\n  options: payload.map(item => ({\n    value: item.${ITEM_CODE.toLowerCase()} || item.${ITEM_CODE.toUpperCase()},\n    label: item.${ITEM_NAME.toLowerCase()} ||  item.${ITEM_NAME.toUpperCase()}\n  }))\n};`
-      };
+      if (item.join.joinType === 'dict' && item.join.dict) {
+        sourceDict[item.join.dict] = {
+          method: 'post',
+          url: `/sql/forge/api/json/select/${SYS_DICT_ITEM}`,
+          data: {
+            '@column': [ITEM_CODE, ITEM_NAME],
+            '@where': [
+              {
+                column: DICT_CODE,
+                condition: 'EQ',
+                value: item.join.dict
+              }
+            ]
+          },
+          adaptor: `return {\n  options: payload.map(item => ({\n    value: item.${ITEM_CODE.toLowerCase()} || item.${ITEM_CODE.toUpperCase()},\n    label: item.${ITEM_NAME.toLowerCase()} ||  item.${ITEM_NAME.toUpperCase()}\n  }))\n};`
+        };
+      } else if (
+        item.join.joinType === 'table' &&
+        item.join.table &&
+        item.join.onColumn &&
+        item.join.selectColumn
+      ) {
+        sourceDict[item.join.table] = {
+          method: 'post',
+          url: `/sql/forge/api/json/select/${item.join.table}`,
+          data: {
+            '@column': [item.join.onColumn, item.join.selectColumn]
+          },
+          adaptor: `const temp = payload.map(item => ({\n    value: item.${item.join.onColumn},\n    label: item.${item.join.selectColumn}\n  }))\n console.log('temp',temp)\n  return {\n  options: temp\n};`
+        };
+      }
     });
 
   const insertForm = tableData
-    .filter(
-      item => item.isPrimaryKey || (item.isTableable && item.isInsertable)
-    )
+    .filter(item => item.isPrimaryKey || item.isInsertable)
     .map(item => {
       if (item.isPrimaryKey) {
-        return {
-          type: 'uuid',
-          name: `${item.columnName}`
-        };
+        if (isNumberJavaSqlType(item.javaSqlType)) {
+          return;
+        } else {
+          return {
+            type: 'uuid',
+            name: `${item.columnName}`
+          };
+        }
       } else if (isNumberJavaSqlType(item.javaSqlType)) {
         return {
           type: 'input-number',
@@ -167,6 +245,27 @@ export const buildSingleTable = (
           precision: item.decimalDigits,
           disabled: disabledInsert.includes(item.columnName)
         };
+      } else if (item.javaSqlType == 'DATE') {
+        return {
+          type: 'input-date',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          valueFormat: 'YYYY-MM-DD',
+          disabled: disabledUpdate.includes(item.columnName)
+        };
+      } else if (
+        item.javaSqlType == 'TIME' ||
+        item.javaSqlType == 'TIME_WITH_TIMEZONE' ||
+        item.javaSqlType == 'TIMESTAMP' ||
+        item.javaSqlType == 'TIMESTAMP_WITH_TIMEZONE'
+      ) {
+        return {
+          type: 'input-datetime',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          valueFormat: 'YYYY-MM-DDTHH\\:mm\\:ss',
+          disabled: disabledUpdate.includes(item.columnName)
+        };
       } else if (item.join && item.join.joinType === 'dict' && item.join.dict) {
         return {
           type: 'select',
@@ -174,6 +273,22 @@ export const buildSingleTable = (
           label: `${item.remarks ? item.remarks : item.columnName}`,
           maxLength: item.columnSize,
           source: sourceDict[item.join.dict],
+          clearable: true,
+          disabled: disabledInsert.includes(item.columnName)
+        };
+      } else if (
+        item.join &&
+        item.join.joinType === 'table' &&
+        item.join.table &&
+        item.join.onColumn &&
+        item.join.selectColumn
+      ) {
+        return {
+          type: 'select',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          maxLength: item.columnSize,
+          source: sourceDict[item.join.table],
           clearable: true,
           disabled: disabledInsert.includes(item.columnName)
         };
@@ -189,7 +304,7 @@ export const buildSingleTable = (
     });
 
   const updateForm = tableData
-    .filter(item => item.isTableable && item.isUpdatable)
+    .filter(item => item.isUpdatable)
     .map(item => {
       if (isNumberJavaSqlType(item.javaSqlType)) {
         return {
@@ -197,6 +312,27 @@ export const buildSingleTable = (
           name: `${item.columnName}`,
           label: `${item.remarks ? item.remarks : item.columnName}`,
           precision: item.decimalDigits,
+          disabled: disabledUpdate.includes(item.columnName)
+        };
+      } else if (item.javaSqlType == 'DATE') {
+        return {
+          type: 'input-date',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          valueFormat: 'YYYY-MM-DD',
+          disabled: disabledUpdate.includes(item.columnName)
+        };
+      } else if (
+        item.javaSqlType == 'TIME' ||
+        item.javaSqlType == 'TIME_WITH_TIMEZONE' ||
+        item.javaSqlType == 'TIMESTAMP' ||
+        item.javaSqlType == 'TIMESTAMP_WITH_TIMEZONE'
+      ) {
+        return {
+          type: 'input-datetime',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          valueFormat: 'YYYY-MM-DDTHH\\:mm\\:ss',
           disabled: disabledUpdate.includes(item.columnName)
         };
       } else if (item.join && item.join.joinType === 'dict' && item.join.dict) {
@@ -208,6 +344,22 @@ export const buildSingleTable = (
           source: sourceDict[item.join.dict],
           clearable: true,
           disabled: disabledUpdate.includes(item.columnName)
+        };
+      } else if (
+        item.join &&
+        item.join.joinType === 'table' &&
+        item.join.table &&
+        item.join.onColumn &&
+        item.join.selectColumn
+      ) {
+        return {
+          type: 'select',
+          name: `${item.columnName}`,
+          label: `${item.remarks ? item.remarks : item.columnName}`,
+          maxLength: item.columnSize,
+          source: sourceDict[item.join.table],
+          clearable: true,
+          disabled: disabledInsert.includes(item.columnName)
         };
       } else {
         return {
@@ -256,6 +408,49 @@ export const buildSingleTable = (
           };
         }
         return col;
+      } else if (item.javaSqlType == 'DATE') {
+        const col = {
+          name: item.columnName,
+          label: item.remarks ? item.remarks : item.columnName,
+          sortable: true,
+          align: 'center',
+          hidden: hideColumns.includes(item.columnName),
+          searchable: undefined
+        };
+        if (item.isSearchable) {
+          col.searchable = {
+            type: 'input-date-range',
+            name: item.columnName,
+            label: item.remarks ? item.remarks : item.columnName,
+            placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
+            valueFormat: 'YYYY-MM-DD'
+          };
+        }
+        return col;
+      } else if (
+        item.javaSqlType == 'TIME' ||
+        item.javaSqlType == 'TIME_WITH_TIMEZONE' ||
+        item.javaSqlType == 'TIMESTAMP' ||
+        item.javaSqlType == 'TIME_WITH_TIMEZONE'
+      ) {
+        const col = {
+          name: item.columnName,
+          label: item.remarks ? item.remarks : item.columnName,
+          sortable: true,
+          align: 'center',
+          hidden: hideColumns.includes(item.columnName),
+          searchable: undefined
+        };
+        if (item.isSearchable) {
+          col.searchable = {
+            type: 'input-datetime-range',
+            name: item.columnName,
+            label: item.remarks ? item.remarks : item.columnName,
+            placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
+            valueFormat: 'YYYY-MM-DDTHH\\:mm\\:ss'
+          };
+        }
+        return col;
       } else {
         const col = {
           name: item.columnName,
@@ -276,10 +471,28 @@ export const buildSingleTable = (
             label: item.remarks ? item.remarks : item.columnName,
             maxLength: item.columnSize,
             placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
+            multiple: true,
             source: sourceDict[item.join.dict],
             clearable: true
           };
-        } else {
+        } else if (
+          item.isSearchable &&
+          item.join &&
+          item.join.joinType === 'table' &&
+          item.join.table &&
+          item.join.onColumn &&
+          item.join.selectColumn
+        ) {
+          col.searchable = {
+            type: 'select',
+            name: item.columnName,
+            label: item.remarks ? item.remarks : item.columnName,
+            maxLength: item.columnSize,
+            placeholder: `输入${item.remarks ? item.remarks : item.columnName}`,
+            multiple: true,
+            source: sourceDict[item.join.table]
+          };
+        } else if (item.isSearchable) {
           col.searchable = {
             type: 'input-text',
             name: item.columnName,

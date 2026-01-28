@@ -24,9 +24,9 @@ import {
   getPrimaryKey,
   isNumberJavaSqlType
 } from '../utils/CrudBuild';
-import ColumnRenderSelect from '../components/ColumnRenderSelect';
 import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
 import ColumnRenderJoin from '../components/ColumnRenderJoin';
+import ColumnRenderInput from '../components/ColumnRenderInput';
 
 const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
   (props, ref) => {
@@ -55,7 +55,18 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
       },
       {
         title: '备注',
-        dataIndex: 'remarks'
+        dataIndex: 'remarks',
+        render: (value, _, index: number) => {
+          return (
+            <ColumnRenderInput
+              value={value}
+              index={index}
+              dataIndex={'remarks'}
+              data={data}
+              setData={setData}
+            />
+          );
+        }
       },
       {
         title: '主 表 查 选 新 改',
@@ -183,7 +194,7 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
 
       const context = {
         type: 'page',
-        body: buildSingleTable("crud_table",table, data)
+        body: buildSingleTable('crud_table', table, data)
       };
 
       return JSON.stringify(context, null, 2);
@@ -194,8 +205,9 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
       getApiTemplateId: () => `SingleTable-${table}`
     }));
 
+
     return (
-      <div style={{height: '100%'}}>
+      <>
         <Row style={{height: '33px'}}>
           <Col span={24}>
             <Select
@@ -212,17 +224,17 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
             />
           </Col>
         </Row>
-        <Row style={{height: 'calc(100% - 33px)'}}>
-          <Col span={24}>
+        <Row style={{height: 'calc(100% - 99px)'}}>
+          <Col span={24} style={{height: '100%'}}>
             <Table
               columns={columns}
               dataSource={data}
               pagination={false}
-              scroll={{y: 'calc(100vh - 220px)'}}
+              scroll={{y: 'calc(100vh - 270px)'}}
             />
           </Col>
         </Row>
-      </div>
+      </>
     );
   }
 );

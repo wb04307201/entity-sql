@@ -1,12 +1,10 @@
 package cn.wubo.sql.forge.crud;
 
 import cn.wubo.sql.forge.crud.base.Join;
-import cn.wubo.sql.forge.crud.base.Page;
 import cn.wubo.sql.forge.crud.base.Where;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public record Select(
@@ -24,5 +22,5 @@ public record Select(
         List<String> groups,
         @JsonProperty("@distince")
         boolean distinct
-) {
+) implements IAllowedRecord {
 }

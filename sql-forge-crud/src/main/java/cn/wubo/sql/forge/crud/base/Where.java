@@ -17,13 +17,15 @@ public record Where(
 ) {
 
     public String create(ParamMap params) {
-
-        if (condition == null && value != null) {
-            params.put(value);
-            return column + ConditionType.EQ.getValue() + QUESTION_MARK;
+        if (condition == null) {
+            if (value != null) {
+                params.put(value);
+                return column + ConditionType.EQ.getValue() + QUESTION_MARK;
+            }
+            return null;
         }
 
-        if(value == null && condition != ConditionType.IS_NULL && condition != ConditionType.IS_NOT_NULL) {
+        if (value == null && condition != ConditionType.IS_NULL && condition != ConditionType.IS_NOT_NULL) {
             return null;
         }
 
@@ -40,8 +42,16 @@ public record Where(
             case RIGHT_LIKE:
                 params.put(value + PERCENT);
                 yield UPPER + OPERN_PAREN + column + CLOSE_PAREN + condition.getValue() + UPPER_QUESTION_MARK;
-            case BETWEEN, NOT_BETWEEN, IN, NOT_IN:
-                if (value instanceof List<?> list) {
+            case BETWEEN, NOT_BETWEEN:
+                if (value instanceof List<?> list && list.size() == 2) {
+                    params.put(list.get(0));
+                    params.put(list.get(1));
+                    yield column + condition.getValue() + QUESTION_MARK + AND + QUESTION_MARK;
+                } else {
+                    throw new IllegalArgumentException("Invalid condition,  value must be a List");
+                }
+            case IN, NOT_IN:
+                if (value instanceof List<?> list && !list.isEmpty()) {
                     yield column + condition.getValue() + OPERN_PAREN + getListValueStr(list, params) + CLOSE_PAREN;
                 } else {
                     throw new IllegalArgumentException("Invalid condition,  value must be a List");

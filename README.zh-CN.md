@@ -34,7 +34,7 @@
 <dependency>
     <groupId>com.gitee.wb04307201.sql-forge</groupId>
     <artifactId>sql-forge-spring-boot-starter</artifactId>
-    <version>1.5.3</version>
+    <version>1.5.4</version>
 </dependency>
 ```
 
@@ -175,12 +175,7 @@ int count = entityService.run(Entity.delete(user));
     }
   ],
   "@with_select": {
-    "columns": ["字段名"],
-    "wheres": [...],
-    "page": {
-      "pageIndex": 0,
-      "pageSize": 10
-    }
+    // 删除后后查询json
   }
 }
 ```
@@ -202,50 +197,14 @@ int count = entityService.run(Entity.delete(user));
     "字段名2": "值2"
   },
   "@with_select": {
-    "columns": ["字段名"],
-    "wheres": [...],
-    "page": {
-      "pageIndex": 0,
-      "pageSize": 10
-    }
+    // 删除后后查询json
   }
 }
 ```
 
-
 #### 参数说明
 - `@set`: 要插入的字段和值的键值对，至少需要一个字段
 - `@with_select`: 可选的查询条件，用于插入后执行一个查询
-
-#### select 方法
-
-#### 请求格式
-```json
-{
-  "@column": ["字段名1", "字段名2"],
-  "@where": [
-    {
-      "column": "字段名",
-      "condition": "条件类型",
-      "value": "值"
-    }
-  ],
-  "@page": {
-    "pageIndex": 0,
-    "pageSize": 10
-  },
-  "@join": [
-    {
-      "type": "JOIN类型",
-      "joinTable": "关联表名",
-      "on": "关联条件"
-    }
-  ],
-  "@order": ["字段名 ASC", "字段名 DESC"],
-  "@group": ["字段名"],
-  "@distince": false
-}
-```
 
 #### select 方法
 
@@ -337,12 +296,7 @@ int count = entityService.run(Entity.delete(user));
     }
   ],
   "@with_select": {
-    "columns": ["字段名"],
-    "wheres": [...],
-    "page": {
-      "pageIndex": 0,
-      "pageSize": 10
-    }
+    // 删除后后查询json
   }
 }
 ```
@@ -358,42 +312,38 @@ POST http://localhost:8080/sql/forge/api/json/select/orders
 Content-Type: application/json
 
 {
-    "@column": [
-        "orders.id AS order_id",
-        "users.username",
-        "products.name AS product_name",
-        "products.price",
-        "orders.quantity",
-        "(products.price * orders.quantity) AS total"
-    ],
-    "@where": [
-        {
-            "column": "users.username",
-            "condition": "EQ",
-            "value": "alice"
-        }
-    ],
-    "@page": {
-        "pageIndex": 0,
-        "pageSize": 10
+  "@column": [
+    "orders.id AS order_id",
+    "users.username",
+    "products.name AS product_name",
+    "products.price",
+    "orders.quantity",
+    "(products.price * orders.quantity) AS total"
+  ],
+  "@where": [
+    {
+      "column": "users.username",
+      "condition": "EQ",
+      "value": "alice"
+    }
+  ],
+  "@join": [
+    {
+      "type": "INNER_JOIN",
+      "joinTable": "users",
+      "on": "orders.user_id = users.id"
     },
-    "@join": [
-        {
-            "type": "INNER_JOIN",
-            "joinTable":"users",
-            "on": "orders.user_id = users.id"
-        },
-        {
-            "type": "INNER_JOIN",
-            "joinTable":"products",
-            "on": "orders.product_id = products.id"
-        }
-    ],
-    "@order": [
-        "orders.order_date"
-    ],
-    "@group": null,
-    "@distince": false
+    {
+      "type": "INNER_JOIN",
+      "joinTable": "products",
+      "on": "orders.product_id = products.id"
+    }
+  ],
+  "@order": [
+    "orders.order_date"
+  ],
+  "@group": null,
+  "@distince": false
 }
 ```
 
@@ -402,41 +352,41 @@ POST http://localhost:8080/sql/forge/api/json/selectPage/orders
 Content-Type: application/json
 
 {
-    "@column": [
-        "orders.id AS order_id",
-        "users.username",
-        "products.name AS product_name",
-        "products.price",
-        "orders.quantity",
-        "(products.price * orders.quantity) AS total"
-    ],
-    "@where": [
-        {
-            "column": "users.username",
-            "condition": "EQ",
-            "value": "alice"
-        }
-    ],
-    "@page": {
-        "pageIndex": 0,
-        "pageSize": 10
+  "@column": [
+    "orders.id AS order_id",
+    "users.username",
+    "products.name AS product_name",
+    "products.price",
+    "orders.quantity",
+    "(products.price * orders.quantity) AS total"
+  ],
+  "@where": [
+    {
+      "column": "users.username",
+      "condition": "EQ",
+      "value": "alice"
+    }
+  ],
+  "@page": {
+    "pageIndex": 0,
+    "pageSize": 10
+  },
+  "@join": [
+    {
+      "type": "INNER_JOIN",
+      "joinTable": "users",
+      "on": "orders.user_id = users.id"
     },
-    "@join": [
-        {
-            "type": "INNER_JOIN",
-            "joinTable":"users",
-            "on": "orders.user_id = users.id"
-        },
-        {
-            "type": "INNER_JOIN",
-            "joinTable":"products",
-            "on": "orders.product_id = products.id"
-        }
-    ],
-    "@order": [
-        "orders.order_date"
-    ],
-    "@distince": false
+    {
+      "type": "INNER_JOIN",
+      "joinTable": "products",
+      "on": "orders.product_id = products.id"
+    }
+  ],
+  "@order": [
+    "orders.order_date"
+  ],
+  "@distince": false
 }
 ```
 
@@ -445,35 +395,25 @@ POST http://localhost:8080/sql/forge/api/json/insert/users
 Content-Type: application/json
 
 {
-    "@set": [
-        {
-            "column": "id",
-            "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
-        },
-        {
-            "column": "username",
-            "value": "wb04307201"
-        },
-        {
-            "column": "email",
-            "value": "wb04307201@gitee.com"
-        }
+  "@set": {
+    "id": "26a05ba3-913d-4085-a505-36d40021c8d1",
+    "username": "wb04307201",
+    "email": "wb04307201@gitee.com"
+  },
+  "@with_select": {
+    "@column": null,
+    "@where": [
+      {
+        "column": "id",
+        "condition": "EQ",
+        "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
+      }
     ],
-    "@with_select": {
-        "@column": null,
-        "@where": [
-            {
-                "column": "id",
-                "condition": "EQ",
-                "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
-            }
-        ],
-        "@page": null,
-        "@join": null,
-        "@order": null,
-        "@group": null,
-        "@distince": false
-    }
+    "@join": null,
+    "@order": null,
+    "@group": null,
+    "@distince": false
+  }
 }
 ```
 
@@ -482,34 +422,30 @@ POST http://localhost:8080/sql/forge/api/json/update/users
 Content-Type: application/json
 
 {
-    "@set": [
-        {
-            "column": "email",
-            "value": "wb04307201@github.com"
-        }
-    ],
-    "@where": [
-        {
-            "column": "id",
-            "condition": "EQ",
-            "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
-        }
-    ],
-    "@with_select": {
-        "@column": null,
-        "@where": [
-            {
-                "column": "id",
-                "condition": "EQ",
-                "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
-            }
-        ],
-        "@page": null,
-        "@join": null,
-        "@order": null,
-        "@group": null,
-        "@distince": false
+  "@set": {
+    "email": "wb04307201@github.com"
+  },
+  "@where": [
+    {
+      "column": "id",
+      "condition": "EQ",
+      "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
     }
+  ],
+  "@with_select": {
+    "@column": null,
+    "@where": [
+      {
+        "column": "id",
+        "condition": "EQ",
+        "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
+      }
+    ],
+    "@join": null,
+    "@order": null,
+    "@group": null,
+    "@distince": false
+  }
 }
 ```
 
@@ -518,28 +454,57 @@ POST http://localhost:8080/sql/forge/api/json/delete/users
 Content-Type: application/json
 
 {
-    "@where": [
-        {
-            "column": "id",
-            "condition": "EQ",
-            "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
-        }
-    ],
-    "@with_select": {
-        "@column": null,
-        "@where": [
-            {
-                "column": "id",
-                "condition": "EQ",
-                "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
-            }
-        ],
-        "@page": null,
-        "@join": null,
-        "@order": null,
-        "@group": null,
-        "@distince": false
+  "@where": [
+    {
+      "column": "id",
+      "condition": "EQ",
+      "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
     }
+  ],
+  "@with_select": {
+    "@column": null,
+    "@where": [
+      {
+        "column": "id",
+        "condition": "EQ",
+        "value": "26a05ba3-913d-4085-a505-36d40021c8d1"
+      }
+    ],
+    "@join": null,
+    "@order": null,
+    "@group": null,
+    "@distince": false
+  }
+}
+```
+
+#### 在方法执行前调整json
+可通过实现[IExecute.java](sql-forge-crud/src/main/java/cn/wubo/sql/forge/inter/IExecute.java)接口自定义方法执行前的json调整，实现密码加密、自动更新时间戳、权限控制、日志、审计等
+
+在Insert时对密码进行加密示例：
+```java
+@Component
+public class Argon2InsertExecute implements IExecute<Insert> {
+  @Override
+  public Insert before(String tableName, Insert insert) {
+    if ("users".equalsIgnoreCase(tableName)){
+      if (insert.sets().keySet().stream().anyMatch("password"::equalsIgnoreCase)){
+        Map<String, Object> newSets = new HashMap<>();
+        insert.sets().forEach((k, v) -> {
+          if ("password".equalsIgnoreCase(k) && v instanceof String str && StringUtils.hasText(str)){
+            Argon2 argon2 = Argon2Factory.create();
+            char[] password = str.toCharArray();
+            newSets.put(k, argon2.hash(10, 65536, 1, password));
+          }else {
+            newSets.put(k, v);
+          }
+        });
+        return new Insert(newSets, insert.select());
+      }
+    }
+
+    return insert;
+  }
 }
 ```
 

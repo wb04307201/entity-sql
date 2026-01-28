@@ -8,8 +8,10 @@ CREATE TABLE users
     username VARCHAR(50) NOT NULL UNIQUE,
     sex      VARCHAR(100),
     email    VARCHAR(100),
-    CONSTRAINT uk_username UNIQUE (username)
-
+    password VARCHAR(100) NOT NULL,
+    CONSTRAINT uk_username UNIQUE (username),
+    create TIMESTAMP,
+    update TIMESTAMP
 );
 
 COMMENT
@@ -22,13 +24,21 @@ COMMENT
 ON COLUMN users.sex IS '性别';
 COMMENT
 ON COLUMN users.email IS '用户邮箱地址';
+COMMENT
+ON COLUMN users.password IS '密码';
+COMMENT
+ON COLUMN users.create IS '创建时间';
+COMMENT
+ON COLUMN users.update IS '更新时间';
 
 -- 2. 创建 products 表（UUID 主键，应用生成）
 CREATE TABLE products
 (
     id    VARCHAR(36)  NOT NULL PRIMARY KEY,
     name  VARCHAR(100) NOT NULL UNIQUE,
-    price DECIMAL(10, 2)
+    price DECIMAL(10, 2),
+    create TIMESTAMP,
+    update TIMESTAMP
 );
 
 COMMENT
@@ -37,6 +47,10 @@ COMMENT
 ON COLUMN products.name IS '产品名称';
 COMMENT
 ON COLUMN products.price IS '产品价格';
+COMMENT
+ON COLUMN products.create IS '创建时间';
+COMMENT
+ON COLUMN products.update IS '更新时间';
 
 -- 3. 创建 orders 表（自增主键）
 CREATE TABLE orders
@@ -45,7 +59,9 @@ CREATE TABLE orders
     user_id    VARCHAR(36) NOT NULL,
     product_id VARCHAR(36) NOT NULL,
     order_date TIMESTAMP            DEFAULT CURRENT_TIMESTAMP,
-    quantity   INT         NOT NULL DEFAULT 1
+    quantity   INT         NOT NULL DEFAULT 1,
+    create TIMESTAMP,
+    update TIMESTAMP
 );
 
 COMMENT
@@ -58,23 +74,33 @@ COMMENT
 ON COLUMN orders.order_date IS '订单创建时间';
 COMMENT
 ON COLUMN orders.quantity IS '订购数量';
+COMMENT
+ON COLUMN orders.create IS '创建时间';
+COMMENT
+ON COLUMN orders.update IS '更新时间';
 
 -- 4. 模板 sql_forge_template 表
 CREATE TABLE sql_forge_template
 (
     id            VARCHAR(64) NOT NULL PRIMARY KEY,
     template_type VARCHAR(50),
-    context       TEXT
+    context       TEXT,
+    create TIMESTAMP,
+    update TIMESTAMP
 );
 
 COMMENT
 ON TABLE sql_forge_template IS '模板表';
 COMMENT
+ON COLUMN sql_forge_template.id IS '主键ID';
+COMMENT
 ON COLUMN sql_forge_template.template_type IS '模板类型';
 COMMENT
 ON COLUMN sql_forge_template.context IS '模板内容';
 COMMENT
-ON COLUMN sql_forge_template.id IS '主键ID';
+ON COLUMN sql_forge_template.create IS '创建时间';
+COMMENT
+ON COLUMN sql_forge_template.update IS '更新时间';
 
 -- 5.字典主表：存储字典类型（如：性别、状态）
 CREATE TABLE sys_dict
@@ -82,7 +108,9 @@ CREATE TABLE sys_dict
     id          VARCHAR(36)  NOT NULL PRIMARY KEY,
     dict_code   VARCHAR(64)  NOT NULL UNIQUE,
     dict_name   VARCHAR(100) NOT NULL,
-    dict_type   VARCHAR(100) NOT NULL
+    dict_type   VARCHAR(100) NOT NULL,
+    create TIMESTAMP,
+    update TIMESTAMP
 );
 
 COMMENT
@@ -95,6 +123,10 @@ COMMENT
 ON COLUMN sys_dict.dict_name IS '字典名称';
 COMMENT
 ON COLUMN sys_dict.dict_type IS '字典类型';
+COMMENT
+ON COLUMN sys_dict.create IS '创建时间';
+COMMENT
+ON COLUMN sys_dict.update IS '更新时间';
 
 -- 6.字典子表：存储字典明细项（如：男、女）
 CREATE TABLE sys_dict_item
@@ -104,6 +136,8 @@ CREATE TABLE sys_dict_item
     item_code VARCHAR(64)  NOT NULL,
     item_name VARCHAR(100) NOT NULL,
     sort      INT DEFAULT 0,
+    create TIMESTAMP,
+    update TIMESTAMP,
 
     -- 联合唯一约束：同一字典下编码唯一
     CONSTRAINT uk_dict_item UNIQUE (dict_code, item_code),
@@ -127,38 +161,42 @@ COMMENT
 ON COLUMN sys_dict_item.item_name IS '字典项名称';
 COMMENT
 ON COLUMN sys_dict_item.sort IS '排序值';
+COMMENT
+ON COLUMN sys_dict_item.create IS '创建时间';
+COMMENT
+ON COLUMN sys_dict_item.update IS '更新时间';
 
 -- 插入测试用户数据（使用预定义 UUID）
-INSERT INTO users (id, username, sex, email)
-VALUES ('550e8400-e29b-41d4-a716-446655440000', 'alice', 'female', 'alice@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440001', 'bob', 'male', 'bob@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440002', 'charlie', 'male', 'charlie@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440003', 'wubo01', 'male', 'wubo01@@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440004', 'wubo02', 'male', 'wubo02@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440005', 'wubo03', 'male', 'wubo03@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440006', 'wubo04', 'male', 'wubo04@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440007', 'wubo05', 'male', 'wubo05@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440008', 'wubo06', 'male', 'wubo06@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440009', 'wubo07', 'male', 'wubo07@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440010', 'wubo08', 'male', 'wubo08@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440011', 'wubo09', 'male', 'wubo09@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440012', 'wubo10', 'male', 'wubo10@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440013', 'wubo11', 'male', 'wubo11@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440014', 'wubo12', 'male', 'wubo12@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440015', 'wubo13', 'male', 'wubo13@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440016', 'wubo14', 'male', 'wubo14@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440017', 'wubo15', 'male', 'wubo15@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440018', 'wubo16', 'male', 'wubo16@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440019', 'wubo17', 'male', 'wubo17@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440020', 'wubo18', 'male', 'wubo18@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440021', 'wubo19', 'male', 'wubo19@example.com'),
-       ('550e8400-e29b-41d4-a716-446655440022', 'wubo20', 'male', 'wubo20@example.com');
+INSERT INTO users (id, username, sex, email, password)
+VALUES ('550e8400-e29b-41d4-a716-446655440000', 'alice', 'female', 'alice@example.com','$argon2i$v=19$m=65536,t=10,p=1$m+vkvMIzPjFUDCQc0X2AdQ$4LrnP44n8SpdCwzCKy2gpu6syCzh7DKTiGhvv4VYyOQ'),
+       ('550e8400-e29b-41d4-a716-446655440001', 'bob', 'male', 'bob@example.com','$argon2i$v=19$m=65536,t=10,p=1$m+vkvMIzPjFUDCQc0X2AdQ$4LrnP44n8SpdCwzCKy2gpu6syCzh7DKTiGhvv4VYyOQ'),
+       ('550e8400-e29b-41d4-a716-446655440002', 'charlie', 'male', 'charlie@example.com','$argon2i$v=19$m=65536,t=10,p=1$m+vkvMIzPjFUDCQc0X2AdQ$4LrnP44n8SpdCwzCKy2gpu6syCzh7DKTiGhvv4VYyOQ'),
+       ('550e8400-e29b-41d4-a716-446655440003', 'wubo01', 'male', 'wubo01@@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440004', 'wubo02', 'male', 'wubo02@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440005', 'wubo03', 'male', 'wubo03@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440006', 'wubo04', 'male', 'wubo04@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440007', 'wubo05', 'male', 'wubo05@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440008', 'wubo06', 'male', 'wubo06@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440009', 'wubo07', 'male', 'wubo07@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440010', 'wubo08', 'male', 'wubo08@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440011', 'wubo09', 'male', 'wubo09@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440012', 'wubo10', 'male', 'wubo10@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440013', 'wubo11', 'male', 'wubo11@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440014', 'wubo12', 'male', 'wubo12@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440015', 'wubo13', 'male', 'wubo13@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440016', 'wubo14', 'male', 'wubo14@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440017', 'wubo15', 'male', 'wubo15@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440018', 'wubo16', 'male', 'wubo16@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440019', 'wubo17', 'male', 'wubo17@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440020', 'wubo18', 'male', 'wubo18@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440021', 'wubo19', 'male', 'wubo19@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g'),
+       ('550e8400-e29b-41d4-a716-446655440022', 'wubo20', 'male', 'wubo20@example.com','$argon2i$v=19$m=65536,t=10,p=1$EbJKqGGoSzq2eZJiP5YLPQ$nFO6z4aWJBaCT0/iRebXThYxERXdWBt5EDx229iaJ/g');
 
 -- 插入测试商品数据
 INSERT INTO products (id, name, price)
-VALUES ('f47ac10b-58cc-4372-a567-0e02b2c3d479', 'Laptop', 999.99),
-       ('f47ac10b-58cc-4372-a567-0e02b2c3d480', 'Mouse', 25.50),
-       ('f47ac10b-58cc-4372-a567-0e02b2c3d481', 'Keyboard', 75.00);
+VALUES ('f47ac10b-58cc-4372-a567-0e02b2c3d479', '笔记本电脑', 999.99),
+       ('f47ac10b-58cc-4372-a567-0e02b2c3d480', '鼠标', 25.50),
+       ('f47ac10b-58cc-4372-a567-0e02b2c3d481', '键盘', 75.00);
 
 -- 插入测试订单数据（自增 id）
 INSERT INTO orders (user_id, product_id, quantity)

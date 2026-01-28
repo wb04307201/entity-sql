@@ -2,9 +2,11 @@ package cn.wubo.sql.forge;
 
 import cn.wubo.sql.forge.crud.*;
 import cn.wubo.sql.forge.entity.cache.CacheService;
+import cn.wubo.sql.forge.inter.IExecute;
 import cn.wubo.sql.forge.records.SqlScript;
 import cn.wubo.sql.forge.utils.CalciteExcutorUtils;
 import cn.wubo.sql.forge.utils.MetaDataUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,6 +24,7 @@ import javax.sql.DataSource;
 
 import java.net.URI;
 import java.sql.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -43,8 +46,15 @@ public class SqlForgeConfiguration {
     }
 
     @Bean
-    public CrudService crudService(Executor executor) {
-        return new CrudService(executor);
+    public CrudService crudService(
+            Executor executor,
+            @Autowired(required = false) List<IExecute<Delete>> deleteExecutes,
+            @Autowired(required = false) List<IExecute<Insert>> insertExecutes,
+            @Autowired(required = false) List<IExecute<Select>> selectExecutes,
+            @Autowired(required = false) List<IExecute<SelectPage>> selectPageExecutes,
+            @Autowired(required = false) List<IExecute<Update>> updateExecutes
+    ) {
+        return new CrudService(executor,deleteExecutes, insertExecutes, selectExecutes, selectPageExecutes, updateExecutes);
     }
 
     @Bean

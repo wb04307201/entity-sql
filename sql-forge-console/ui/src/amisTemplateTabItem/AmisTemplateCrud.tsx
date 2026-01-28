@@ -1,6 +1,5 @@
 import {Button, Col, Flex, Input, Modal, Row, Select} from 'antd';
-import {useRef, useState} from 'react';
-import apiClient from '../apiClient.tsx';
+import React, {useRef, useState} from 'react';
 import SingleTable from './template/SingleTable.tsx';
 import None from './template/None.tsx';
 import type {AmisTemplateCrudMethods} from '../type.tsx';
@@ -54,9 +53,7 @@ function AmisTemplateCrud(props: {
           />
         </Col>
       </Row>
-      <Row style={{height: 'calc(100% - 66px)'}}>
-        <Col span={24}>{renderTemplateContent()}</Col>
-      </Row>
+      {renderTemplateContent()}
       <Row style={{height: '33px'}}>
         <Col span={24}>
           <Flex gap={'small'} style={{float: 'right'}}>

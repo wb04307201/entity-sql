@@ -1,5 +1,3 @@
-export function DictJoinType() {}
-
 export interface DatabaseInfo {
   databaseInfo: unknown;
   schemaTableTypeTables: SchemaTableTypeTable[];
@@ -64,7 +62,7 @@ export interface DataType extends ColumnInfo {
   join: JoinInfo;
 }
 
-export type JoinType = 'dict';
+export type JoinType = 'dict' | 'table';
 
 export interface BaseJoinInfo {
   joinType: JoinType;
@@ -75,4 +73,12 @@ export interface DictJoinInfo extends BaseJoinInfo {
   dict?: string;
 }
 
-export type JoinInfo = DictJoinInfo | undefined;
+export interface TableJoinInfo extends BaseJoinInfo {
+  joinType: 'table';
+  schema?: string;
+  table?: string;
+  onColumn?: string;
+  selectColumn?: string;
+}
+
+export type JoinInfo = DictJoinInfo | TableJoinInfo | undefined;

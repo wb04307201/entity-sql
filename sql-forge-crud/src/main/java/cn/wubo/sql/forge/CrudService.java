@@ -2,6 +2,7 @@ package cn.wubo.sql.forge;
 
 import cn.wubo.sql.forge.crud.*;
 import cn.wubo.sql.forge.enums.ConditionType;
+import cn.wubo.sql.forge.inter.IExecute;
 import cn.wubo.sql.forge.jdbc.SQL;
 import cn.wubo.sql.forge.map.ParamMap;
 import cn.wubo.sql.forge.map.RowMap;
@@ -16,21 +17,34 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import static cn.wubo.sql.forge.constant.Constant.ON_TEMPLATE;
 import static cn.wubo.sql.forge.constant.Constant.QUESTION_MARK;
 
-public record CrudService(Executor executor) {
-
-    public static final String ON_TEMPLATE = "%s ON %s";
+public record CrudService(
+        Executor executor,
+        List<IExecute<Delete>> deleteExecutes,
+        List<IExecute<Insert>> insertExecutes,
+        List<IExecute<Select>> selectExecutes,
+        List<IExecute<SelectPage>> selectPageExecutes,
+        List<IExecute<Update>> updateExecutes
+) {
 
     /**
      * 删除指定表中的记录
      *
      * @param tableName 表名，不能为空
-     * @param delete    删除操作对象，包含删除条件和查询条件
+     * @param orginDelete    删除操作对象，包含删除条件和查询条件
      * @return 如果delete.select()不为null则返回查询结果，否则返回删除记录的数量
      * @throws SQLException SQL执行异常
      */
-    public Object delete(@NotBlank String tableName, @Valid Delete delete) throws SQLException {
+    public Object delete(@NotBlank String tableName, @Valid Delete orginDelete) throws SQLException {
+        Delete delete = orginDelete;
+        if (deleteExecutes!= null && !deleteExecutes.isEmpty()){
+            for (IExecute<Delete> execute : deleteExecutes){
+                delete = execute.before(tableName, delete);
+            }
+        }
+
         // 创建参数映射和SQL构建器
         ParamMap params = new ParamMap();
         SQL sql = new SQL().DELETE_FROM(tableName);
@@ -53,11 +67,18 @@ public record CrudService(Executor executor) {
      * 插入数据到指定表中
      *
      * @param tableName 表名，不能为空
-     * @param insert    插入操作对象，包含要插入的字段和值
+     * @param orginInsert    插入操作对象，包含要插入的字段和值
      * @return 如果指定了select查询则返回查询结果，否则返回插入记录的主键值
      * @throws SQLException SQL执行异常
      */
-    public Object insert(@NotBlank String tableName, @Valid Insert insert) throws SQLException {
+    public Object insert(@NotBlank String tableName, @Valid Insert orginInsert) throws SQLException {
+        Insert insert = orginInsert;
+        if (insertExecutes!= null && !insertExecutes.isEmpty()){
+            for (IExecute<Insert> execute : insertExecutes){
+                insert = execute.before(tableName, insert);
+            }
+        }
+
         // 创建参数映射和SQL构建器
         ParamMap params = new ParamMap();
         SQL sql = new SQL().INSERT_INTO(tableName);
@@ -83,11 +104,18 @@ public record CrudService(Executor executor) {
      * 执行SELECT查询操作
      *
      * @param tableName 表名，不能为空
-     * @param select    查询条件对象，必须符合校验规则
+     * @param orginSelect    查询条件对象，必须符合校验规则
      * @return 查询结果行映射列表
      * @throws SQLException SQL执行异常
      */
-    public List<RowMap> select(@NotBlank String tableName, @Valid Select select) throws SQLException {
+    public List<RowMap> select(@NotBlank String tableName, @Valid Select orginSelect) throws SQLException {
+        Select select = orginSelect;
+        if (selectExecutes!= null && !selectExecutes.isEmpty()){
+            for (IExecute<Select> execute : selectExecutes){
+                select = execute.before(tableName, select);
+            }
+        }
+
         ParamMap params = new ParamMap();
         SQL sql = new SQL().FROM(tableName);
         String[] columns = select.columns() == null || select.columns().isEmpty() ? new String[]{"*"} : select.columns().toArray(String[]::new);
@@ -96,20 +124,7 @@ public record CrudService(Executor executor) {
         else
             sql.SELECT(columns);
 
-        // 处理JOIN子句
-        if (select.joins() != null && !select.joins().isEmpty()) {
-            for (Join join : select.joins()) {
-                switch (join.type()) {
-                    case INNER_JOIN -> sql.INNER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case LEFT_OUTER_JOIN ->
-                            sql.LEFT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case RIGHT_OUTER_JOIN ->
-                            sql.RIGHT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case OUTER_JOIN -> sql.OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    default -> sql.JOIN(join.on());
-                }
-            }
-        }
+        applyJoins(sql, select.joins());
 
         applyWheres(sql, select.wheres(), params);
 
@@ -124,7 +139,14 @@ public record CrudService(Executor executor) {
         return executor.executeQuery(new SqlScript(sql.toString(), params));
     }
 
-    public SelectPageResult<RowMap> selectPage(@NotBlank String tableName, @Valid SelectPage select) throws SQLException {
+    public SelectPageResult<RowMap> selectPage(@NotBlank String tableName, @Valid SelectPage orginSelect) throws SQLException {
+        SelectPage select = orginSelect;
+        if (selectPageExecutes!= null && !selectPageExecutes.isEmpty()){
+            for (IExecute<SelectPage> execute : selectPageExecutes){
+                select = execute.before(tableName, select);
+            }
+        }
+
         ParamMap params = new ParamMap();
         SQL sql = new SQL().FROM(tableName);
         String[] columns = select.columns() == null || select.columns().isEmpty() ? new String[]{"*"} : select.columns().toArray(String[]::new);
@@ -133,20 +155,7 @@ public record CrudService(Executor executor) {
         else
             sql.SELECT(columns);
 
-        // 处理JOIN子句
-        if (select.joins() != null && !select.joins().isEmpty()) {
-            for (Join join : select.joins()) {
-                switch (join.type()) {
-                    case INNER_JOIN -> sql.INNER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case LEFT_OUTER_JOIN ->
-                            sql.LEFT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case RIGHT_OUTER_JOIN ->
-                            sql.RIGHT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    case OUTER_JOIN -> sql.OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
-                    default -> sql.JOIN(join.on());
-                }
-            }
-        }
+        applyJoins(sql, select.joins());
 
         applyWheres(sql, select.wheres(), params);
 
@@ -170,11 +179,18 @@ public record CrudService(Executor executor) {
      * 更新指定表中的数据记录
      *
      * @param tableName 要更新的表名，不能为空
-     * @param update    更新操作对象，包含SET子句、WHERE条件和可选的SELECT查询
+     * @param orginUpdate    更新操作对象，包含SET子句、WHERE条件和可选的SELECT查询
      * @return 如果指定了select查询则返回查询结果，否则返回受影响的记录数量
      * @throws SQLException 执行SQL操作时可能抛出的数据库异常
      */
-    public Object update(@NotBlank String tableName, @Valid Update update) throws SQLException {
+    public Object update(@NotBlank String tableName, @Valid Update orginUpdate) throws SQLException {
+        Update update = orginUpdate;
+        if (updateExecutes!= null && !updateExecutes.isEmpty()){
+            for (IExecute<Update> execute : updateExecutes){
+                update = execute.before(tableName, update);
+            }
+        }
+
         ParamMap params = new ParamMap();
         SQL sql = new SQL().UPDATE(tableName);
 
@@ -195,12 +211,27 @@ public record CrudService(Executor executor) {
             return count;
     }
 
+    private void applyJoins(SQL sql, List<Join> joins) {
+        if (joins != null && !joins.isEmpty()) {
+            for (Join join : joins) {
+                switch (join.type()) {
+                    case INNER_JOIN -> sql.INNER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case LEFT_OUTER_JOIN ->
+                            sql.LEFT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case RIGHT_OUTER_JOIN ->
+                            sql.RIGHT_OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    case OUTER_JOIN -> sql.OUTER_JOIN(String.format(ON_TEMPLATE, join.joinTable(), join.on()));
+                    default -> sql.JOIN(join.on());
+                }
+            }
+        }
+    }
 
     private void applyWheres(SQL sql, List<Where> wheres, ParamMap params) {
         if (wheres != null && !wheres.isEmpty()) {
             for (Where where : wheres) {
                 String whereStr = where.create(params);
-                if (whereStr!= null) sql.WHERE(whereStr);
+                if (whereStr != null) sql.WHERE(whereStr);
             }
         }
     }
