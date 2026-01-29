@@ -43,15 +43,12 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
       },
       {
         title: '类型',
-        dataIndex: 'typeName'
-      },
-      {
-        title: '长度',
-        dataIndex: 'columnSize'
-      },
-      {
-        title: '精度',
-        dataIndex: 'decimalDigits'
+        dataIndex: 'columnType',
+        render: (_, row) => {
+          return `${row.javaSqlType}(${row.columnSize}${
+            row.decimalDigits ? ',' + row.decimalDigits : ''
+          })`;
+        }
       },
       {
         title: '备注',
@@ -204,7 +201,6 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
       getContext,
       getApiTemplateId: () => `SingleTable-${table}`
     }));
-
 
     return (
       <>
