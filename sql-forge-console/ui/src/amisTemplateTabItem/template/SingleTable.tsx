@@ -22,7 +22,8 @@ import {
   buildSingleTable,
   getIndex,
   getPrimaryKey,
-  isNumberJavaSqlType
+  isNumberJavaSqlType,
+  isSysColumn
 } from '../utils/CrudBuild';
 import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
 import ColumnRenderJoin from '../components/ColumnRenderJoin';
@@ -164,12 +165,16 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
             decimalDigits: column.decimalDigits,
             remarks: column.remarks,
             isPrimaryKey: isPrimaryKey,
-            isTableable: !isPrimaryKey,
+            isTableable: !isSysColumn(column.columnName) && !isPrimaryKey,
             isSearchable:
-              !isPrimaryKey && !isNumberJavaSqlType(column.javaSqlType),
-            isShowCheck: uniqueIndex === column.columnName,
-            isInsertable: !isPrimaryKey,
-            isUpdatable: !isPrimaryKey
+              !isSysColumn(column.columnName) &&
+              !isPrimaryKey &&
+              !isNumberJavaSqlType(column.javaSqlType),
+            isShowCheck:
+              !isSysColumn(column.columnName) &&
+              uniqueIndex === column.columnName,
+            isInsertable: !isSysColumn(column.columnName) && !isPrimaryKey,
+            isUpdatable: !isSysColumn(column.columnName) && !isPrimaryKey
           };
         });
         setData(data);

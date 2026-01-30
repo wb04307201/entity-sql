@@ -22,7 +22,8 @@ import {
   buildMainDetailTable,
   getIndex,
   getPrimaryKey,
-  isNumberJavaSqlType
+  isNumberJavaSqlType,
+  isSysColumn
 } from '../utils/CrudBuild';
 import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
 import ColumnRenderJoin from '../components/ColumnRenderJoin';
@@ -271,12 +272,16 @@ const MasterDetailTable = forwardRef<
           decimalDigits: column.decimalDigits,
           remarks: column.remarks,
           isPrimaryKey: isPrimaryKey,
-          isTableable: !isPrimaryKey,
+          isTableable: !isSysColumn(column.columnName) && !isPrimaryKey,
           isSearchable:
-            !isPrimaryKey && !isNumberJavaSqlType(column.javaSqlType),
-          isShowCheck: uniqueIndex === column.columnName,
-          isInsertable: !isPrimaryKey,
-          isUpdatable: !isPrimaryKey
+            !isSysColumn(column.columnName) &&
+            !isPrimaryKey &&
+            !isNumberJavaSqlType(column.javaSqlType),
+          isShowCheck:
+            !isSysColumn(column.columnName) &&
+            uniqueIndex === column.columnName,
+          isInsertable: !isSysColumn(column.columnName) && !isPrimaryKey,
+          isUpdatable: !isSysColumn(column.columnName) && !isPrimaryKey
         };
       });
       setMainData(data);
@@ -341,11 +346,13 @@ const MasterDetailTable = forwardRef<
           decimalDigits: column.decimalDigits,
           remarks: column.remarks,
           isPrimaryKey: isPrimaryKey,
-          isTableable: !isPrimaryKey,
-          isSearchable: false,
-          isShowCheck: uniqueIndex === column.columnName,
-          isInsertable: !isPrimaryKey,
-          isUpdatable: !isPrimaryKey
+          isTableable: !isSysColumn(column.columnName) && !isPrimaryKey,
+          isSearchable:false,
+          isShowCheck:
+            !isSysColumn(column.columnName) &&
+            uniqueIndex === column.columnName,
+          isInsertable: !isSysColumn(column.columnName) && !isPrimaryKey,
+          isUpdatable: !isSysColumn(column.columnName) && !isPrimaryKey
         };
       });
       setDetailData(data);

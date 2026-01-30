@@ -7,6 +7,21 @@ export const DICT_NAME = 'dict_name';
 export const SYS_DICT_ITEM = 'sys_dict_item';
 export const ITEM_CODE = 'item_code';
 export const ITEM_NAME = 'item_name';
+export const CREATE = 'create';
+export const CREATE_BY = 'create_by';
+export const UPDATE = 'update';
+export const UPDATE_BY = 'update_by';
+
+export const isSysColumn = (columnName: string): boolean => {
+  return columnName === CREATE.toUpperCase() ||
+    columnName === CREATE.toLowerCase() ||
+    columnName === UPDATE.toUpperCase() ||
+    columnName === UPDATE.toLowerCase() ||
+    columnName === CREATE_BY.toUpperCase() ||
+    columnName === CREATE_BY.toLowerCase() ||
+    columnName === UPDATE_BY.toUpperCase() ||
+    columnName === UPDATE_BY.toLowerCase();
+};
 
 export const isNumberJavaSqlType = (javaSqlType: string): boolean => {
   return (
