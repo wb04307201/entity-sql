@@ -32,12 +32,12 @@ export interface Index {
 
 export interface ColumnInfo {
   columnName: string;
-  dataType: number;
-  javaSqlType: string;
-  typeName: string;
-  columnSize: number;
-  decimalDigits: number;
-  remarks: string;
+  dataType?: number;
+  javaSqlType?: string;
+  typeName?: string;
+  columnSize?: number;
+  decimalDigits?: number;
+  remarks?: string;
 }
 
 export interface AmisTemplateCrudMethods {
@@ -53,13 +53,13 @@ export interface OptionType {
 }
 
 export interface DataType extends ColumnInfo {
-  isPrimaryKey: boolean;
-  isTableable: boolean;
-  isSearchable: boolean;
-  isShowCheck: boolean;
-  isInsertable: boolean;
-  isUpdatable: boolean;
-  join: JoinInfo;
+  isPrimaryKey?: boolean;
+  isTableable?: boolean;
+  isSearchable?: boolean;
+  isShowCheck?: boolean;
+  isInsertable?: boolean;
+  isUpdatable?: boolean;
+  join?: JoinInfo;
 }
 
 export type JoinType = 'dict' | 'table';

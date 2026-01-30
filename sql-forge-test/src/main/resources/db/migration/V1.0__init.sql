@@ -60,7 +60,7 @@ CREATE TABLE orders
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id    VARCHAR(36) NOT NULL,
     product_id VARCHAR(36) NOT NULL,
-    order_date TIMESTAMP            DEFAULT CURRENT_TIMESTAMP,
+    order_date DATE            DEFAULT CURRENT_DATE,
     quantity   INT         NOT NULL DEFAULT 1,
     create TIMESTAMP,
     update TIMESTAMP
@@ -77,7 +77,7 @@ ON COLUMN orders.product_id IS '产品ID';
 COMMENT
 ON COLUMN orders.quantity IS '订购数量';
 COMMENT
-ON COLUMN orders.order_date IS '订单创建时间';
+ON COLUMN orders.order_date IS '订单日期';
 COMMENT
 ON COLUMN orders.quantity IS '订购数量';
 COMMENT
