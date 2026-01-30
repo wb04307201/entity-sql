@@ -17,7 +17,16 @@ import type {
   TableTypeTable
 } from '../../type.tsx';
 import apiClient from '../../apiClient.tsx';
-import {Col, Form, Modal, Row, Select, Table, type TableProps} from 'antd';
+import {
+  Button,
+  Col,
+  Form,
+  Modal,
+  Row,
+  Select,
+  Table,
+  type TableProps
+} from 'antd';
 import {
   buildSingleTable,
   getIndex,
@@ -28,6 +37,7 @@ import {
 import ColumnRenderMutilCheckBox from '../components/ColumnRenderMutilCheckBox';
 import ColumnRenderJoin from '../components/ColumnRenderJoin';
 import ColumnRenderInput from '../components/ColumnRenderInput';
+import {CalculatorOutlined} from '@ant-design/icons';
 
 const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
   (props, ref) => {
@@ -39,8 +49,17 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
     const [data, setData] = useState<DataType[]>([]);
     const columns: TableProps<DataType>['columns'] = [
       {
-        title: '列名',
-        dataIndex: 'columnName'
+        title: (
+          <>
+            列名
+            <Button
+              shape={'circle'}
+              icon={<CalculatorOutlined />}
+              size="small"
+            />
+          </>
+        ),
+        dataIndex: `columnName`
       },
       {
         title: '类型',
