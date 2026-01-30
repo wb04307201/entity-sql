@@ -79,6 +79,7 @@ export interface TableJoinInfo extends BaseJoinInfo {
   table?: string;
   onColumn?: string;
   selectColumn?: string;
+  extraSelectColumns?:[]
 }
 
 export type JoinInfo = DictJoinInfo | TableJoinInfo | undefined;

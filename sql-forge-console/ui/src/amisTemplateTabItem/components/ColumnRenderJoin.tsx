@@ -236,6 +236,21 @@ const ColumnRenderJoin = (props: {
                   </Form.Item>
                 </Col>
               </Row>
+              <Row>
+                <Col span={24}>
+                  <Form.Item>
+                    <Select
+                      placeholder="请选择额外显示列"
+                      value={joinInfo?.extraSelectColumns}
+                      onChange={value =>
+                        setJoinInfo({...joinInfo, extraSelectColumns: value})
+                      }
+                      options={columnOptions.filter(item => item.value != joinInfo?.selectColumn)}
+                      mode="multiple"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
             </>
           )}
         </Form>
