@@ -17,7 +17,7 @@ import type {
   TableTypeTable
 } from '../../type.tsx';
 import apiClient from '../../apiClient.tsx';
-import {Col, Modal, Row, Select, Table, type TableProps} from 'antd';
+import {Col, Form, Modal, Row, Select, Table, type TableProps} from 'antd';
 import {
   buildMainDetailTable,
   getIndex,
@@ -347,7 +347,7 @@ const MasterDetailTable = forwardRef<
           remarks: column.remarks,
           isPrimaryKey: isPrimaryKey,
           isTableable: !isSysColumn(column.columnName) && !isPrimaryKey,
-          isSearchable:false,
+          isSearchable: false,
           isShowCheck:
             !isSysColumn(column.columnName) &&
             uniqueIndex === column.columnName,
@@ -410,40 +410,60 @@ const MasterDetailTable = forwardRef<
 
   return (
     <>
-      <Row style={{height: '33px'}}>
-        <Col span={24}>
-          <Select
-            placeholder="请选择schema"
-            value={schema}
-            onChange={onSchemaChange}
-            options={schemaOptions}
-          />
-          <Select
-            placeholder="请选择主表"
-            value={mainTable}
-            onChange={onMainTableChange}
-            options={tableOptions}
-          />
-          <Select
-            placeholder="请选择关联主列"
-            value={mainColumn}
-            onChange={onMainTableColumnChange}
-            options={mainColumnOptions}
-          />
-          <Select
-            placeholder="请选择子表"
-            value={detailTable}
-            onChange={onDetailTableChange}
-            options={tableOptions}
-          />
-          <Select
-            placeholder="请选择关联子列"
-            value={detailColumn}
-            onChange={onDetailTableColumnChange}
-            options={detailColumnOptions}
-          />
-        </Col>
-      </Row>
+      <Form>
+        <Row style={{height: '33px'}}>
+          <Col span={4}>
+            <Form.Item>
+              <Select
+                placeholder="请选择schema"
+                value={schema}
+                onChange={onSchemaChange}
+                options={schemaOptions}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={5}>
+            <Form.Item>
+              <Select
+                placeholder="请选择主表"
+                value={mainTable}
+                onChange={onMainTableChange}
+                options={tableOptions}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={5}>
+            <Form.Item>
+              <Select
+                placeholder="请选择关联主列"
+                value={mainColumn}
+                onChange={onMainTableColumnChange}
+                options={mainColumnOptions}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={5}>
+            <Form.Item>
+              <Select
+                placeholder="请选择子表"
+                value={detailTable}
+                onChange={onDetailTableChange}
+                options={tableOptions}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={5}>
+            <Form.Item>
+              <Select
+                placeholder="请选择关联子列"
+                value={detailColumn}
+                onChange={onDetailTableColumnChange}
+                options={detailColumnOptions}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
       <Row style={{height: 'calc(50% - 50px)'}}>
         <Col span={24}>
           <Table

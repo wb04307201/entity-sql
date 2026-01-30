@@ -17,7 +17,7 @@ import type {
   TableTypeTable
 } from '../../type.tsx';
 import apiClient from '../../apiClient.tsx';
-import {Col, Modal, Row, Select, Table, type TableProps} from 'antd';
+import {Col, Form, Modal, Row, Select, Table, type TableProps} from 'antd';
 import {
   buildSingleTable,
   getIndex,
@@ -209,22 +209,30 @@ const SingleTable = forwardRef<AmisTemplateCrudMethods, AmisTemplateCrudProps>(
 
     return (
       <>
-        <Row style={{height: '33px'}}>
-          <Col span={24}>
-            <Select
-              placeholder="请选择schema"
-              value={schema}
-              onChange={onSchemaChange}
-              options={schemaOptions}
-            />
-            <Select
-              placeholder="请选择table"
-              value={table}
-              onChange={onTableChange}
-              options={tableOptions}
-            />
-          </Col>
-        </Row>
+        <Form>
+          <Row style={{height: '33px'}}>
+            <Col span={12}>
+              <Form.Item>
+                <Select
+                  placeholder="请选择schema"
+                  value={schema}
+                  onChange={onSchemaChange}
+                  options={schemaOptions}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item>
+                <Select
+                  placeholder="请选择table"
+                  value={table}
+                  onChange={onTableChange}
+                  options={tableOptions}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
         <Row style={{height: 'calc(100% - 99px)'}}>
           <Col span={24} style={{height: '100%'}}>
             <Table
