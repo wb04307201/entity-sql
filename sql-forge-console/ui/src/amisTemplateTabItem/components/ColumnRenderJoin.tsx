@@ -3,6 +3,7 @@ import {Button, Col, Form, Modal, Row, Select} from 'antd';
 import {
   ColumnInfo,
   type DatabaseInfo,
+  DataType,
   DictJoinInfo,
   JoinInfo,
   type OptionType,
@@ -13,11 +14,20 @@ import {
 } from '../../type';
 import {SettingOutlined} from '@ant-design/icons';
 import apiClient from '../../apiClient';
-import {SYS_DICT, DICT_CODE, DICT_NAME} from '../utils/CrudBuild';
+import {
+  SYS_DICT,
+  DICT_CODE,
+  DICT_NAME,
+  generateRandomAlias,
+  isSysColumn,
+  isNumberJavaSqlType
+} from '../utils/CrudBuild';
+import {v4 as uuidv4} from 'uuid';
+import {getColumn, getTable} from '../../utils/database';
 
 const ColumnRenderJoin = (props: {
   value: JoinInfo;
-  index: number;
+  row: DataType;
   data: any[];
   setData: (data: any[]) => void;
 }) => {
@@ -122,6 +132,80 @@ const ColumnRenderJoin = (props: {
     }
   };
 
+  const gettableName = (joinInfo: JoinInfo): string => {
+    if (joinInfo?.joinType === 'dict') {
+      return generateRandomAlias(joinInfo?.dict);
+    } else if (joinInfo?.joinType === 'table') {
+      return generateRandomAlias(joinInfo?.table);
+    }
+  };
+
+  const onOk = () => {
+    if (
+      (joinInfo?.joinType === 'dict' && joinInfo.dict) ||
+      (joinInfo?.joinType === 'table' &&
+        joinInfo.table &&
+        joinInfo.onColumn &&
+        joinInfo.selectColumn)
+    ) {
+      let newData = [...props.data];
+      const originJoin = props.row.join;
+      if (originJoin?.joinType === 'table') {
+        newData = newData.filter(item => item.tableName !== originJoin.alias);
+      }
+      const newInfoInfo = {
+        ...joinInfo,
+        alias: gettableName(joinInfo)
+      };
+      const index = newData.findIndex(item => item.key === props.row.key);
+      newData[index].join = newInfoInfo;
+      if (
+        newInfoInfo?.joinType === 'table' &&
+        newInfoInfo.extraSelectColumns &&
+        newInfoInfo.extraSelectColumns.length > 0
+      ) {
+        const tableColumn: TableColumn | undefined = getTable(
+          database,
+          newInfoInfo.schema,
+          newInfoInfo.table
+        );
+        newInfoInfo.extraSelectColumns.forEach(item => {
+          const column = getColumn(
+            database,
+            newInfoInfo.schema,
+            newInfoInfo.table,
+            item
+          );
+          newData.push({
+            columnName: item,
+            dataType: column?.dataType,
+            javaSqlType: column?.javaSqlType,
+            typeName: column?.typeName,
+            columnSize: column?.columnSize,
+            decimalDigits: column?.decimalDigits,
+            remarks: column?.remarks,
+            key: uuidv4(),
+            tableName: newInfoInfo.alias,
+            columnType: 'join',
+            primary: false,
+            table: true,
+            table_hidden: false,
+            search: false,
+            check: false,
+            add: true,
+            add_hidden: false,
+            add_disabled: true,
+            edit: true,
+            edit_hidden: false,
+            edit_disabled: true
+          });
+        });
+      }
+      props.setData(newData);
+      setShow(false);
+    }
+  };
+
   return (
     <div style={{display: 'flex'}}>
       <Button
@@ -137,16 +221,11 @@ const ColumnRenderJoin = (props: {
         title="关联信息"
         open={show}
         onCancel={() => setShow(false)}
-        onOk={() => {
-          const newData = [...props.data];
-          newData[props.index].join = {...joinInfo};
-          props.setData(newData);
-          setShow(false);
-        }}
+        onOk={onOk}
       >
         <Form>
           <Row>
-            <Col span={12}>
+            <Col span={24}>
               <Form.Item>
                 <Select
                   value={joinInfo?.joinType}
@@ -172,7 +251,7 @@ const ColumnRenderJoin = (props: {
           </Row>
           {joinInfo?.joinType === 'dict' && (
             <Row>
-              <Col span={12}>
+              <Col span={24}>
                 <Form.Item>
                   <Select
                     placeholder="请选择字典"
@@ -245,7 +324,9 @@ const ColumnRenderJoin = (props: {
                       onChange={value =>
                         setJoinInfo({...joinInfo, extraSelectColumns: value})
                       }
-                      options={columnOptions.filter(item => item.value != joinInfo?.selectColumn)}
+                      options={columnOptions.filter(
+                        item => item.value != joinInfo?.selectColumn
+                      )}
                       mode="multiple"
                     />
                   </Form.Item>
